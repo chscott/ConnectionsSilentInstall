@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<agent-input>
+
+  <server>
+  	<repository location='file:/home/ibmuser/staging/INSTALL_WAS/' temporary='true'/>
+    	<repository location='file:/home/ibmuser/staging/INSTALL_WAS_SUPPL/' temporary='true'/>
+    	<repository location='file:/home/ibmuser/staging/INSTALL_WAS_FP/' temporary='true'/>
+    	<repository location='file:/home/ibmuser/staging/INSTALL_WAS_SUPPL_FP/' temporary='true'/>
+    	<repository location='file:/home/ibmuser/staging/INSTALL_WAS_WCT_FP/' temporary='true'/>
+  </server>
+
+  <preference name='com.ibm.cic.common.core.preferences.eclipseCache' value='/opt/IBM/IMShared'/>
+
+  <!-- WAS -->
+  <profile id='IBM WebSphere Application Server V8.5' installLocation='/opt/IBM/WebSphere/AppServer'/>
+  <uninstall>
+  	<offering profile='IBM WebSphere Application Server V8.5' 
+	id='com.ibm.websphere.ND.v85' 
+     	version='8.5.5010.20160721_0036' 
+	features='core.feature,ejbdeploy,thinclient,embeddablecontainer,com.ibm.sdk.6_64bit'/>
+  </uninstall>
+
+  <!-- IHS -->
+  <profile id='IBM HTTP Server V8.5' installLocation='/opt/IBM/HTTPServer'>
+  	<data key='user.ihs.httpPort' value='80'/>
+  </profile>
+  <uninstall>
+  	<offering profile='IBM HTTP Server V8.5' 
+     	id='com.ibm.websphere.IHS.v85' 
+     	version='8.5.5010.20160721_0036' 
+     	features='core.feature,arch.64bit'/>
+  </uninstall>
+
+  <!-- Plug-ins -->
+  <profile id='Web Server Plug-ins for IBM WebSphere Application Server V8.5' installLocation='/opt/IBM/WebSphere/Plugins'/>
+  <uninstall>
+  	<offering profile='Web Server Plug-ins for IBM WebSphere Application Server V8.5' 
+	id='com.ibm.websphere.PLG.v85' 
+	version='8.5.5010.20160721_0036' 
+	features='core.feature,com.ibm.jre.6_64bit'/>
+  </uninstall>
+
+  <!-- WCT -->
+  <profile id='WebSphere Customization Toolbox V8.5' installLocation='/opt/IBM/WebSphere/Toolbox'/>
+  <uninstall>
+  	<offering profile='WebSphere Customization Toolbox V8.5' 
+	id='com.ibm.websphere.WCT.v85' 
+	version='8.5.5010.20160721_0036' 
+	features='core.feature,pct'/>
+  </uninstall>
+
+</agent-input>
