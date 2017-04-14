@@ -1,23 +1,20 @@
 #!/bin/bash
 
+# Source prereq scripts
 . src/utils.sh
-
-# Directories
-db2StagingDir="db2"
-db2StagingSubDir="server_t"
-db2InstallDir="/opt/ibm/db2"
+. src/vars.sh
 
 # Logs
 db2PrereqReport="${stagingDir}/${db2StagingDir}/db2prereqs.rpt"
 db2SAMPrereqReport="${stagingDir}/${db2StagingDir}/db2SAMprereqs.rpt"
-db2InstallLog="${stagingDir}/${db2StagingDir}/db2setup.log"
-db2TraceLog="${stagingDir}/${db2StagingDir}/db2setup.trc"
+db2InstallLog="${stagingDir}/${db2StagingDir}/db2_install.log"
+db2InstallTrace="${stagingDir}/${db2StagingDir}/db2_install.trc"
 db2ValidationLog="${stagingDir}/${db2StagingDir}/db2val.log"
 
 # Commands
 db2Prereq="${db2StagingSubDir}/db2prereqcheck -i -v 11.1.1.1 -o ${db2PrereqReport}"
 db2SAMPrereq="${db2StagingSubDir}/db2/linuxamd64/tsamp/prereqSAM -l ${db2SAMPrereqReport}"
-db2Setup="${db2StagingSubDir}/db2setup -l ${db2InstallLog} -t ${db2TraceLog} -r"
+db2Setup="${db2StagingSubDir}/db2setup -l ${db2InstallLog} -t ${db2InstallTrace} -r"
 db2Licm="${db2InstallDir}/adm/db2licm"
 db2Val="${db2InstallDir}/bin/db2val"
 db2InstallResponseFile="db2_install.rsp"
@@ -29,21 +26,9 @@ db2PrereqSuccess="DBT3533I"
 db2FilesValidated="DBI1335I"
 db2InstanceValidated="DBI1339I"
 
-# FTP
-ftpServer="cs-ftp.swg.usma.ibm.com"
-db2InstallPackage="v11.1.1fp1_linuxx64_server_t.tar.gz"
-db2LicensePackage="DB2_AESE_AUSI_Activation_11.1.zip"
-
-# Users and groups
-db2InstanceGroup="db2iadm1"
-db2FencedGroup="db2fsdm1"
-db2DASGroup="dasadm1"
-db2InstanceUser="db2inst1"
-db2FencedUser="db2fenc1"
-db2DASUser="dasusr1"
-
 testForRoot
 
+# Clean up from prior run of install script
 ${rm} -f -r ${stagingDir}/${db2StagingDir}
 checkStatus ${?} "ERROR: Unable to remove ${stagingDir}/${db2StagingDir}. Exiting."
 ${mkdir} ${stagingDir}/${db2StagingDir}
@@ -80,22 +65,22 @@ log "All prerequisites are in place. Continuing..."
 # Add required groups
 log "Creating DB2 groups..."
 ${sysgroupadd} ${db2InstanceGroup} >/dev/null 2>&1
-checkUserGroupStatus ${?} "Unable to create" ${db2InstanceGroup}
+checkUserGroupStatus ${?} "Unable to create" ${db2InstanceGroup} "ADD"
 ${sysgroupadd} ${db2FencedGroup} >/dev/null 2>&1
-checkUserGroupStatus ${?} "Unable to create" ${db2FencedGroup}
+checkUserGroupStatus ${?} "Unable to create" ${db2FencedGroup} "ADD"
 ${sysgroupadd} ${db2DASGroup} >/dev/null 2>&1
-checkUserGroupStatus ${?} "Unable to create" ${db2DASGroup}
+checkUserGroupStatus ${?} "Unable to create" ${db2DASGroup} "ADD"
 
 # Add required users
 log "Creating DB2 users..."
 ${sysuseradd} -g ${db2InstanceGroup} ${db2InstanceUser} >/dev/null 2>&1
-checkUserGroupStatus ${?} "Unable to create" ${db2InstanceUser}
+checkUserGroupStatus ${?} "Unable to create" ${db2InstanceUser} "ADD"
 ${echo} "${db2InstanceUser}:${defaultPwd}" | ${chpasswd} >/dev/null 2>&1
 ${sysuseradd} -g ${db2FencedGroup} ${db2FencedUser} >/dev/null 2>&1
-checkUserGroupStatus ${?} "Unable to create" ${db2FencedUser}
+checkUserGroupStatus ${?} "Unable to create" ${db2FencedUser} "ADD"
 ${echo} "${db2FencedUser}:${defaultPwd}" | ${chpasswd} >/dev/null 2>&1
 ${sysuseradd} -g ${db2DASGroup} ${db2DASUser} >/dev/null 2>&1
-checkUserGroupStatus ${?} "Unable to create" ${db2DASUser}
+checkUserGroupStatus ${?} "Unable to create" ${db2DASUser} "ADD"
 ${echo} "${db2DASUser}:${defaultPwd}" | ${chpasswd} >/dev/null 2>&1
 
 # Increase open file limit for instance owner group
@@ -118,7 +103,7 @@ ${printf} "FILE = ${db2InstallDir}\n" >> ${db2InstallResponseFile}
 ${printf} "LIC_AGREEMENT = ACCEPT\n" >> ${db2InstallResponseFile}
 ${printf} "INSTALL_TYPE = TYPICAL\n" >> ${db2InstallResponseFile}
 ${printf} "INSTANCE = DB2_INST\n" >> ${db2InstallResponseFile}
-${printf} "DB2_INST.NAME = ${db2InstanceUser}\n" >> ${db2InstallResponseFile}
+${printf} "DB2_INST.NAME = ${db2InstanceName}\n" >> ${db2InstallResponseFile}
 ${printf} "DB2_INST.GROUP_NAME = ${db2InstanceGroup}\n" >> ${db2InstallResponseFile}
 ${printf} "DB2_INST.HOME_DIRECTORY = /home/${db2InstanceUser}\n" >> ${db2InstallResponseFile}
 ${printf} "DB2_INST.PASSWORD = ${defaultPwd}\n" >> ${db2InstallResponseFile}
@@ -130,7 +115,7 @@ ${printf} "DB2_INST.FENCED_GROUP_NAME = ${db2FencedGroup}\n" >> ${db2InstallResp
 # Install DB2
 log "Installing DB2..."
 ${db2Setup} ${db2InstallResponseFile} >/dev/null 2>&1
-checkStatus ${?} "ERROR: DB2 installation failed. Review ${db2InstallLog} and ${db2TraceLog} for details."
+checkStatus ${?} "ERROR: DB2 installation failed. Review ${db2InstallLog} and ${db2InstallTrace} for details."
 
 # Validate the install
 log "Validating the DB2 install..."

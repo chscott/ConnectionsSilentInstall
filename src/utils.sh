@@ -10,6 +10,8 @@ unzip="/usr/bin/unzip"
 grep="/usr/bin/grep"
 sysgroupadd="/sbin/groupadd -r"
 sysuseradd="/sbin/useradd -r -m"
+groupdel="/sbin/groupdel"
+userdel="/sbin/userdel"
 chpasswd="/sbin/chpasswd"
 echo="/usr/bin/echo"
 printf="/usr/bin/printf"
@@ -20,6 +22,7 @@ pamSshdFile="/etc/pam.d/sshd"
 pamSuFile="/etc/pam.d/su"
 pamSudoFile="/etc/pam.d/sudo"
 pamLimits="session\trequired\tpam_limits.so\n"
+su="/usr/bin/su"
 
 function testForRoot() {
 	if [ "${EUID}" -ne 0 ]; then
@@ -31,7 +34,8 @@ function testForRoot() {
 }
 
 function log() {
-	printf "${1}\n" >&2
+    local now=$(date '+%F %T')
+	printf "${now}\t${1}\n" >&2
 }
 
 function checkStatus() {
@@ -42,16 +46,30 @@ function checkStatus() {
 	fi
 }
 
+# $1: Exit code from user/group management command
+# $2: Log message
+# $3: User or group name
+# $4: ADD | DELETE 
 function checkUserGroupStatus() {
-	if [ $1 -ne 0 ]; then
-		if [ $1 -eq 9 ]; then
-			log "$3 already exists. Continuing..."	
-		else
-			log "$2 $3"
-			log "Exit status: $1"
-			exit 1
-		fi
-	fi
+    if [ $4 == "ADD" ]; then
+        if [ $1 -ne 0 ]; then
+            # Non-fatal error
+            if [ $1 -eq 9 ]; then
+                log "$3 already exists. Continuing..."	
+            # Fatal
+            else
+                log "$2 $3"
+                log "Exit status: $1"
+                exit 1
+            fi
+        fi
+    elif [ $4 == "DELETE" ]; then
+        # Non-fatal error
+        if [ $1 -ne 0 ]; then
+            log "$2 $3"
+            log "Exit status: $1"
+        fi
+    fi
 }
 
 function updatePamFiles() {
