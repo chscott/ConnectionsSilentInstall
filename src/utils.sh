@@ -23,6 +23,11 @@ pamSuFile="/etc/pam.d/su"
 pamSudoFile="/etc/pam.d/sudo"
 pamLimits="session\trequired\tpam_limits.so\n"
 su="/usr/bin/su"
+awk="/usr/bin/awk"
+sort="/usr/bin/sort"
+tail="/usr/bin/tail"
+cp="/usr/bin/cp"
+sed="/usr/bin/sed"
 
 function testForRoot() {
 	if [ "${EUID}" -ne 0 ]; then
@@ -69,6 +74,15 @@ function checkUserGroupStatus() {
             log "$2 $3"
             log "Exit status: $1"
         fi
+    fi
+}
+
+# Test if the supplied directory exists
+function isInstalled() {
+    if [ ! -d $1 ]; then
+        echo 1
+    else
+        echo 0
     fi
 }
 

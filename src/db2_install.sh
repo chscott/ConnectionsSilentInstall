@@ -4,6 +4,8 @@
 . src/utils.sh
 . src/vars.sh
 
+testForRoot
+
 # Logs
 db2PrereqReport="${stagingDir}/${db2StagingDir}/db2prereqs.rpt"
 db2SAMPrereqReport="${stagingDir}/${db2StagingDir}/db2SAMprereqs.rpt"
@@ -26,23 +28,21 @@ db2PrereqSuccess="DBT3533I"
 db2FilesValidated="DBI1335I"
 db2InstanceValidated="DBI1339I"
 
-testForRoot
-
 # Clean up from prior run of install script
-${rm} -f -r ${stagingDir}/${db2StagingDir}
+${rm} -f -r ${stagingDir}/${db2StagingDir} >/dev/null 2>&1
 checkStatus ${?} "ERROR: Unable to remove ${stagingDir}/${db2StagingDir}. Exiting."
-${mkdir} ${stagingDir}/${db2StagingDir}
+${mkdir} ${stagingDir}/${db2StagingDir} >/dev/null 2>&1
 checkStatus ${?} "ERROR: Unable to create ${stagingDir}/${db2StagingDir}. Exiting."
 cd ${stagingDir}/${db2StagingDir}
 
 # Download the DB2 installation file
 log "Downloading ${db2InstallPackage} from ${ftpServer}..."
-${curl} ftp://${ftpServer}/${db2StagingDir}/${db2InstallPackage}
+${curl} ftp://${ftpServer}/${db2StagingDir}/${db2InstallPackage} >/dev/null 2>&1
 checkStatus ${?} "ERROR: Download failed. Exiting."
 
 # Download the DB2 license file
 log "Downloading ${db2LicensePackage} from ${ftpServer}..."
-${curl} ftp://${ftpServer}/${db2StagingDir}/${db2LicensePackage}
+${curl} ftp://${ftpServer}/${db2StagingDir}/${db2LicensePackage} >/dev/null 2>&1
 checkStatus ${?} "ERROR: Download failed. Exiting."
 
 # Unpack the downloaded files

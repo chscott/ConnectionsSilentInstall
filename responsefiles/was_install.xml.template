@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<agent-input>
+
+    <server>
+        <repository location=WAS_BASE temporary='true'/>
+        <repository location=WAS_SUPPL_BASE temporary='true'/>
+        <repository location=WAS_FP temporary='true'/>
+        <repository location=WAS_SUPPL_FP temporary='true'/>
+        <repository location=WAS_WCT_FP temporary='true'/>
+    </server>
+
+    <preference name='com.ibm.cic.common.core.preferences.eclipseCache' value=IM_SHARED/>
+
+    <!-- WAS -->
+    <profile id='IBM WebSphere Application Server' installLocation=WAS_INSTALL_DIR/>
+    <install>
+        <offering 
+            profile='IBM WebSphere Application Server' 
+            id=WAS_ID
+            version=WAS_VERSION
+            features='core.feature,ejbdeploy,thinclient,embeddablecontainer,com.ibm.sdk.6_64bit'/>
+    </install>
+
+    <!-- IHS -->
+    <profile id='IBM HTTP Server' installLocation=IHS_INSTALL_DIR/>
+        <data key='user.ihs.httpPort' value='80'/>
+    </profile>
+    <install>
+        <offering
+            profile='IBM HTTP Server' 
+            id=IHS_ID
+            version=IHS_VERSION
+            features='core.feature,arch.64bit'/>
+    </install>
+
+    <!-- Plug-ins -->
+    <profile id='Web Server Plug-ins for IBM WebSphere Application Server' installLocation=PLUGINS_INSTALL_DIR/>
+    <install>
+        <offering
+            profile='Web Server Plug-ins for IBM WebSphere Application Server' 
+            id=PLUGINS_ID 
+            version=PLUGINS_VERSION 
+            features='core.feature,com.ibm.jre.6_64bit'/>
+    </install>
+
+    <!-- WCT -->
+    <profile id='WebSphere Customization Toolbox' installLocation=WCT_INSTALL_DIR/>
+    <install>
+        <offering
+            profile='WebSphere Customization Toolbox' 
+            id=WCT_ID 
+            version=WCT_VERSION 
+            features='core.feature,pct'/>
+    </install>
+
+</agent-input>

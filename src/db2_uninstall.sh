@@ -4,6 +4,8 @@
 . src/utils.sh
 . src/vars.sh
 
+testForRoot
+
 # Logs
 db2UninstallLog="${stagingDir}/${db2StagingDir}/db2_uninstall.log"
 db2UninstallTrace="${stagingDir}/${db2StagingDir}/db2_uninstall.trc"
@@ -16,8 +18,14 @@ db2Uninstall="${db2StagingSubDir}/db2_deinstall -b ${db2InstallDir} -l ${db2Unin
 # Response file
 db2UninstallResponseFile="${stagingDir}/responsefiles/db2_uninstall.rsp"
 
-testForRoot
+# First see if DB2 is even installed
+result=$(isInstalled ${db2InstallDir})
+if [ ${result} == 1 ]; then
+    log "DB2 does not appear to be installed. Exiting."
+    exit 1
+fi
 
+# Proceed with the uninstall
 cd ${stagingDir}/${db2StagingDir}
 
 # Stop DB2
