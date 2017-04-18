@@ -22,7 +22,7 @@
     </install>
 
     <!-- IHS -->
-    <profile id='IBM HTTP Server' installLocation=IHS_INSTALL_DIR/>
+    <profile id='IBM HTTP Server' installLocation=IHS_INSTALL_DIR>
         <data key='user.ihs.httpPort' value='80'/>
     </profile>
     <install>
