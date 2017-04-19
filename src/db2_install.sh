@@ -21,6 +21,9 @@ db2Val="${db2InstallDir}/bin/db2val"
 db2InstallResponseFile="db2_install.rsp"
 db2LicenseFile="aese_u/db2/license/db2aese_u.lic"
 db2Level="${db2InstallDir}/bin/db2level"
+db2SetCodepage="/home/${db2InstanceUser}/sqllib/adm/db2set DB2CODEPAGE=1208"
+db2Start="/home/${db2InstanceUser}/sqllib/adm/db2start"
+db2Stop="/home/${db2InstanceUser}/sqllib/adm/db2stop"
 
 # Status codes
 db2PrereqSuccess="DBT3533I"
@@ -86,6 +89,7 @@ checkUserGroupStatus ${?} "Unable to create" ${db2DASUser} "ADD"
 ${echo} "${db2DASUser}:${defaultPwd}" | ${chpasswd} >>${scriptLog} 2>&1
 
 # Increase open file limit for instance owner group
+log "Setting open file limits for ${db2InstanceGroup} in ${limitsFile}..."
 ${grep} ${db2InstanceGroup} ${limitsFile} >>${scriptLog} 2>&1
 status=${?}
 if [ ${status} -ne 0 ]; then
@@ -96,6 +100,7 @@ else
 fi 
 
 # Update the pam.d files
+log "Updating /etc/pam.d files..."
 updatePamFiles
 
 # Build the silent install file
@@ -131,6 +136,15 @@ checkStatus ${?} "ERROR: DB2 validation failed. Review ${db2ValidationLog} for d
 log "Applying DB2 license..."
 ${db2Licm} -a ${db2LicenseFile} >>${scriptLog} 2>&1
 checkStatus ${?} "ERROR: DB2 license installation failed."
+
+# Enable Unicode
+log "Enabling Unicode codepage..."
+${su} - ${db2InstanceUser} -c "${db2SetCodepage} >/dev/null 2>&1"; status=${?} >>${scriptLog} 2>&1
+checkStatus ${status} "WARNING: Unable to set DB2 codepage. Manual configuration required." 
+${su} - ${db2InstanceUser} -c "${db2Stop} >/dev/null 2>&1"; status=${?} >>${scriptLog} 2>&1
+checkStatus ${status} "WARNING: Unable to stop DB2 after setting codepage. Manual restart required." 
+${su} - ${db2InstanceUser} -c "${db2Start} >/dev/null 2>&1"; status=${?} >>${scriptLog} 2>&1
+checkStatus ${status} "WARNING: Unable to start DB2 after setting codepage. Manual restart required." 
 
 # Print the results
 log "SUCCESS! DB2 has been installed. Printing db2level info...\n"

@@ -15,12 +15,6 @@ wasFixPackRepo=${stagingDir}/${wasStagingDir}/${wasFixPackStagingDir}
 wasFixPackSupplRepo=${stagingDir}/${wasStagingDir}/${wasFixPackSupplStagingDir}
 wasFixPackWCTRepo=${stagingDir}/${wasStagingDir}/${wasFixPackWCTStagingDir}
 
-# Install directories
-wasInstallDir="${websphereInstallDir}/was"
-ihsInstallDir="${websphereInstallDir}/ihs"
-pluginsInstallDir="${websphereInstallDir}/plugins"
-wctInstallDir="${websphereInstallDir}/toolbox"
-
 # Commands
 listAvailablePackages="${iimInstallDir}/eclipse/tools/imcl listAvailablePackages -repositories"
 installPackages="${iimInstallDir}/eclipse/tools/imcl -log ${wasInstallLog} -acceptLicense input"
@@ -177,12 +171,12 @@ ${ldconfig}
 
 # Print the results
 log "SUCCESS! All WebSphere packages were installed. Printing version info..."
-log "\nWebSphere Application Server version:\n"
+log "WebSphere Application Server version:\n"
 ${getWasVersion}
-log "\nWebSphere Plugins version:\n"
+log "WebSphere Plugins version:\n"
 ${getPluginsVersion}
-log "\nWebSphere Toolbox version:\n"
+log "WebSphere Toolbox version:\n"
 ${getWctVersion}
-log "\nIBM HTTP Server version:\n"
+log "IBM HTTP Server version:\n"
 ${getIhsVersion}
 log "\n"

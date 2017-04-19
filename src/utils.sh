@@ -65,8 +65,6 @@ function isInstalled() {
 # sudo
 function updatePamFiles() {
 	
-	log "Updating ${pamSshdFile}, ${pamSuFile}, and ${pamSudoFile} to include pam_limits.so..."
-
 	# /etc/pam.d/sshd
 	${grep} "pam_limits.so" ${pamSshdFile} >/dev/null 2>&1
 	status=${?}

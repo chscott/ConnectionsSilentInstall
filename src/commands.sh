@@ -1,6 +1,5 @@
 stagingDir=$(pwd)
 defaultPwd="password"
-logFile="install.log"
 mkdir="/usr/bin/mkdir"
 rm="/usr/bin/rm"
 cd="/usr/bin/cd"
