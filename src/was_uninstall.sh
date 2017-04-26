@@ -63,4 +63,4 @@ log "Removing WebSphere data directory..."
 ${rm} -f -r ${websphereDataDir}
 
 # Print the results
-log "SUCCESS! WebSphere was uninstalled."
+log "SUCCESS! WebSphere has been uninstalled."

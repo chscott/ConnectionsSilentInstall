@@ -18,17 +18,24 @@ log "Resetting script log ${scriptLog}..."
 > ${scriptLog}
 ${chmod} a+rw ${scriptLog}
 
+# Assume it is OK to uninstall IIM. Failure to uninstall WAS will
+# cause this to be set to false
+okToUninstallIim="true"
+
 if [ ${installWas} == "true" ]; then
     ${sudo} ${unInstallWasScript} 
-    checkStatus ${?} "ERROR: Unable to uninstall WebSphere components. Please review ${scriptLog}, correct problem, and try again."
+    result=${?}
+    # Don't try to uninstall IIM if WAS uninstall failed
+    if [ ${result} -ne 0 ]; then
+        log "WARNING: WAS uninstall failed. Will not attempt to uninstall IIM."
+        okToUninstallIim="false"    
+    fi
 fi
 
-if [ ${installIim} == "true" ]; then
+if [ ${installIim} == "true" -a ${okToUninstallIim} == "true" ]; then
     ${sudo} ${unInstallIimScript} 
-    checkStatus ${?} "ERROR: Unable to uninstall IIM. Please review ${scriptLog}, correct problem, and try again."
 fi
 
 if [ ${installDb2} == "true" ]; then
     ${sudo} ${unInstallDb2Script} 
-    checkStatus ${?} "ERROR: Unable to uninstall DB2 Please review ${scriptLog}, correct problem, and try again."
 fi
