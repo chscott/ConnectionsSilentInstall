@@ -19,13 +19,16 @@ log "Resetting script log ${scriptLog}..."
 ${chmod} a+rw ${scriptLog}
 
 if [ ${installWas} == "true" ]; then
-   ${sudo} ${unInstallWasScript} 
+    ${sudo} ${unInstallWasScript} 
+    checkStatus ${?} "ERROR: Unable to uninstall WebSphere components. Please review ${scriptLog}, correct problem, and try again."
 fi
 
 if [ ${installIim} == "true" ]; then
-   ${sudo} ${unInstallIimScript} 
+    ${sudo} ${unInstallIimScript} 
+    checkStatus ${?} "ERROR: Unable to uninstall IIM. Please review ${scriptLog}, correct problem, and try again."
 fi
 
 if [ ${installDb2} == "true" ]; then
-   ${sudo} ${unInstallDb2Script} 
+    ${sudo} ${unInstallDb2Script} 
+    checkStatus ${?} "ERROR: Unable to uninstall DB2 Please review ${scriptLog}, correct problem, and try again."
 fi

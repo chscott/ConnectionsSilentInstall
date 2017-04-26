@@ -16,17 +16,21 @@ stopManager="${dmgrProfilePath}/bin/stopManager.sh"
 # Make sure script is running as root
 checkForRoot
 
-# Stop all WAS processes
+# Terminate all WAS processes. This is a best effort, as there's no guarantee the process
+# is even running when the uninstall is performed.
 log "Checking to see if there are any WAS profiles..."
 result=$(isInstalled ${wasDataDir})
 if [ ${result} -eq 0 ]; then
-    log "Stopping Deployment Manager..."
-    ${stopManager} "-user" "${dmgrAdminUser}" "-password" "${defaultPwd}" >>${scriptLog} 2>&1
-    checkStatus ${?} "ERROR: Failed to stop Deployment Manager process. Exiting."
-    # Remove data directory
-    log "Removing WebSphere data directory..."
-    ${rm} -f -r ${websphereDataDir}
-    checkStatus ${?} "ERROR: Failed to remove ${websphereDataDir}. Manual cleanup required."
+    # DMGR
+    log "Terminating Deployment Manager..."
+    dmgrPid=$(${cat} ${dmgrProfilePath}/logs/dmgr/dmgr.pid 2>/dev/null)
+    ${kill} -9 ${dmgrPid} >>${scriptLog} 2>&1
+    # Other WAS processes here
+    # Remove WAS data directory
+    log "Removing WAS data directory..."
+    ${rm} -f -r ${wasDataDir}
+else
+    log "No WAS profiles found. Continuing..."
 fi
 
 # See if WAS appears to be installed
@@ -53,7 +57,10 @@ checkStatus ${?} "ERROR: Failed to uninstall all WebSphere packages. Review ${wa
 # Remove install directory
 log "Removing WebSphere installation directory..."
 ${rm} -f -r ${websphereInstallDir}
-checkStatus ${?} "ERROR: Failed to remove ${websphereInstallDir}. Manual cleanup required."
+
+# Remove data directory
+log "Removing WebSphere data directory..."
+${rm} -f -r ${websphereDataDir}
 
 # Print the results
-log "SUCCESS! All WebSphere packages were uninstalled."
+log "SUCCESS! WebSphere was uninstalled."
