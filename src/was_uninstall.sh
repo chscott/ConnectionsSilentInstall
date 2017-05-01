@@ -5,16 +5,14 @@
 . src/utils.sh
 . src/vars.sh
 
-# Logs
-wasUninstallLog="${stagingDir}/${wasStagingDir}/was_uninstall.log"
-
-# Commands
+# Local variables
+wasUninstallLog="${logDir}/was_uninstall.log"
 listInstalledPackages="${iimInstallDir}/eclipse/tools/imcl listInstalledPackages"
 uninstallPackages="${iimInstallDir}/eclipse/tools/imcl -log ${wasUninstallLog} uninstall"
 stopManager="${dmgrProfilePath}/bin/stopManager.sh"
 
-# Make sure script is running as root
-checkForRoot
+# Do initialization stuff
+init was uninstall
 
 # Terminate all WAS processes. This is a best effort, as there's no guarantee the process
 # is even running when the uninstall is performed.

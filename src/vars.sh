@@ -12,20 +12,6 @@
 
 # Any installed components that require a password will be given this one
 defaultPwd="password"
-# Set true to install DB2 or false to skip it
-installDb2="true"
-# Set true to install IIM or false to skip it
-installIim="true"
-# Set true to install WAS or false to skip it
-installWas="true"
-# Set true to install IHS or false to skip it
-installIhs="true"
-# Set true to install Plugins or false to skip it
-installPlugins="true"
-# Set true to install WCT or false to skip it
-installWct="true"
-# Set true to use FTP to download install files or false if files are local 
-useFtp="true"
 # Host name of FTP server used to download install files
 ftpServer="cs-ftp.swg.usma.ibm.com"
 # DB2 installation package
@@ -53,6 +39,10 @@ wasFixPackSupplPackage_2="8.5.5-WS-WASSupplements-FP0000010-part2.zip"
 # WebSphere toolbox fix pack install packages
 wasFixPackWCTPackage_1="8.5.5-WS-WCT-FP0000010-part1.zip"
 wasFixPackWCTPackage_2="8.5.5-WS-WCT-FP0000010-part2.zip"
+# TDI install package
+tdiBasePackage="TDI_IDENTITY_E_V7.1.1_LIN-X86-64.tar"
+# TDI fix pack install package
+tdiFixPackPackage="7.1.1-TIV-TDI-FP0006.zip"
 # LDAP type for Deployment Manager
 # See -ldapServerType option in createIdMgrLDAPRepository WAS help doc for
 # available options. Examples: AD, IDS, DOMINO, SUNONE.
@@ -80,8 +70,26 @@ loginProperties="uid;mail"
 
 # Do not change this unless you understand exactly why you are doing so
 stagingDir=$(pwd)
+# Set true to install DB2 or false to skip it
+installDb2="true"
+# Set true to install IIM or false to skip it
+installIim="true"
+# Set true to install WAS or false to skip it
+installWas="true"
+# Set true to install IHS or false to skip it
+installIhs="true"
+# Set true to install Plugins or false to skip it
+installPlg="true"
+# Set true to install WCT or false to skip it
+installWct="true"
+# Set true to install TDI or false to skip it
+installTdi="true"
+# Set true to use FTP to download install files or false if files are local 
+useFtp="true"
+# Directory for all log files
+logDir="${stagingDir}/logs"
 # Log file for the script's stdout and stderr
-scriptLog="${stagingDir}/script.log"                                            
+scriptLog="${logDir}/script.log"                                            
 # Install root for installed components
 optIbmRoot="/opt/IBM"
 # Data root for installed components
@@ -137,7 +145,7 @@ wasDataDir="${websphereDataDir}/was"
 # IHS install subdirectory
 ihsInstallDir="${websphereInstallDir}/ihs"
 # Plugins install subdirectory
-pluginsInstallDir="${websphereInstallDir}/plugins"
+plgInstallDir="${websphereInstallDir}/plugins"
 # Toolbox install subdirectory
 wctInstallDir="${websphereInstallDir}/toolbox"
 # Profile name for Deployment Manager
@@ -154,4 +162,8 @@ dmgrServerName="dmgr"
 dmgrAdminUser="wasadmin"
 # WAS realm name
 realmName="defaultWIMFileBasedRealm"
+# TDI install staging directory
+tdiStagingDir="tdi"
+# Location where TDI will be installed
+tdiInstallDir="/opt/IBM/tdi"
 ###############################################################################

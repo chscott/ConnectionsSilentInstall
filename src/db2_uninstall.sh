@@ -5,44 +5,40 @@
 . src/utils.sh
 . src/vars.sh
 
-# Logs
-db2UninstallLog="${stagingDir}/${db2StagingDir}/db2_uninstall.log"
-db2UninstallTrace="${stagingDir}/${db2StagingDir}/db2_uninstall.trc"
-
-# Directories
+# Local variables
+db2UninstallLog="${logDir}/db2_uninstall.log"
+db2UninstallTrace="${logDir}/db2_uninstall.trc"
 db2DataDir="/var/db2"
 rsctInstallDir="/opt/rsct"
-
-# Commands
+tsampInstallDir="/opt/ibm/tsamp"
 db2Stop="/home/${db2InstanceUser}/sqllib/adm/db2stop"
 db2Idrop="${db2InstallDir}/instance/db2idrop"
-db2Uninstall="${db2StagingSubDir}/db2_deinstall -b ${db2InstallDir} -l ${db2UninstallLog} -t ${db2UninstallTrace} -r"
-
-# Response file
+db2Uninstall="${db2InstallDir}/install/db2_deinstall -l ${db2UninstallLog} -t ${db2UninstallTrace} -r"
 db2UninstallResponseFile="${stagingDir}/responsefiles/db2_uninstall.rsp"
 
-# Make sure script is running as root
-checkForRoot
+# Do initialization stuff
+init db2 uninstall
 
 # First see if DB2 is even installed
 result=$(isInstalled ${db2InstallDir})
-if [ ${result} == 1 ]; then
-    log "WARNING: DB2 does not appear to be installed. Exiting."
+if [ ${result} -eq  1 ]; then
+    log "ERROR: DB2 does not appear to be installed. Exiting."
     exit 1
 fi
 
-# Proceed with the uninstall
-cd ${stagingDir}/${db2StagingDir}
-
 # Stop DB2
 log "Stopping DB2..."
-${su} - ${db2InstanceUser} -c "${db2Stop} >/dev/null 2>&1"; status=${?} >>${scriptLog} 2>&1
-checkStatus ${status} "ERROR: Failed to stop DB2. Exiting."
+${su} - ${db2InstanceUser} -c "${db2Stop} >/dev/null 2>&1"; result=${?}
+if [ ${result} -ne 0 ]; then
+    log "WARNING: Unable to stop DB2. DB2 may not be running. Continuing..."
+fi
 
 # Drop the instance
 log "Dropping instance ${db2InstanceName}..."
-${db2Idrop} ${db2InstanceName} >>${scriptLog} 2>&1
-checkStatus ${?} "ERROR: Failed to drop instance ${db2InstanceName}. Exiting."
+result=$(${db2Idrop} ${db2InstanceName}) | ${grep} "completed successfully" 
+if [ ${result} -ne 0 ]; then
+    log "WARNING: Unable to drop instance ${db2InstanceName}. Instance may not exist. Continuing..."
+fi
 
 # Uninstall DB2
 log "Uninstalling DB2..."
@@ -51,16 +47,13 @@ checkStatus ${?} "ERROR: Failed to uninstall DB2. Exiting."
 
 # Clean up install artifacts
 log "Deleting ${db2InstallDir}..."
-${rm} -f -r ${db2InstallDir} >>${scriptLog} 2>&1
-checkStatus ${?} "WARNING: Failed to delete ${db2InstallDir}. Manual cleanup is required."
+${rm} -f -r ${db2InstallDir}
 log "Deleting ${rsctInstallDir}..."
-${rm} -f -r ${rsctInstallDir} >>${scriptLog} 2>&1
-checkStatus ${?} "WARNING: Failed to delete ${rsctInstallDir}. Manual cleanup is required."
+${rm} -f -r ${rsctInstallDir}
+log "Deleting ${tsampInstallDir}..."
+${rm} -f -r ${tsampInstallDir}
 log "Deleting ${db2DataDir}..."
-${rm} -f -r ${db2DataDir} >>${scriptLog} 2>&1
-checkStatus ${?} "WARNING: Failed to delete ${db2DataDir}. Manual cleanup is required."
-
-# Clean up users
+${rm} -f -r ${db2DataDir}
 log "Deleting user ${db2InstanceUser}..."
 ${userdel} -r ${db2InstanceUser} >>${scriptLog} 2>&1
 checkUserGroupStatus ${?} "WARNING: Unable to delete" ${db2InstanceUser} "DELETE"
@@ -70,16 +63,14 @@ checkUserGroupStatus ${?} "WARNING: Unable to delete" ${db2FencedUser} "DELETE"
 log "Deleting user ${db2DASUser}..."
 ${userdel} -r ${db2DASUser} >>${scriptLog} 2>&1
 checkUserGroupStatus ${?} "WARNING: Unable to delete" ${db2DASUser} "DELETE"
-
-# Clean up groups
 log "Deleting group ${db2InstanceGroup}..."
-${groupdel} ${db2InstanceGroup} >>${scriptLog} 2>&1
+${groupdel} ${db2InstanceGroup}
 checkUserGroupStatus ${?} "WARNING: Unable to delete" ${db2InstanceGroup} "DELETE"
 log "Deleting group ${db2FencedGroup}..."
-${groupdel} ${db2FencedGroup} >>${scriptLog} 2>&1
+${groupdel} ${db2FencedGroup}
 checkUserGroupStatus ${?} "WARNING: Unable to delete" ${db2FencedGroup} "DELETE"
 log "Deleting group ${db2DASGroup}..."
-${groupdel} ${db2DASGroup} >>${scriptLog} 2>&1
+${groupdel} ${db2DASGroup}
 checkUserGroupStatus ${?} "WARNING: Unable to delete" ${db2DASGroup} "DELETE"
 
 # Print the results

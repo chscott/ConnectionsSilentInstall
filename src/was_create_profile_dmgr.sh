@@ -5,11 +5,11 @@
 . src/utils.sh
 . src/vars.sh
 
-# Commands
+# Local variables
 manageProfiles="${wasInstallDir}/bin/manageprofiles.sh"
 
-# Make sure script is running as root
-checkForRoot
+# Do initialization stuff
+init was configure
 
 # Create the DMGR profile
 log "Creating DMGR profile..."

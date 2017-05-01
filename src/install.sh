@@ -5,38 +5,39 @@
 . src/utils.sh
 . src/vars.sh
 
-# Scripts
+# Local variables
 installDb2Script="${stagingDir}/src/db2_install.sh"
 installIimScript="${stagingDir}/src/iim_install.sh"
 installWasScript="${stagingDir}/src/was_install.sh"
 createDmgrProfileScript="${stagingDir}/src/was_create_profile_dmgr.sh"
 addLdapScript="${stagingDir}/src/was_add_ldap.sh"
+installTdiScript="${stagingDir}/src/tdi_install.sh"
+error="exited with an error. Aborting install."
 
-# Make sure script is running as root
-checkForRoot
-
-# Reset the script log
-log "Resetting script log ${scriptLog}..."
-> ${scriptLog}
-${chown} .users ${scriptLog}
-${chmod} g+rw ${scriptLog}
+# Do initialization stuff
+init main main_install
 
 if [ ${installDb2} == "true" ]; then
     ${installDb2Script} 
-    checkStatus "${?}" "ERROR: ${installDb2Script} exited with an error. Aborting install." 
+    checkStatus "${?}" "ERROR: ${installDb2Script} ${error}" 
 fi
 
 if [ ${installIim} == "true" ]; then
     ${installIimScript} 
-    checkStatus "${?}" "ERROR: ${installIimScript} exited with an error. Aborting install." 
+    checkStatus "${?}" "ERROR: ${installIimScript} ${error}" 
 fi
 
 if [ ${installWas} == "true" ]; then
     ${installWasScript} 
-    checkStatus "${?}" "ERROR: ${installWasScript} exited with an error. Aborting install." 
+    checkStatus "${?}" "ERROR: ${installWasScript} ${error}" 
     ${createDmgrProfileScript} 
-    checkStatus "${?}" "ERROR: ${createDmgrProfileScript} exited with an error. Manual profile creation may be necessary." 
+    checkStatus "${?}" "ERROR: ${createDmgrProfileScript} ${error}" 
     ${addLdapScript}
-    checkStatus "${?}" "ERROR: ${addLdapScript} exited with an error. Aborting install." 
+    checkStatus "${?}" "ERROR: ${addLdapScript} ${error}" 
     
+fi
+
+if [ ${installTdi} == "true" ]; then
+    ${installTdiScript}
+    checkStatus "${?}" "ERROR: ${installTdiScript} ${error}"
 fi

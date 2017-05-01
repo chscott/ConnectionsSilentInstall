@@ -1,3 +1,34 @@
+# Saved original stdout and stderr
+exec 3>&1
+exec 4>&2
+
+# Create the logs dir if it doesn't already exist
+function checkForLogDir() {
+    if [ ! -d ${logDir} ]; then
+        ${mkdir} ${logDir}
+    fi
+}
+
+# Reset stdout and stderr
+function resetOutput() {
+    exec 1>&3
+    exec 2>&4
+}
+
+# Tee output to script log
+function redirectOutput() {
+    resetOutput
+    checkForLogDir
+    exec 1> >(tee -a ${scriptLog}) 2>&1
+    # This is needed to give process substition a chance to complete before main shell continues
+    sleep 1
+}
+
+# Disables output
+function silenceOutput() {
+    exec 1>/dev/null 2>&1
+}
+
 # Tests to make sure the effective user ID is root
 function checkForRoot() {
 	if [ "${EUID}" -ne 0 ]; then
@@ -71,7 +102,7 @@ function updatePamFiles() {
 	if [ ${status} -ne 0 ]; then
 		${printf} "${pamLimits}" >> ${pamSshdFile}
 	else
-		log "WARNING: ${pamSshdFile} already contains an entry for pam_limits.so. Manual review recommended."
+		log "INFO: ${pamSshdFile} already contains an entry for pam_limits.so. Manual review recommended."
 	fi
 
 	# /etc/pam.d/su
@@ -80,7 +111,7 @@ function updatePamFiles() {
 	if [ ${status} -ne 0 ]; then
 		${printf} "${pamLimits}" >> ${pamSuFile}
 	else
-		log "WARNING: ${pamSuFile} already contains an entry for pam_limits.so. Manual review recommended."
+		log "INFO: ${pamSuFile} already contains an entry for pam_limits.so. Manual review recommended."
 	fi
 
 	# /etc/pam.d/sudo
@@ -89,6 +120,122 @@ function updatePamFiles() {
 	if [ ${status} -ne 0 ]; then
 		${printf} "${pamLimits}" >> ${pamSudoFile}
 	else
-		log "WARNING: ${pamSudoFile} already contains an entry for pam_limits.so. Manual review recommended."
+		log "INFO: ${pamSudoFile} already contains an entry for pam_limits.so. Manual review recommended."
 	fi
+}
+
+# Download a file from FTP
+# $1: FTP directory
+# $2: file name
+function downloadFile() {
+
+    local dir=${1}
+    local file=${2}
+    local result
+
+    log "Downloading ${file} from ${ftpServer}..."
+    
+    ${curl} ftp://${ftpServer}/${dir}/${file} >>${scriptLog}
+    checkStatus ${?} "ERROR: Download failed. Exiting."
+
+}
+
+# Unpack an archive file
+# $1: file type
+# $2: file name
+function unpackFile() {
+
+    local archiveType=${1}
+    local file=${2}
+    local result
+
+    log "Unpacking ${file}..."
+
+    if [ ${archiveType} == "zip" ]; then
+        ${unzip} -qq ${file}
+        result=${?}
+    elif [ ${archiveType} == "tar" ]; then
+        ${tar} -xf ${file}
+        result=${?}
+    fi
+
+    checkStatus ${result} "ERROR: Unpack operation failed. Exiting."
+
+}
+
+# Unpack an archive file to the specified directory
+# $1: file type
+# $2: file name
+# $3: directory
+function unpackFileToDirectory() {
+
+    local archiveType=${1}
+    local file=${2}
+    local directory=${3}
+    local result
+
+    log "Unpacking ${file} to ${directory}..."
+
+    if [ ${archiveType} == "zip" ]; then
+        ${unzip} -qq ${file} -d ${directory}
+        result=${?}
+    fi
+
+    checkStatus ${result} "ERROR: Unpack operation failed. Exiting."
+
+}
+
+# Clean up from a prior installation by recreating the
+# product install staging directory
+# $1: product component
+function clean() {
+
+    local installStagingDir=${1}
+
+    log "Recreating product install staging directory..."
+
+    ${rm} -f -r ${stagingDir}/${installStagingDir}
+    ${mkdir} ${stagingDir}/${installStagingDir}
+    checkStatus ${?} "ERROR: Unable to create ${stagingDir}/${installStagingDir}. Exiting."
+    # cd ${stagingDir}/${installStagingDir}
+
+}
+
+# Create a new response file from a template
+# $1: template file
+# $2: new file
+function copyTemplate() {
+    
+    local template=${1}
+    local file=${2}
+
+    log "Building silent install response file..."
+
+    ${cp} ${template} ${file}
+    checkStatus ${?} "ERROR: Unable to copy ${template} to ${file}. Exiting."
+}
+
+# Change directory to the product staging directory
+function cdToStagingDir() {
+    
+    local directory=${1}
+    cd ${directory}
+
+}
+
+# Do initialization stuff
+function init() {
+
+    component=${1}
+    operation=${2}
+
+    redirectOutput
+    checkForRoot
+    checkForLogDir    
+
+    if [ ${operation} == "install" ]; then
+        clean ${component}
+        cdToStagingDir ${component}
+    fi
+
 }

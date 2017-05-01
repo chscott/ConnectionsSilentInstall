@@ -5,26 +5,32 @@
 . src/utils.sh
 . src/vars.sh
 
-# Logs
-iimUninstallLog="${stagingDir}/${iimStagingDir}/iim_uninstall.log"
-
-# Commands
+# Local variables
+iimUninstallLog="${logDir}/iim_uninstall.log"
 iimUninstall="${iimDataDir}/uninstall/uninstallc -l ${iimUninstallLog}"
 
-# Make sure script is running as root
-checkForRoot
+# Do initialization stuff
+init iim uninstall
 
 # First see if IIM is even installed
 result=$(isInstalled ${iimInstallDir})
-if [ ${result} == 1 ]; then
-    log "WARNING: IIM does not appear to be installed. Exiting."
+if [ ${result} -eq 1 ]; then
+    log "ERROR: IIM does not appear to be installed. Exiting."
     exit 1
 fi
 
 # Uninstall IIM
-log "Uninstalling IBM Installation Manager..."
+log "Uninstalling IIM..."
 ${iimUninstall} >>${scriptLog} 2>&1
-checkStatus ${?} "ERROR: IIM uninstall failed. Exiting."
+checkStatus ${?} "ERROR: Failed to uninstall IIM. Exiting."
+
+# Clean up install artifacts
+log "Deleting ${iimInstallDir}..."
+${rm} -f -r ${iimInstallDir}
+log "Deleting ${iimDataDir}..."
+${rm} -f -r ${iimDataDir}
+log "Deleting ${iimSharedDataDir}..."
+${rm} -f -r ${iimSharedDataDir}
 
 # Print the results
-log "SUCCESS! IBM Installation Manager has been uninstalled."
+log "SUCCESS! IIM has been uninstalled."
