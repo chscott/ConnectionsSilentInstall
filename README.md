@@ -58,3 +58,7 @@ The following functionality is currently working:
 5. Dmgr profile creation
 
 6. LDAP repository configuration and link to realm
+
+7. TDI installation (with fix pack)
+
+8. Uninstall of all components (individually or collectively)
