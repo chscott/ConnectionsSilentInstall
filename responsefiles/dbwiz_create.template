@@ -1,0 +1,114 @@
+# ***************************************************************** 
+#                                                                   
+# IBM Confidential                                                  
+#                                                                   
+# OCO Source Materials                                              
+#                                                                   
+# Copyright IBM Corp. 2010, 2015                                    
+#                                                                   
+# The source code for this program is not published or otherwise    
+# divested of its trade secrets, irrespective of what has been      
+# deposited with the U.S. Copyright Office.                         
+#                                                                   
+# ***************************************************************** 
+
+###########################################################################
+# The value can be: db2 | oracle | sqlserver
+###########################################################################
+dbtype=db2
+
+###########################################################################
+# The value is the instance name which your want to create your database.
+###########################################################################
+dbInstance=DB2_INSTANCE_NAME 
+
+###########################################################################
+# Specify the database installed location.
+###########################################################################
+dbHome=DB2_INSTALL_DIR 
+
+###########################################################################
+# The value can be: create | delete | upgrade
+# create : create database.
+# delete : delete database.
+# upgrade: upgrade database.
+###########################################################################
+action=create
+
+###########################################################################
+# The feature you selected. Use "," to separate. 
+# The value can be: activities, blogs, communities, dogear, homepage, 
+# wikis, files, forum, profiles, mobile, metrics, cognos, library
+# cognos and library cannot be listed in features when action=upgrade
+###########################################################################
+features=activities,blogs,communities,dogear,homepage,wikis,files,forum,profiles,mobile,metrics,cognos,library,pushnotification
+
+###########################################################################
+# Database server port used for JDBC invocation
+# DB2 default is 50000
+# Oracle default is 1521
+# SQLServer default is 1433
+###########################################################################
+port=50000
+
+###########################################################################
+# Database administrator account used for JDBC invocation
+# DB2 default on Windows is db2admin, on Linux/AIX is db2inst1
+# Oracle default is system
+# SQLServer default is sa
+###########################################################################
+administrator=DB2_INSTANCE_USER
+
+###########################################################################
+# Database administror password used for JDBC invocation
+###########################################################################
+adminPassword=DEFAULT_PASSWORD
+
+###########################################################################
+# JDBC library path used for JDBC invocation on SQLServer only
+###########################################################################
+#jdbcLibPath=C\:\\sqljdbc4.jar
+
+###########################################################################
+# Password is Only needed for oracle and sqlserver when creating or updating database.&nbsp; The password will be removed
+#&nbsp;after finishing task for the reponse file "response\dbWizard\response.properties".
+###########################################################################
+#homepage.password=
+#activities.password=
+#blogs.password=
+#dogear.password=
+#communities.password=
+#profiles.password=
+#wikis.password=
+#files.password=
+#forum.password=
+#mobile.password=
+#metrics.password=
+#cognos.password=
+#library.password=
+#pushnotification.password=
+###########################################################################
+# file path is only needed for sqlserver when creating or updating database, it is the
+# directory where user want to store the database files.
+###########################################################################
+#profiles.filepath=C\:\\yourPath
+#blogs.filepath=
+#dogear.filepath=
+#communities.filepath=
+#homepage.filepath=
+#activities.filepath=
+#wikis.filepath=
+#files.filepath=
+#forum.filepath=
+#mobile.filepath=
+#metrics.filepath=
+#cognos.filepath=
+#library.filepath=
+#pushnotification.filepath=
+###########################################################################
+# The value can be:
+#  For db2:9.7 or 10.0
+#  For Oracle: 10 or 11
+#  For sqlserver: 9.0 or 10.0
+###########################################################################
+dbVersion=10.0

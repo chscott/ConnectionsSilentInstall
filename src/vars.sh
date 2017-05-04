@@ -43,6 +43,8 @@ wasFixPackWCTPackage_2="8.5.5-WS-WCT-FP0000010-part2.zip"
 tdiBasePackage="TDI_IDENTITY_E_V7.1.1_LIN-X86-64.tar"
 # TDI fix pack install package
 tdiFixPackPackage="7.1.1-TIV-TDI-FP0006.zip"
+# Connections DB package
+icDbPackage="Connections_6.0_Wizards_lin_aix.tar"
 # LDAP type for Deployment Manager
 # See -ldapServerType option in createIdMgrLDAPRepository WAS help doc for
 # available options. Examples: AD, IDS, DOMINO, SUNONE.
@@ -166,4 +168,8 @@ realmName="defaultWIMFileBasedRealm"
 tdiStagingDir="tdi"
 # Location where TDI will be installed
 tdiInstallDir="/opt/IBM/tdi"
+# Connections staging directory
+icStagingDir="ic"
+# Connections database staging directory (subdirectory of icStagingDir)
+icDbStagingDir="db"
 ###############################################################################

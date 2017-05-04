@@ -6,6 +6,10 @@ exec 4>&2
 function checkForLogDir() {
     if [ ! -d ${logDir} ]; then
         ${mkdir} ${logDir}
+        ${chmod} a+rwx ${logDir}
+        local now=$(date '+%F %T')
+	    printf "${now}\tCreated log file.\n" >${scriptLog}
+        ${chmod} a+w ${scriptLog}
     fi
 }
 
@@ -49,6 +53,16 @@ function log() {
 # Failures are fatal.
 function checkStatus() {
 	if [ $1 -ne 0 ]; then
+		log "$2"
+		log "Exit status: $1"
+		exit 1
+	fi
+}
+
+# Check exit code of database operation. Per the DB2 doc, the -s option
+# means an error if the exit code is not 0, 1, or 2.
+function checkStatusDb() {
+	if [ ${1} -ne 0 -a ${1} -ne 1 -a ${1} -ne 2 ]; then
 		log "$2"
 		log "Exit status: $1"
 		exit 1
@@ -195,7 +209,7 @@ function clean() {
     log "Recreating product install staging directory..."
 
     ${rm} -f -r ${stagingDir}/${installStagingDir}
-    ${mkdir} ${stagingDir}/${installStagingDir}
+    ${mkdir} -p ${stagingDir}/${installStagingDir}
     checkStatus ${?} "ERROR: Unable to create ${stagingDir}/${installStagingDir}. Exiting."
     # cd ${stagingDir}/${installStagingDir}
 
@@ -213,6 +227,7 @@ function copyTemplate() {
 
     ${cp} ${template} ${file}
     checkStatus ${?} "ERROR: Unable to copy ${template} to ${file}. Exiting."
+
 }
 
 # Change directory to the product staging directory
@@ -223,6 +238,13 @@ function cdToStagingDir() {
 
 }
 
+# Give 755 access to the staging dir
+function grantAccessToStagingDir() {
+    
+    ${chmod} 755 ${stagingDir}
+
+} 
+
 # Do initialization stuff
 function init() {
 
@@ -231,6 +253,7 @@ function init() {
 
     redirectOutput
     checkForRoot
+    grantAccessToStagingDir
     checkForLogDir    
 
     if [ ${operation} == "install" ]; then
