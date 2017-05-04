@@ -40,24 +40,24 @@ ${chown} -R ${db2InstanceUser}.${db2InstanceGroup} Wizards
 for i in "${icDbs[@]}"
 do
     log "Creating database for: ${i}..."    
-    ${su} - ${db2InstanceUser} -c "db2 -td@ -sf ${icDbScriptDir}/${i}/db2/createDb.sql >>${scriptLog} 2>&1"; result=${?}
-    checkStatusDb ${result} "ERROR: createDb.sql failed. Exiting."
-    ${su} - ${db2InstanceUser} -c "db2 -td@ -sf ${icDbScriptDir}/${i}/db2/appGrants.sql >>${scriptLog} 2>&1"; result=${?}
-    checkStatusDb ${result} "ERROR: appGrants.sql failed. Exiting."
+    ${su} - ${db2InstanceUser} -c "db2 -td@ -sf ${icDbScriptDir}/${i}/db2/createDb.sql >>${icDbLog} 2>&1"; result=${?}
+    checkStatusDb create ${result} "ERROR: createDb.sql failed. Exiting."
+    ${su} - ${db2InstanceUser} -c "db2 -td@ -sf ${icDbScriptDir}/${i}/db2/appGrants.sql >>${icDbLog} 2>&1"; result=${?}
+    checkStatusDb create ${result} "ERROR: appGrants.sql failed. Exiting."
     if [ ${i} == "homepage" ]; then
         log "Running maintenance on ${i}..."
-        ${su} - ${db2InstanceUser} -c "db2 -td@ -sf ${icDbScriptDir}/${i}/db2/initData.sql >>${scriptLog} 2>&1"; result=${?}
-        checkStatusDb ${result} "ERROR: initData.sql failed. Exiting."
-        ${su} - ${db2InstanceUser} -c "db2 -td@ -sf ${icDbScriptDir}/${i}/db2/reorg.sql >>${scriptLog} 2>&1"; result=${?}
-        checkStatusDb ${result} "ERROR: reorg.sql failed. Exiting."
-        ${su} - ${db2InstanceUser} -c "db2 -td@ -sf ${icDbScriptDir}/${i}/db2/updateStats.sql >>${scriptLog} 2>&1"; result=${?}
-        checkStatusDb ${result} "ERROR: updateStats.sql failed. Exiting."
+        ${su} - ${db2InstanceUser} -c "db2 -td@ -sf ${icDbScriptDir}/${i}/db2/initData.sql >>${icDbLog} 2>&1"; result=${?}
+        checkStatusDb create ${result} "ERROR: initData.sql failed. Exiting."
+        ${su} - ${db2InstanceUser} -c "db2 -td@ -sf ${icDbScriptDir}/${i}/db2/reorg.sql >>${icDbLog} 2>&1"; result=${?}
+        checkStatusDb create ${result} "ERROR: reorg.sql failed. Exiting."
+        ${su} - ${db2InstanceUser} -c "db2 -td@ -sf ${icDbScriptDir}/${i}/db2/updateStats.sql >>${icDbLog} 2>&1"; result=${?}
+        checkStatusDb create ${result} "ERROR: updateStats.sql failed. Exiting."
     elif [ ${i} == "communities" ]; then
         log "Creating calendar database for: ${i}..."    
-        ${su} - ${db2InstanceUser} -c "db2 -td@ -sf ${icDbScriptDir}/${i}/db2/calendar-createDb.sql >>${scriptLog} 2>&1"; result=${?}
-        checkStatusDb ${result} "ERROR: calendar-createDb.sql failed. Exiting."
-        ${su} - ${db2InstanceUser} -c "db2 -td@ -sf ${icDbScriptDir}/${i}/db2/calendar-appGrants.sql >>${scriptLog} 2>&1"; result=${?}
-        checkStatusDb ${result} "ERROR: calendar-appGrants.sql failed. Exiting."
+        ${su} - ${db2InstanceUser} -c "db2 -td@ -sf ${icDbScriptDir}/${i}/db2/calendar-createDb.sql >>${icDbLog} 2>&1"; result=${?}
+        checkStatusDb create ${result} "ERROR: calendar-createDb.sql failed. Exiting."
+        ${su} - ${db2InstanceUser} -c "db2 -td@ -sf ${icDbScriptDir}/${i}/db2/calendar-appGrants.sql >>${icDbLog} 2>&1"; result=${?}
+        checkStatusDb create ${result} "ERROR: calendar-appGrants.sql failed. Exiting."
     fi
 done
 

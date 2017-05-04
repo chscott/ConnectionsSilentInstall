@@ -4,6 +4,7 @@ exec 4>&2
 
 # Create the logs dir if it doesn't already exist
 function checkForLogDir() {
+
     if [ ! -d ${logDir} ]; then
         ${mkdir} ${logDir}
         ${chmod} a+rwx ${logDir}
@@ -11,62 +12,95 @@ function checkForLogDir() {
 	    printf "${now}\tCreated log file.\n" >${scriptLog}
         ${chmod} a+w ${scriptLog}
     fi
+
 }
 
 # Reset stdout and stderr
 function resetOutput() {
+
     exec 1>&3
     exec 2>&4
+
 }
 
 # Tee output to script log
 function redirectOutput() {
+
     resetOutput
     checkForLogDir
     exec 1> >(tee -a ${scriptLog}) 2>&1
     # This is needed to give process substition a chance to complete before main shell continues
     sleep 1
+
 }
 
 # Disables output
 function silenceOutput() {
+
     exec 1>/dev/null 2>&1
+
 }
 
 # Tests to make sure the effective user ID is root
 function checkForRoot() {
+
 	if [ "${EUID}" -ne 0 ]; then
 		log "Script ${0} needs to run as root. Exiting."
 		exit 1
 	else
 		log "Script ${0} is running as root. Continuing..."
 	fi
+
 }
 
 # Print $1 argument to stderr with date/time prefix
 function log() {
+
     local now=$(date '+%F %T')
 	printf "${now}\t${1}\n" >&2
+
 }
 
 # General-purpose routine to check exit code of previous operation.
 # Failures are fatal.
 function checkStatus() {
+
 	if [ $1 -ne 0 ]; then
 		log "$2"
 		log "Exit status: $1"
 		exit 1
 	fi
+
 }
 
 # Check exit code of database operation. Per the DB2 doc, the -s option
-# means an error if the exit code is not 0, 1, or 2.
+# means an error if the exit code is not 0, 1, 2, or 3 (3 is returned
+# when one or more commands result in both codes 1 and 2.
+# $1: "create"|"drop"
+# $2: exit code from DB2
+# $3: message
 function checkStatusDb() {
-	if [ ${1} -ne 0 -a ${1} -ne 1 -a ${1} -ne 2 ]; then
-		log "$2"
-		log "Exit status: $1"
-		exit 1
-	fi
+    
+    local operation=${1}
+    local code=${2}
+    local message=${3}
+
+    # Exit on errors when creating
+    if [ ${operation} == "create" ]; then
+	    if [ ${code} -ne 0 -a ${code} -ne 1 -a ${code} -ne 2 -a ${code} -ne 3 ]; then
+		    log "${message}"
+		    log "Exit status: ${code}"
+		    exit 1
+	    fi
+    fi
+
+    # Continue on errors when dropping
+    if [ ${operation} == "drop" ]; then
+	    if [ ${code} -ne 0 -a ${code} -ne 1 -a ${code} -ne 2 ]; then
+		    log "${message}"
+	    fi
+    fi
+
 }
 
 # $1: Exit code from user/group management command
@@ -74,6 +108,7 @@ function checkStatusDb() {
 # $3: User or group name
 # $4: ADD | DELETE 
 function checkUserGroupStatus() {
+
     if [ $4 == "ADD" ]; then
         if [ $1 -ne 0 ]; then
             # Non-fatal error
@@ -93,15 +128,18 @@ function checkUserGroupStatus() {
             log "Exit status: $1"
         fi
     fi
+
 }
 
 # Test if the supplied directory exists
 function isInstalled() {
+
     if [ ! -d $1 ]; then
         echo 1
     else
         echo 0
     fi
+
 }
 
 # Add pam_limits.so to the following /etc/pam.d files:
@@ -136,6 +174,7 @@ function updatePamFiles() {
 	else
 		log "INFO: ${pamSudoFile} already contains an entry for pam_limits.so. Manual review recommended."
 	fi
+
 }
 
 # Download a file from FTP

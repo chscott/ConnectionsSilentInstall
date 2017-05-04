@@ -18,10 +18,12 @@ init main main_uninstall
 # cause this to be set to false
 okToUninstallIim="true"
 
+# Step 1: Uninstall TDI, if installed
 if [ ${installTdi} == "true" ]; then
     ${uninstallTdiScript}
 fi
 
+# Step 2: Uninstall WAS, if installed
 if [ ${installWas} == "true" ]; then
     ${uninstallWasScript} 
     result=${?}
@@ -32,10 +34,12 @@ if [ ${installWas} == "true" ]; then
     fi
 fi
 
+# Step 3: Uninstall IIM, if installed and it's OK to do so
 if [ ${installIim} == "true" -a ${okToUninstallIim} == "true" ]; then
     ${uninstallIimScript} 
 fi
 
+# Step 4: Uninstall DB2, if installed
 if [ ${installDb2} == "true" ]; then
     ${uninstallDb2Script} 
 fi

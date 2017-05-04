@@ -66,6 +66,9 @@ ${echo} "${db2FencedUser}:${defaultPwd}" | ${chpasswd}
 ${sysuseradd} -g ${db2DASGroup} ${db2DASUser} >>${scriptLog} 2>&1
 checkUserGroupStatus ${?} "Unable to create" ${db2DASUser} "ADD"
 ${echo} "${db2DASUser}:${defaultPwd}" | ${chpasswd}
+${sysuseradd} -g ${db2InstanceGroup} lcuser >>${scriptLog} 2>&1
+checkUserGroupStatus ${?} "Unable to create lcuser" "ADD"
+${echo} "lcuser:${defaultPwd}" | ${chpasswd}
 
 # Increase open file limit for instance owner group
 log "Setting open file limits for ${db2InstanceGroup} in ${limitsFile}..."

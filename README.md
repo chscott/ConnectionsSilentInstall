@@ -53,7 +53,7 @@ The following functionality is currently working:
 
 3. IIM installation
 
-4. WAS, IHS, Plug-ins and WCT installation
+4. WAS, IHS, Plug-ins and WCT installation (with fix pack)
 
 5. Dmgr profile creation
 
@@ -61,4 +61,6 @@ The following functionality is currently working:
 
 7. TDI installation (with fix pack)
 
-8. Uninstall of all components (individually or collectively)
+8. Connections database creation
+
+9. Uninstall of all components (individually or collectively)
