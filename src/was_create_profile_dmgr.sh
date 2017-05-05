@@ -12,7 +12,7 @@ manageProfiles="${wasInstallDir}/bin/manageprofiles.sh"
 init was configure
 
 # Create the DMGR profile
-log "Creating DMGR profile..."
+log "INFO: Creating DMGR profile..."
 ${manageProfiles} \
     "-create" \
     "-templatePath" "${wasInstallDir}/profileTemplates/management" \
@@ -28,4 +28,4 @@ ${manageProfiles} \
 checkStatus ${?} "ERROR: Unable to create DMGR profile. Exiting."
 
 # Print the results
-log "SUCCESS! A new DMGR profile has been created."
+log "INFO: Success! A new DMGR profile has been created."

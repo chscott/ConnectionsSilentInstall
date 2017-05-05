@@ -15,22 +15,22 @@ init iim uninstall
 # First see if IIM is even installed
 result=$(isInstalled ${iimInstallDir})
 if [ ${result} -eq 1 ]; then
-    log "ERROR: IIM does not appear to be installed. Exiting."
-    exit 1
+    log "INFO: IIM does not appear to be installed. Exiting."
+    exit 0 
 fi
 
 # Uninstall IIM
-log "Uninstalling IIM..."
+log "INFO: Uninstalling IIM..."
 ${iimUninstall} >>${scriptLog} 2>&1
 checkStatus ${?} "ERROR: Failed to uninstall IIM. Exiting."
 
 # Clean up install artifacts
-log "Deleting ${iimInstallDir}..."
+log "INFO: Deleting ${iimInstallDir}..."
 ${rm} -f -r ${iimInstallDir}
-log "Deleting ${iimDataDir}..."
+log "INFO: Deleting ${iimDataDir}..."
 ${rm} -f -r ${iimDataDir}
-log "Deleting ${iimSharedDataDir}..."
+log "INFO: Deleting ${iimSharedDataDir}..."
 ${rm} -f -r ${iimSharedDataDir}
 
 # Print the results
-log "SUCCESS! IIM has been uninstalled."
+log "INFO: Success! IIM has been uninstalled."

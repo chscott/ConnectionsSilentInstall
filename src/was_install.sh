@@ -27,7 +27,7 @@ init was install
 # First see if IIM is installed
 result=$(isInstalled ${iimInstallDir})
 if [ ${result} == 1 ]; then
-    log "IIM does not appear to be installed. Exiting."
+    log "ERROR: IIM does not appear to be installed. Exiting."
     exit 1
 fi
 
@@ -60,7 +60,7 @@ unpackFileToDirectory zip "${wasFixPackWCTPackage_1}" "${wasFixPackWCTStagingDir
 unpackFileToDirectory zip "${wasFixPackWCTPackage_2}" "${wasFixPackWCTStagingDir}"
 
 # Extract the component ID and version info
-log "Extracting package IDs and version information from repositories..."
+log "INFO: Extracting package IDs and version information from repositories..."
 wasIdVersion=$(${listAvailablePackages} "${wasBaseRepo},${wasFixPackRepo}" | ${grep} -F 'com.ibm.websphere.ND' | ${sort} | ${tail} -1)
 wasId=$(echo ${wasIdVersion} | awk -F '_' '{print $1}')
 wasVersion=$(echo ${wasIdVersion} | awk -F '_' '{print $2"_"$3}')
@@ -75,7 +75,7 @@ wctId=$(echo ${wctIdVersion} | awk -F '_' '{print $1}')
 wctVersion=$(echo ${wctIdVersion} | awk -F '_' '{print $2"_"$3}')
 
 # Build the response file
-log "Building WebSphere silent install response file..."
+log "INFO: Building WebSphere silent install response file..."
 ${cp} ${wasResponseFileTemplate} ${wasInstallResponseFile}
 checkStatus ${?} "ERROR: Unable to copy ${wasResponseFileTemplate} to $wasInstallResponseFile}. Exiting."
 ${sed} -i "s|WAS_BASE|'${wasBaseRepo}'|" ${wasInstallResponseFile}
@@ -98,23 +98,23 @@ ${sed} -i "s|WCT_ID|'${wctId}'|" ${wasInstallResponseFile}
 ${sed} -i "s|WCT_VERSION|'${wctVersion}'|" ${wasInstallResponseFile}
 
 # Install the packages
-log "Installing WebSphere packages..."
+log "INFO: Installing WebSphere packages..."
 ${installPackages} ${wasInstallResponseFile} >>${scriptLog} 2>&1
 checkStatus ${?} "ERROR: Installation of WAS components failed. Review ${wasInstallLog} for details."
 
 # Update shared libraries
-log "Adding IHS shared libraries to ${sysSharedLibDir}"
+log "INFO: Adding IHS shared libraries to ${sysSharedLibDir}"
 ${sh} -c "${echo} ${ihsInstallDir}/lib > ${sysSharedLibDir}/httpd-lib.conf"
 checkStatus ${?} "ERROR: Unable to add IHS shared libraries to ${sysSharedLibDir}"
 ${ldconfig}
 
 # Print the results
-log "SUCCESS! All WebSphere packages were installed. Printing version info..."
+log "INFO: Success! All WebSphere packages were installed. Printing version info..."
 wasVersion=$(${getWasVersion} | ${grep} "^Version  " | ${tr} -s ' ' | ${cut} -d ' ' -f 2)
 plgVersion=$(${getPlgVersion} | ${grep} "^Version  " | ${tr} -s ' ' | ${cut} -d ' ' -f 2)
 wctVersion=$(${getWctVersion} | ${grep} "^Version  " | ${tr} -s ' ' | ${cut} -d ' ' -f 2)
 ihsVersion=$(${getIhsVersion} | ${grep} "version" | ${cut} -d '/' -f 2 | ${cut} -d ' ' -f 1)
-log "WebSphere Application Server version: ${wasVersion}"
-log "WebSphere Plugins version: ${plgVersion}"
-log "WebSphere Toolbox version: ${wctVersion}"
-log "IBM HTTP Server version: ${ihsVersion}"
+log "INFO: WebSphere Application Server version: ${wasVersion}"
+log "INFO: WebSphere Plugins version: ${plgVersion}"
+log "INFO: WebSphere Toolbox version: ${wctVersion}"
+log "INFO: IBM HTTP Server version: ${ihsVersion}"

@@ -43,3 +43,6 @@ fi
 if [ ${installDb2} == "true" ]; then
     ${uninstallDb2Script} 
 fi
+
+# Step 5: Rotate the logs
+logRotate

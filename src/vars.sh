@@ -72,6 +72,12 @@ loginProperties="uid;mail"
 
 # Do not change this unless you understand exactly why you are doing so
 stagingDir=$(pwd)
+# Do not change this unless you understand exactly why you are doing so
+hostName=$(${hostname})
+# Do not change this unless you understand exactly why you are doing so
+dnsSuffix=$(${hostname} -d)
+# Do not change this unless you understand exactly why you are doing so
+fqdn="${hostName}.${dnsSuffix}"
 # Set true to install DB2 or false to skip it
 installDb2="true"
 # Set true to install IIM or false to skip it
@@ -172,4 +178,9 @@ tdiInstallDir="/opt/IBM/tdi"
 icStagingDir="ic"
 # Connections database staging directory (subdirectory of icStagingDir)
 icDbStagingDir="db"
+# IHS admin group (OS)
+ihsAdminGroup="ihsadmins"
+# IHS admin user (OS)
+ihsAdmin="ihsadmin"
+
 ###############################################################################

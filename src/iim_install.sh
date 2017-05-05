@@ -20,10 +20,10 @@ downloadFile iim "${iimInstallPackage}"
 unpackFile zip "${iimInstallPackage}"
 
 # Install IIM
-log "Installing IIM..."
+log "INFO: Installing IIM..."
 ${iimInstall} >>${scriptLog} 2>&1
 checkStatus ${?} "ERROR: IIM installation failed. Exiting."
 
 # Print the results
 version=$(${iimVersion} | ${grep} "^Version" | ${cut} -d ' ' -f 2)
-log "SUCCESS! IBM Installation Manager ${version} has been installed."
+log "INFO: Success! IBM Installation Manager ${version} has been installed."

@@ -63,4 +63,6 @@ The following functionality is currently working:
 
 8. Connections database creation
 
-9. Uninstall of all components (individually or collectively)
+9. Web server definition added to cell
+
+10. Uninstall of all components (individually or collectively)

@@ -32,16 +32,16 @@ ${sed} -i "s|TDI_INSTALL_DIR|${tdiInstallDir}|" ${tdiInstallResponseFile}
 # Install TDI Base
 tdiInstallBin=$(ls "${stagingDir}/${tdiStagingDir}/linux_x86_64")
 tdiInstall="${stagingDir}/${tdiStagingDir}/linux_x86_64/${tdiInstallBin}"
-log "Installing TDI..."
+log "INFO: Installing TDI..."
 ${tdiInstall} -f ${tdiInstallResponseFile} -i silent -D\$TDI_NOSHORTCUTS\$="true"
 checkStatus ${?} "ERROR: TDI installation failed. Exiting."
 
 # Install TDI Fix Pack
-log "Installing TDI fix pack..."
+log "INFO: Installing TDI fix pack..."
 ${cp} -f ${updateInstaller} ${tdiInstallDir}/maintenance 
 ${tdiInstallDir}/bin/applyUpdates.sh -update ${fixPack} >>${scriptLog} 2>&1
 checkStatus ${?} "ERROR: TDI fix pack installation failed. Exiting."
 
 # Print the results
 version=$(${tdiVersion} | ${grep} "^Level" | ${cut} -d ' ' -f 2)
-log "SUCCESS! TDI ${version} has been installed."
+log "INFO: Success! TDI ${version} has been installed."

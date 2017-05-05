@@ -33,14 +33,14 @@ init ${icStagingDir}/${icDbStagingDir} uninstall
 for i in "${icDbs[@]}"
 do
     if [ ${i} == "communities" ]; then
-        log "Dropping calendar database for: ${i}..."    
+        log "INFO: Dropping calendar database for: ${i}..."    
         ${su} - ${db2InstanceUser} -c "db2 -td@ -f ${icDbScriptDir}/${i}/db2/calendar-dropDb.sql >>${icDbLog} 2>&1"; result=${?}
         checkStatusDb drop ${result} "WARNING: calendar-dropDb.sql failed. Database may not exist. Continuing..."
     fi
-    log "Dropping database for: ${i}..."    
+    log "INFO: Dropping database for: ${i}..."    
     ${su} - ${db2InstanceUser} -c "db2 -td@ -f ${icDbScriptDir}/${i}/db2/dropDb.sql >>${icDbLog} 2>&1"; result=${?}
     checkStatusDb drop ${result} "WARNING: dropDb.sql failed. Database may not exist. Continuing..."
 done
 
 # Print the results
-log "Success! Connections databases have been dropped"
+log "INFO: Success! Connections databases have been dropped"

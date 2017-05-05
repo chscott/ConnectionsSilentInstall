@@ -45,10 +45,10 @@ function silenceOutput() {
 function checkForRoot() {
 
 	if [ "${EUID}" -ne 0 ]; then
-		log "Script ${0} needs to run as root. Exiting."
+		log "ERROR: Script ${0} needs to run as root. Exiting."
 		exit 1
 	else
-		log "Script ${0} is running as root. Continuing..."
+		log "INFO: Script ${0} is running as root. Continuing..."
 	fi
 
 }
@@ -66,8 +66,8 @@ function log() {
 function checkStatus() {
 
 	if [ $1 -ne 0 ]; then
-		log "$2"
-		log "Exit status: $1"
+		log "ERROR: $2"
+		log "ERROR: Exit status: $1"
 		exit 1
 	fi
 
@@ -88,8 +88,8 @@ function checkStatusDb() {
     # Exit on errors when creating
     if [ ${operation} == "create" ]; then
 	    if [ ${code} -ne 0 -a ${code} -ne 1 -a ${code} -ne 2 -a ${code} -ne 3 ]; then
-		    log "${message}"
-		    log "Exit status: ${code}"
+		    log "ERROR: ${message}"
+		    log "ERROR: Exit status: ${code}"
 		    exit 1
 	    fi
     fi
@@ -97,7 +97,7 @@ function checkStatusDb() {
     # Continue on errors when dropping
     if [ ${operation} == "drop" ]; then
 	    if [ ${code} -ne 0 -a ${code} -ne 1 -a ${code} -ne 2 ]; then
-		    log "${message}"
+		    log "WARNING: ${message}"
 	    fi
     fi
 
@@ -113,19 +113,18 @@ function checkUserGroupStatus() {
         if [ $1 -ne 0 ]; then
             # Non-fatal error
             if [ $1 -eq 9 ]; then
-                log "$3 already exists. Continuing..."	
+                log "WARNING: $3 already exists. Continuing..."	
             # Fatal
             else
-                log "$2 $3"
-                log "Exit status: $1"
+                log "ERROR: $2 $3"
+                log "ERROR: Exit status: $1"
                 exit 1
             fi
         fi
     elif [ $4 == "DELETE" ]; then
         # Non-fatal error
         if [ $1 -ne 0 ]; then
-            log "$2 $3"
-            log "Exit status: $1"
+            log "WARNING: $2 $3"
         fi
     fi
 
@@ -186,7 +185,7 @@ function downloadFile() {
     local file=${2}
     local result
 
-    log "Downloading ${file} from ${ftpServer}..."
+    log "INFO: Downloading ${file} from ${ftpServer}..."
     
     ${curl} ftp://${ftpServer}/${dir}/${file} >>${scriptLog}
     checkStatus ${?} "ERROR: Download failed. Exiting."
@@ -202,7 +201,7 @@ function unpackFile() {
     local file=${2}
     local result
 
-    log "Unpacking ${file}..."
+    log "INFO: Unpacking ${file}..."
 
     if [ ${archiveType} == "zip" ]; then
         ${unzip} -qq ${file}
@@ -227,7 +226,7 @@ function unpackFileToDirectory() {
     local directory=${3}
     local result
 
-    log "Unpacking ${file} to ${directory}..."
+    log "INFO: Unpacking ${file} to ${directory}..."
 
     if [ ${archiveType} == "zip" ]; then
         ${unzip} -qq ${file} -d ${directory}
@@ -245,7 +244,7 @@ function clean() {
 
     local installStagingDir=${1}
 
-    log "Recreating product install staging directory..."
+    log "INFO: Recreating product install staging directory..."
 
     ${rm} -f -r ${stagingDir}/${installStagingDir}
     ${mkdir} -p ${stagingDir}/${installStagingDir}
@@ -262,7 +261,7 @@ function copyTemplate() {
     local template=${1}
     local file=${2}
 
-    log "Building silent install response file..."
+    log "INFO: Building silent install response file..."
 
     ${cp} ${template} ${file}
     checkStatus ${?} "ERROR: Unable to copy ${template} to ${file}. Exiting."
@@ -287,8 +286,8 @@ function grantAccessToStagingDir() {
 # Do initialization stuff
 function init() {
 
-    component=${1}
-    operation=${2}
+    local component=${1}
+    local operation=${2}
 
     redirectOutput
     checkForRoot
@@ -296,8 +295,54 @@ function init() {
     checkForLogDir    
 
     if [ ${operation} == "install" ]; then
+
+        local installDir
+
+        if [ ${component} == "db2" ]; then
+            installDir=${db2InstallDir}
+        elif [ ${component} == "iim" ]; then
+            installDir=${iimInstallDir}
+        elif [ ${component} == "was" ]; then
+            installDir=${websphereInstallDir}
+        elif [ ${component} == "tdi" ]; then
+            installDir=${tdiInstallDir}
+        else
+            installDir=null 
+        fi 
+
+        # Only check for existing install if it's one we're interested in
+        if [ ${installDir} != "null" ]; then
+            local installed=$(isInstalled ${installDir})
+            if [ ${installed} -eq 0 ]; then
+                log "ERROR: Install directory ${installDir} already exists. Assuming ${component} is already installed. Exiting."    
+                exit 1
+            fi    
+        fi
+
         clean ${component}
         cdToStagingDir ${component}
+
     fi
+
+}
+
+# Move live logs to archive directory
+function logRotate() {
+
+    local now=$(date '+%Y%m%d_%H%M%S')
+
+    # cd to logs dir to use relative paths for tar
+    cd ${logDir}
+
+    # Create the archive subdirectory if it doesn't already exist
+    if [ ! -d ${logDir}/archive ]; then
+        ${mkdir} ${logDir}/archive
+    fi
+
+    # Create an archive of the existing logs 
+    ${find} . -maxdepth 1 -type f | ${tar} -czf ${logDir}/archive/logs_${now}.tar.gz -T -
+
+    # Delete the live logs to prepare for the next run
+    ${find} . -maxdepth 1 -type f | ${xargs} ${rm} -f
 
 }

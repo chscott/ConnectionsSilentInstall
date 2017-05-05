@@ -12,6 +12,7 @@ installIimScript="${stagingDir}/src/iim_install.sh"
 installWasScript="${stagingDir}/src/was_install.sh"
 createDmgrProfileScript="${stagingDir}/src/was_create_profile_dmgr.sh"
 addLdapScript="${stagingDir}/src/was_add_ldap.sh"
+confPlgScript="${stagingDir}/src/was_configure_plugin.sh"
 installTdiScript="${stagingDir}/src/tdi_install.sh"
 error="exited with an error. Aborting install."
 
@@ -23,6 +24,7 @@ if [ ${installDb2} == "true" ]; then
     ${installDb2Script} 
     checkStatus "${?}" "ERROR: ${installDb2Script} ${error}" 
     ${createDbsScript}
+    checkStatus "${?}" "ERROR: ${createDbsScript} ${error}" 
 fi
 
 # Step 2: Install IIM, if requested
@@ -39,6 +41,8 @@ if [ ${installWas} == "true" ]; then
     checkStatus "${?}" "ERROR: ${createDmgrProfileScript} ${error}" 
     ${addLdapScript}
     checkStatus "${?}" "ERROR: ${addLdapScript} ${error}" 
+    ${confPlgScript}
+    checkStatus "${?}" "ERROR: ${confPlgScript} ${error}"
 fi
 
 # Step 4: Install TDI, if requested
