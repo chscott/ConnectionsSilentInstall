@@ -13,10 +13,9 @@ startManager="${dmgrProfilePath}/bin/startManager.sh"
 # Do initialization stuff
 init was configure
 
-# Start Deployment Manager
-log "INFO: Starting Deployment Manager..."
-${startManager} >>${scriptLog} 2>&1
-checkStatus ${?} "ERROR: Unable to start Deployment Manager. If it is already running, stop it and re-run this script."
+# Make sure deployment manager is started 
+dmgrStatus=$(startWASServer ${dmgrServerName} ${dmgrProfilePath})
+checkStatus ${dmgrStatus} "ERROR: Unable to start deployment manager. Exiting."
 
 # Invoke wsadmin to add the LDAP repository
 log "INFO: Adding LDAP repository to Deployment Manager..."

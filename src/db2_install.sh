@@ -86,7 +86,7 @@ log "INFO: Updating /etc/pam.d files..."
 updatePamFiles
 
 # Build the response file
-log "INFO: Building the DB2 silent install file (${db2InstallResponseFile})..."
+log "INFO: Building the DB2 silent install file..."
 ${printf} "PROD = DB2_SERVER_EDITION\n" >> ${db2InstallResponseFile}
 ${printf} "FILE = ${db2InstallDir}\n" >> ${db2InstallResponseFile}
 ${printf} "LIC_AGREEMENT = ACCEPT\n" >> ${db2InstallResponseFile}

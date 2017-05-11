@@ -20,10 +20,16 @@ log "INFO: Checking to see if there are any WAS profiles..."
 result=$(isInstalled ${wasDataDir})
 if [ ${result} -eq 0 ]; then
     # DMGR
-    log "INFO: Terminating Deployment Manager..."
-    dmgrPid=$(${cat} ${dmgrProfilePath}/logs/dmgr/dmgr.pid 2>/dev/null)
+    log "INFO: Terminating deployment manager..."
+    dmgrPid=$(${cat} ${dmgrProfilePath}/logs/${dmgrProfileName}/${dmgrProfileName}.pid 2>/dev/null)
     ${kill} -9 ${dmgrPid} >>${scriptLog} 2>&1
     # Other WAS processes here
+    log "INFO: Terminating application server..."
+    icPid=$(${cat} ${icProfilePath}/logs/${icProfileName}/${icProfileName}.pid 2>/dev/null)
+    ${kill} -9 ${icPid} >>${scriptLog} 2>&1
+    log "INFO: Terminating node agent..."
+    naPid=$(${cat} ${icProfilePath}/logs/nodeagent/nodeagent.pid 2>/dev/null)
+    ${kill} -9 ${naPid} >>${scriptLog} 2>&1
     # Remove WAS data directory
     log "INFO: Removing WAS data directory..."
     ${rm} -f -r ${wasDataDir}

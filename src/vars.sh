@@ -166,6 +166,12 @@ dmgrNodeName="dmgr1"
 dmgrCellName="icCell"
 # Server name for Deployment Manager
 dmgrServerName="dmgr"
+# Profile name for Connections
+icProfileName="ic"
+# Profile directory for Connections
+icProfilePath="${wasDataDir}/profiles/${icProfileName}"
+# Node name for Connections
+icNodeName="ic1"
 # WAS admin user
 dmgrAdminUser="wasadmin"
 # WAS realm name

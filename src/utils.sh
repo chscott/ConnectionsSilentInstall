@@ -34,41 +34,44 @@ function redirectOutput() {
 
 }
 
-# Disables output
-function silenceOutput() {
-
-    exec 1>/dev/null 2>&1
-
-}
-
 # Tests to make sure the effective user ID is root
 function checkForRoot() {
 
+    local script=${0}
+
 	if [ "${EUID}" -ne 0 ]; then
-		log "ERROR: Script ${0} needs to run as root. Exiting."
+		log "ERROR: Script ${script} needs to run as root. Exiting."
 		exit 1
 	else
-		log "INFO: Script ${0} is running as root. Continuing..."
+		log "INFO: Script ${script} is running as root. Continuing..."
 	fi
 
 }
 
-# Print $1 argument to stderr with date/time prefix
+# Print message to stderr with date/time prefix
+# $1: message to print
 function log() {
 
+    local message=${1}
     local now=$(date '+%F %T')
-	printf "${now}\t${1}\n" >&2
+
+	printf "${now}\t${message}\n" >&2
 
 }
 
 # General-purpose routine to check exit code of previous operation.
 # Failures are fatal.
+# $1: exit code of previous operation
+# $2: message to print if exit code is not 0
 function checkStatus() {
 
-	if [ $1 -ne 0 ]; then
-		log "ERROR: $2"
-		log "ERROR: Exit status: $1"
-		exit 1
+    local code=${1}
+    local message=${2}
+
+	if [ ${code} -ne 0 ]; then
+		log "ERROR: ${message}"
+		log "ERROR: Exit status: ${code}"
+		exit
 	fi
 
 }
@@ -80,7 +83,7 @@ function checkStatus() {
 # $2: exit code from DB2
 # $3: message
 function checkStatusDb() {
-    
+   
     local operation=${1}
     local code=${2}
     local message=${3}
@@ -103,37 +106,46 @@ function checkStatusDb() {
 
 }
 
+# Check status after adding/deleting user or group.
 # $1: Exit code from user/group management command
 # $2: Log message
 # $3: User or group name
 # $4: ADD | DELETE 
 function checkUserGroupStatus() {
 
-    if [ $4 == "ADD" ]; then
-        if [ $1 -ne 0 ]; then
+    local code=${1}
+    local message=${2}
+    local userOrGroup=${3}
+    local operation=${4}
+
+    if [ ${operation} == "ADD" ]; then
+        if [ ${code} -ne 0 ]; then
             # Non-fatal error
-            if [ $1 -eq 9 ]; then
-                log "WARNING: $3 already exists. Continuing..."	
+            if [ ${code} -eq 9 ]; then
+                log "WARNING: ${userOrGroup} already exists. Continuing..."	
             # Fatal
             else
-                log "ERROR: $2 $3"
-                log "ERROR: Exit status: $1"
+                log "ERROR: ${message} ${userOrGroup}"
+                log "ERROR: Exit status: ${code}"
                 exit 1
             fi
         fi
-    elif [ $4 == "DELETE" ]; then
+    elif [ ${operation} == "DELETE" ]; then
         # Non-fatal error
-        if [ $1 -ne 0 ]; then
-            log "WARNING: $2 $3"
+        if [ ${code} -ne 0 ]; then
+            log "WARNING: ${message} ${userOrGroup}"
         fi
     fi
 
 }
 
 # Test if the supplied directory exists
+# $1: directory to check as proxy to see if component is installed
 function isInstalled() {
 
-    if [ ! -d $1 ]; then
+    local directory=${1}
+
+    if [ ! -d ${directory} ]; then
         echo 1
     else
         echo 0
@@ -146,6 +158,8 @@ function isInstalled() {
 # su
 # sudo
 function updatePamFiles() {
+
+    local status
 	
 	# /etc/pam.d/sshd
 	${grep} "pam_limits.so" ${pamSshdFile} >/dev/null 2>&1
@@ -186,7 +200,6 @@ function downloadFile() {
     local result
 
     log "INFO: Downloading ${file} from ${ftpServer}..."
-    
     ${curl} ftp://${ftpServer}/${dir}/${file} >>${scriptLog}
     checkStatus ${?} "ERROR: Download failed. Exiting."
 
@@ -245,11 +258,9 @@ function clean() {
     local installStagingDir=${1}
 
     log "INFO: Recreating product install staging directory..."
-
     ${rm} -f -r ${stagingDir}/${installStagingDir}
     ${mkdir} -p ${stagingDir}/${installStagingDir}
     checkStatus ${?} "ERROR: Unable to create ${stagingDir}/${installStagingDir}. Exiting."
-    # cd ${stagingDir}/${installStagingDir}
 
 }
 
@@ -269,9 +280,11 @@ function copyTemplate() {
 }
 
 # Change directory to the product staging directory
+# $1: directory to cd to
 function cdToStagingDir() {
     
     local directory=${1}
+
     cd ${directory}
 
 }
@@ -284,6 +297,8 @@ function grantAccessToStagingDir() {
 } 
 
 # Do initialization stuff
+# $1: component being processed (e.g. db2, iim, was, tdi, etc.)
+# $2: operation (e.g. install, uninstall, configure)
 function init() {
 
     local component=${1}
@@ -344,5 +359,132 @@ function logRotate() {
 
     # Delete the live logs to prepare for the next run
     ${find} . -maxdepth 1 -type f | ${xargs} ${rm} -f
+
+}
+
+# Returns the status of the specified WAS server
+# $1: server to check
+# $2: profile root
+function getWASServerStatus() {
+
+    local server=${1}
+    local profileRoot=${2}
+    local serverStatus
+    local result
+    local functionStatus="undefined"
+
+    # Get the result of the serverStatus.sh command
+    serverStatus=$(${profileRoot}/bin/serverStatus.sh ${server} -username ${dmgrAdminUser} -password ${defaultPwd})
+    
+    # Check to see if the server is stopped
+    ${echo} ${serverStatus} | ${grep} stopped >/dev/null 2>&1
+    result=${?}
+    if [ ${result} -eq 0 ]; then
+        log "INFO: WAS server ${server} is stopped."
+        functionStatus="stopped"
+    fi 
+
+    # Check to see if the server is started
+    ${echo} ${serverStatus} | ${grep} STARTED >/dev/null 2>&1
+    result=${?}
+    if [ ${result} -eq 0 ]; then
+        log "INFO: WAS server ${server} is started."
+        functionStatus="started"
+    fi
+
+    echo ${functionStatus}
+
+}
+
+# Start the specified WAS server
+# $1: server
+# $2: profile path
+function startWASServer() {
+
+    local server=${1}
+    local profileRoot=${2}
+    local serverStatus
+    local functionStatus
+
+    serverStatus=$(getWASServerStatus ${server} ${profileRoot})
+
+    # Only need to start the server if it's not already started
+    if [ ${serverStatus} != "started" ]; then
+        log "INFO: Starting ${server}..."
+        ${profileRoot}/bin/startServer.sh ${server} >>${scriptLog} 2>&1
+        serverStatus=$(getWASServerStatus ${server} ${profileRoot})
+    fi
+
+    # Return success if the server is now started or failure if it is not
+    if [ ${serverStatus} == "started" ]; then
+       functionStatus=0
+    else
+       functionStatus=1
+    fi
+
+    echo ${functionStatus}
+
+}
+
+# Stop the specified WAS server
+# $1: server
+# $2: profile path
+function stopWASServer() {
+
+    local server=${1}
+    local profileRoot=${2}
+    local serverStatus
+    local functionStatus
+
+    serverStatus=$(getWASServerStatus ${server} ${profileRoot})
+
+    # Only need to stop the server if it's not already stopped
+    if [ ${serverStatus} != "stopped" ]; then
+        log "INFO: Stopping ${server}..."
+        ${profileRoot}/bin/stopServer.sh ${server} >>${scriptLog} 2>&1
+        serverStatus=$(getWASServerStatus ${server} ${profileRoot})
+    fi
+
+    # Return success if the server is now stopped or failure if it is not
+    if [ ${serverStatus} == "stopped" ]; then
+       functionStatus=0
+    else
+       functionStatus=1
+    fi
+
+    echo ${functionStatus}
+
+}
+
+# Restart the specified WAS server
+# $1: server
+# $2: profile path
+function restartWASServer() {
+
+    local server=${1}
+    local profileRoot=${2}
+    local serverStatus
+    local functionStatus
+
+    # First stop the server
+    serverStatus=$(stopWASServer ${server} ${profileRoot})
+    if [ ${serverStatus} -ne 0 ]; then
+        functionStatus=1
+    else
+        functionStatus=0
+    fi 
+
+    # Only proceed if the server stop didn't fail
+    if [ ${functionStatus} -eq 0 ]; then
+        # Start the server
+        serverStatus=$(startWASServer ${server} ${profileRoot})
+        if [ ${serverStatus} -ne 0 ]; then
+            functionStatus=1
+        else
+            functionStatus=0
+        fi 
+    fi
+
+    echo ${functionStatus}
 
 }

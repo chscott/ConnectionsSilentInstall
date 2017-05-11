@@ -11,6 +11,7 @@ createDbsScript="${stagingDir}/src/ic_create_dbs.sh"
 installIimScript="${stagingDir}/src/iim_install.sh"
 installWasScript="${stagingDir}/src/was_install.sh"
 createDmgrProfileScript="${stagingDir}/src/was_create_profile_dmgr.sh"
+createAppSrvProfileScript="${stagingDir}/src/was_create_profile_appsrv.sh"
 addLdapScript="${stagingDir}/src/was_add_ldap.sh"
 confPlgScript="${stagingDir}/src/was_configure_plugin.sh"
 installTdiScript="${stagingDir}/src/tdi_install.sh"
@@ -43,6 +44,8 @@ if [ ${installWas} == "true" ]; then
     checkStatus "${?}" "ERROR: ${addLdapScript} ${error}" 
     ${confPlgScript}
     checkStatus "${?}" "ERROR: ${confPlgScript} ${error}"
+    ${createAppSrvProfileScript} 
+    checkStatus "${?}" "ERROR: ${createAppSrvProfileScript} ${error}" 
 fi
 
 # Step 4: Install TDI, if requested
