@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<agent-input>
+  <variables>
+    <variable name='fqdn' value='FQDN'/>
+    <variable name='iimSharedDataDir' value='IIM_SHARED_DATA_DIR'/>
+    <variable name='icRepositoryDir' value='IC_REPOSITORY_DIR'/>
+    <variable name='icRepositoryId' value='IC_REPOSITORY_ID'/>
+    <variable name='icRepositoryVersion' value='IC_REPOSITORY_VERSION'/>
+    <variable name='icInstallDir' value='IC_INSTALL_DIR'/>
+    <variable name='jdbcDir' value='JDBC_DIR'/>
+    <variable name='dbPwd' value='DB_PWD'/>
+    <variable name='icNodeName' value='IC_NODE_NAME'/>
+    <variable name='webServerName' value='WEB_SERVER_NAME'/>
+    <variable name='icClusterName' value='IC_CLUSTER_NAME'/>
+    <variable name='icServerName' value='IC_SERVER_NAME'/>
+    <variable name='icAdminUser' value='IC_ADMIN_USER'/>
+    <variable name='icAdminPwd' value='IC_ADMIN_PWD'/>
+  </variables>
+
+  <!-- Preferences -->
+  <preference name='com.ibm.cic.common.core.preferences.eclipseCache' value='${iimSharedDataDir}'/>
+
+  <!-- Repositories -->
+  <server>
+    <repository location='${icRepositoryDir}'/> 
+  </server>
+
+  <!-- Components to be installed  -->
+  <install>
+    <offering 
+        profile='IBM Connections' 
+        id='${icRepositoryId}' 
+        version='${icRepositoryVersion}' 
+        features='wikis'/>
+  </install>
+
+  <!-- Connections profile -->
+  <profile id='IBM Connections' installLocation='${icInstallDir}'>
+
+    <!-- Wikis -->
+    <data key='user.wikis.adminuser.id' value='${icAdminUser}'/>
+    <data key='user.wikis.adminuser.password' value='${icAdminPwd}'/>
+    <data key='user.wikis.firstNodeName' value='${icNodeName}'/>
+    <data key='user.wikis.serverInfo' value='wikis.${icNodeName}.ServerName=${icServerName};'/>
+    <data key='user.wikis.clusterExist' value='false'/>
+    <data key='user.wikis.clusterName' value='${icClusterName}'/>
+    <data key='user.wikis.clusterInfo' value='[{&quot;node&quot;: &quot;${icNodeName}&quot;, &quot;name&quot;: &quot;${icServerName}&quot;},]'/>
+    <data key='user.wikis.serverName' value='${icServerName}'/>
+    <data key='user.wikis.dbHostName' value='${fqdn}'/>
+    <data key='user.wikis.dbPort' value='50000'/>
+    <data key='user.wikis.jdbcLibraryPath' value='${jdbcDir}'/>
+    <data key='user.wikis.dbName' value='WIKIS'/>
+    <data key='user.wikis.dbUser' value='LCUSER'/>
+    <data key='user.wikis.dbUserPassword' value='${dbPwd}'/>
+    <data key='user.wikis.dbType' value='DB2'/>
+
+  </profile>
+  
+</agent-input>

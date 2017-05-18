@@ -6,15 +6,15 @@
 . src/vars.sh
 
 # Local variables
-wsadmin="${dmgrProfilePath}/bin/wsadmin.sh"
-stopManager="${dmgrProfilePath}/bin/stopManager.sh"
-startManager="${dmgrProfilePath}/bin/startManager.sh"
+wsadmin="${dmgrProfileDir}/bin/wsadmin.sh"
+stopManager="${dmgrProfileDir}/bin/stopManager.sh"
+startManager="${dmgrProfileDir}/bin/startManager.sh"
 
 # Do initialization stuff
 init was configure
 
 # Make sure deployment manager is started 
-dmgrStatus=$(startWASServer ${dmgrServerName} ${dmgrProfilePath})
+dmgrStatus=$(startWASServer ${dmgrServerName} ${dmgrProfileDir})
 checkStatus ${dmgrStatus} "ERROR: Unable to start deployment manager. Exiting."
 
 # Invoke wsadmin to add the LDAP repository

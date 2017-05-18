@@ -12,7 +12,7 @@ manageProfiles="${wasInstallDir}/bin/manageprofiles.sh"
 init was configure
 
 # Make sure deployment manager is started 
-dmgrStatus=$(startWASServer ${dmgrServerName} ${dmgrProfilePath})
+dmgrStatus=$(startWASServer ${dmgrServerName} ${dmgrProfileDir})
 checkStatus ${dmgrStatus} "ERROR: Unable to start deployment manager. Exiting."
 
 # Create the DMGR profile
@@ -21,7 +21,7 @@ ${manageProfiles} \
     "-create" \
     "-templatePath" "${wasInstallDir}/profileTemplates/managed" \
     "-profileName" "${icProfileName}" \
-    "-profilePath" "${icProfilePath}" \
+    "-profilePath" "${icProfileDir}" \
     "-nodeName" "${icNodeName}" \
     "-cellName" "ic_cell" \
     "-dmgrHost" "${fqdn}" \

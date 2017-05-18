@@ -1,0 +1,199 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<agent-input>
+  <variables>
+    <variable name='fqdn' value='FQDN'/>
+    <variable name='dnsSuffix' value='DNS_SUFFIX'/>
+    <variable name='iimSharedDataDir' value='IIM_SHARED_DATA_DIR'/>
+    <variable name='wasInstallDir' value='WAS_INSTALL_DIR'/>
+    <variable name='icRepositoryDir' value='IC_REPOSITORY_DIR'/>
+    <variable name='icRepositoryId' value='IC_REPOSITORY_ID'/>
+    <variable name='icRepositoryVersion' value='IC_REPOSITORY_VERSION'/>
+    <variable name='icInstallDir' value='IC_INSTALL_DIR'/>
+    <variable name='icLocalDataDir' value='IC_LOCAL_DATA_DIR'/>
+    <variable name='icSharedDataDir' value='IC_SHARED_DATA_DIR'/>
+    <variable name='ccmCEInstallDir' value='CCM_CE_INSTALL_DIR'/>
+    <variable name='ccmCEClientInstallDir' value='CCM_CECLIENT_INSTALL_DIR'/>
+    <variable name='ccmFNCSInstallDir' value='CCM_FNCS_INSTALL_DIR'/>
+    <variable name='dmgrProfileDir' value='DMGR_PROFILE_DIR'/>
+    <variable name='dmgrProfileName' value='DMGR_PROFILE_NAME'/>
+    <variable name='jdbcDir' value='JDBC_DIR'/>
+    <variable name='dbPwd' value='DB_PWD'/>
+    <variable name='dmgrCellName' value='DMGR_CELL_NAME'/>
+    <variable name='icNodeName' value='IC_NODE_NAME'/>
+    <variable name='webServerName' value='WEB_SERVER_NAME'/>
+    <variable name='icClusterName' value='IC_CLUSTER_NAME'/>
+    <variable name='icServerName' value='IC_SERVER_NAME'/>
+    <variable name='wasAdminUser' value='WAS_ADMIN_USER'/>
+    <variable name='wasAdminPwd' value='WAS_ADMIN_PWD'/>
+    <variable name='icAdminUser' value='IC_ADMIN_USER'/>
+    <variable name='icAdminPwd' value='IC_ADMIN_PWD'/>
+  </variables>
+
+  <!-- Preferences -->
+  <preference name='com.ibm.cic.common.core.preferences.eclipseCache' value='${iimSharedDataDir}'/>
+
+  <!-- Repositories -->
+  <server>
+    <repository location='${icRepositoryDir}'/> 
+  </server>
+
+  <!-- Components to be installed  -->
+  <install>
+    <offering 
+        profile='IBM Connections' 
+        id='${icRepositoryId}' 
+        version='${icRepositoryVersion}' 
+        features='main,common,files,homepage,news,pushNotification,search,rte,widgetContainer'/>
+  </install>
+
+  <!-- Connections profile -->
+  <profile id='IBM Connections' installLocation='${icInstallDir}'>
+
+    <!-- General -->
+    <data key='cic.selector.arch' value='x86_64'/>
+    <data key='user.job' value='INSTALL'/>
+    <data key='user.deployment.type' value='small'/>
+    <data key='user.database.type' value='DB2'/>
+    <data key='user.user.mapping.administrative.users' value='${icAdminUser}'/>
+    <data key='user.user.mapping.global.moderater.users' value='${icAdminUser}'/>
+    <data key='user.contentStore.local.path' value='${icLocalDataDir}'/>
+    <data key='user.contentStore.shared.path' value='${icSharedDataDir}'/>
+    <data key='user.contentStore.shared.path.configproperties' value='${icSharedDataDir}'/>
+    <data key='user.messageStore.shared.path' value='${icSharedDataDir}'/>
+    <data key='user.connections.install.location' value='${icInstallDir}'/>
+	<data key='user.connections.install.location.win32format' value='C:\Program Files\IBM\Connections'/>
+    <data key='user.notification.replyto.enabled' value='false'/>
+	
+    <!-- WAS -->
+    <data key='user.was.install.location' value='${wasInstallDir}'/>
+    <data key='user.was.install.location.configproperties' value='${wasInstallDir}'/>
+    <data key='user.was.install.location.win32format' value='${wasInstallDir}'/>
+    <data key='user.was.userhome.original' value='${dmgrProfileDir}'/>
+    <data key='user.was.userhome' value='${dmgrProfileDir}'/>
+    <data key='user.was.userhome.configproperties' value='${dmgrProfileDir}'/>
+    <data key='user.was.wasSoapPort' value='8879'/>
+    <data key='user.was.profileName' value='${dmgrProfileName}'/>
+    <data key='user.was.dmCellName' value='${dmgrCellName}'/>
+    <data key='user.was.dmHostname' value='${fqdn}'/>
+    <data key='user.was.domainName' value='${dnsSuffix}'/>
+    <data key='user.was.adminuser.id' value='${wasAdminUser}'/>
+    <data key='user.was.adminuser.password' value='${wasAdminPwd}'/>
+    <data key='user.web.server.name' value='${webServerName}'/>
+    <data key='user.web.server.node' value='${icNodeName}'/>
+	
+    <!-- Files -->	
+    <data key='user.files.adminuser.id' value='${icAdminUser}'/>
+    <data key='user.files.adminuser.password' value='${icAdminPwd}'/>
+    <data key='user.files.firstNodeName' value='${icNodeName}'/>
+    <data key='user.files.serverInfo' value='files.${icNodeName}.ServerName=${icServerName};'/>
+    <data key='user.files.clusterExist' value='false'/>
+    <data key='user.files.clusterName' value='${icClusterName}'/>
+    <data key='user.files.clusterInfo' value='[{&quot;node&quot;: &quot;${icNodeName}&quot;, &quot;name&quot;: &quot;${icServerName}&quot;},]'/>
+    <data key='user.files.dbHostName' value='${fqdn}'/>
+    <data key='user.files.dbPort' value='50000'/>
+    <data key='user.files.jdbcLibraryPath' value='${jdbcDir}'/>
+    <data key='user.files.dbName' value='FILES'/>
+    <data key='user.files.dbUser' value='LCUSER'/>
+    <data key='user.files.dbUserPassword' value='${dbPwd}'/>
+    <data key='user.files.dbType' value='DB2'/>
+	
+    <!-- Homepage -->
+    <data key='user.homepage.adminuser.id' value='${icAdminUser}'/>
+    <data key='user.homepage.adminuser.password' value='${icAdminPwd}'/>
+    <data key='user.homepage.firstNodeName' value='${icNodeName}'/>
+    <data key='user.homepage.serverInfo' value='homepage.${icNodeName}.ServerName=${icServerName};'/>
+    <data key='user.homepage.clusterExist' value='false'/>
+    <data key='user.homepage.clusterName' value='${icClusterName}'/>
+    <data key='user.homepage.clusterInfo' value='[{&quot;node&quot;: &quot;${icNodeName}&quot;, &quot;name&quot;: &quot;${icServerName}&quot;},]'/>
+    <data key='user.homepage.dbHostName' value='${fqdn}'/>
+    <data key='user.homepage.dbPort' value='50000'/>
+    <data key='user.homepage.jdbcLibraryPath' value='${jdbcDir}'/>
+    <data key='user.homepage.dbName' value='HOMEPAGE'/>
+    <data key='user.homepage.dbUser' value='LCUSER'/>
+    <data key='user.homepage.dbUserPassword' value='${dbPwd}'/>
+    <data key='user.homepage.dbType' value='DB2'/>
+
+    <!-- News -->
+	<data key='user.news.adminuser.id' value='${icAdminUser}'/>
+    <data key='user.news.adminuser.password' value='${icAdminPwd}'/>
+    <data key='user.news.firstNodeName' value='${icNodeName}'/>
+    <data key='user.news.serverInfo' value='news.${icNodeName}.ServerName=${icServerName};'/>
+    <data key='user.news.clusterExist' value='false'/>
+    <data key='user.news.clusterName' value='${icClusterName}'/>
+    <data key='user.news.clusterInfo' value='[{&quot;node&quot;: &quot;${icNodeName}&quot;, &quot;name&quot;: &quot;${icServerName}&quot;},]'/>
+    <data key='user.news.serverName' value='${icServerName}'/>
+    <data key='user.news.dbHostName' value='${fqdn}'/>
+    <data key='user.news.dbPort' value='50000'/>
+    <data key='user.news.jdbcLibraryPath' value='${jdbcDir}'/>
+    <data key='user.news.dbName' value='HOMEPAGE'/>
+    <data key='user.news.dbUser' value='LCUSER'/>
+    <data key='user.news.dbUserPassword' value='${dbPwd}'/>
+    <data key='user.news.dbType' value='DB2'/>
+	
+    <!-- Search -->
+    <data key='user.search.adminuser.id' value='${icAdminUser}'/>
+    <data key='user.search.adminuser.password' value='${icAdminPwd}'/>
+    <data key='user.search.firstNodeName' value='${icNodeName}'/>
+    <data key='user.search.serverInfo' value='search.${icNodeName}.ServerName=${icServerName};'/>
+    <data key='user.search.clusterExist' value='false'/>
+    <data key='user.search.clusterName' value='${icClusterName}'/>
+    <data key='user.search.clusterInfo' value='[{&quot;node&quot;: &quot;${icNodeName}&quot;, &quot;name&quot;: &quot;${icServerName}&quot;},]'/>
+    <data key='user.search.serverName' value='${icServerName}'/>
+    <data key='user.search.dbHostName' value='${fqdn}'/>
+    <data key='user.search.dbPort' value='50000'/>
+    <data key='user.search.jdbcLibraryPath' value='${jdbcDir}'/>
+    <data key='user.search.dbName' value='HOMEPAGE'/>
+    <data key='user.search.dbUser' value='LCUSER'/>
+    <data key='user.search.dbUserPassword' value='${dbPwd}'/>
+    <data key='user.search.dbType' value='DB2'/>
+
+    <!-- RTE -->
+    <data key='user.rte.adminuser.id' value='${icAdminUser}'/>
+    <data key='user.rte.adminuser.password' value='${icAdminPwd}'/>
+    <data key='user.rte.clusterExist' value='false'/>
+    <data key='user.rte.clusterName' value='${icClusterName}'/>
+    <data key='user.rte.firstNodeName' value='${icNodeName}'/>
+    <data key='user.rte.serverInfo' value='rte.${icNodeName}.ServerName=${icServerName};'/>
+    <data key='user.rte.clusterInfo' value='[{&quot;node&quot;: &quot;${icNodeName}&quot;, &quot;name&quot;: &quot;${icServerName}&quot;},]'/>
+    <data key='user.rte.serverName' value='${icServerName}'/>
+
+    <!-- Common -->
+    <data key='user.common.adminuser.id' value='${icAdminUser}'/>
+    <data key='user.common.adminuser.password' value='${icAdminPwd}'/>
+    <data key='user.common.clusterExist' value='false'/>
+    <data key='user.common.clusterName' value='${icClusterName}'/>
+    <data key='user.common.firstNodeName' value='${icNodeName}'/>
+    <data key='user.common.serverInfo' value='common.${icNodeName}.ServerName=${icServerName};'/>
+    <data key='user.common.clusterInfo' value='[{&quot;node&quot;: &quot;${icNodeName}&quot;, &quot;name&quot;: &quot;${icServerName}&quot;},]'/>
+    <data key='user.common.serverName' value='${icServerName}'/>
+
+    <!-- Widget Container -->
+    <data key='user.widgetContainer.adminuser.id' value='${icAdminUser}'/>
+    <data key='user.widgetContainer.adminuser.password' value='${icAdminPwd}'/>
+    <data key='user.widgetContainer.clusterExist' value='false'/>
+    <data key='user.widgetContainer.clusterName' value='${icClusterName}'/>
+    <data key='user.widgetContainer.firstNodeName' value='${icNodeName}'/>
+    <data key='user.widgetContainer.serverInfo' value='widgetContainer.${icNodeName}.ServerName=${icServerName};'/>
+    <data key='user.widgetContainer.clusterInfo' value='[{&quot;node&quot;: &quot;${icNodeName}&quot;, &quot;name&quot;: &quot;${icServerName}&quot;},]'/>
+    <data key='user.widgetContainer.serverName' value='${icServerName}'/>
+
+    <!-- Push Notification -->
+    <data key='user.pushNotification.adminuser.id' value='${icAdminUser}'/>
+    <data key='user.pushNotification.adminuser.password' value='${icAdminPwd}'/>
+    <data key='user.pushNotification.firstNodeName' value='${icNodeName}'/>
+    <data key='user.pushNotification.serverInfo' value='pushNotification.${icNodeName}.ServerName=${icServerName};'/>
+    <data key='user.pushNotification.clusterExist' value='false'/>
+    <data key='user.pushNotification.clusterName' value='${icClusterName}'/>
+    <data key='user.pushNotification.clusterInfo' value='[{&quot;node&quot;: &quot;${icNodeName}&quot;, &quot;name&quot;: &quot;${icServerName}&quot;},]'/>
+    <data key='user.pushNotification.serverName' value='${icServerName}'/>
+    <data key='user.pushNotification.dbHostName' value='${fqdn}'/>
+    <data key='user.pushNotification.dbPort' value='50000'/>
+    <data key='user.pushNotification.jdbcLibraryPath' value='${jdbcDir}'/>
+    <data key='user.pushNotification.dbName' value='PNS'/>
+    <data key='user.pushNotification.dbUser' value='LCUSER'/>
+    <data key='user.pushNotification.dbUserPassword' value='${dbPwd}'/>
+    <data key='user.pushNotification.dbType' value='DB2'/>
+
+  </profile>
+  
+</agent-input>

@@ -13,12 +13,12 @@ wasFixPackRepo=${stagingDir}/${wasStagingDir}/${wasFixPackStagingDir}
 wasFixPackSupplRepo=${stagingDir}/${wasStagingDir}/${wasFixPackSupplStagingDir}
 wasFixPackWCTRepo=${stagingDir}/${wasStagingDir}/${wasFixPackWCTStagingDir}
 listAvailablePackages="${iimInstallDir}/eclipse/tools/imcl listAvailablePackages -repositories"
-installPackages="${iimInstallDir}/eclipse/tools/imcl -log ${wasInstallLog} -acceptLicense input"
+installPackages="${iimInstallDir}/eclipse/tools/imcl -log ${wasInstallLog} -acceptLicense -input"
 getWasVersion="${wasInstallDir}/bin/versionInfo.sh"
 getIhsVersion="${ihsInstallDir}/bin/httpd -v"
 getPlgVersion="${plgInstallDir}/bin/versionInfo.sh"
 getWctVersion="${wctInstallDir}/bin/versionInfo.sh"
-wasResponseFileTemplate="${stagingDir}/responsefiles/was_install.template"
+wasResponseFileTemplate="${stagingDir}/rsp/was_install.tmp"
 wasInstallResponseFile="${stagingDir}/${wasStagingDir}/was_install.xml"
 
 # Do initialization stuff
@@ -77,7 +77,7 @@ wctVersion=$(echo ${wctIdVersion} | awk -F '_' '{print $2"_"$3}')
 # Build the response file
 log "INFO: Building WebSphere silent install response file..."
 ${cp} ${wasResponseFileTemplate} ${wasInstallResponseFile}
-checkStatus ${?} "ERROR: Unable to copy ${wasResponseFileTemplate} to $wasInstallResponseFile}. Exiting."
+checkStatus ${?} "ERROR: Unable to copy ${wasResponseFileTemplate} to ${wasInstallResponseFile}. Exiting."
 ${sed} -i "s|WAS_BASE|'${wasBaseRepo}'|" ${wasInstallResponseFile}
 ${sed} -i "s|WAS_SUPPL_BASE|'${wasBaseSupplRepo}'|" ${wasInstallResponseFile}
 ${sed} -i "s|WAS_FP|'${wasFixPackRepo}'|" ${wasInstallResponseFile}

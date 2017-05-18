@@ -1,0 +1,16 @@
+# Added by Connections silent install script
+LoadModule ibm_ssl_module modules/mod_ibm_ssl.so
+
+<IfModule mod_ibm_ssl.c>
+    Listen 0.0.0.0:443
+    <VirtualHost *:443>
+        ServerName SERVER_NAME
+        SSLEnable
+    </VirtualHost>
+</IfModule>
+
+SSLDisable
+
+Keyfile "KEYDB_FILE"
+SSLStashFile "STASH_FILE"
+# End of Connections silent install script addition

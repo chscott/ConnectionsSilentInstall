@@ -1,5 +1,3 @@
-stagingDir=$(pwd)
-defaultPwd="password"
 mkdir="/usr/bin/mkdir"
 rm="/usr/bin/rm"
 # cd doesn't work right when used this way
@@ -42,3 +40,6 @@ mv="/usr/bin/mv"
 hostname="/usr/bin/hostname"
 find="/usr/bin/find"
 xargs="/usr/bin/xargs"
+date="/usr/bin/date"
+pwd="/usr/bin/pwd"
+ps="/usr/bin/ps"

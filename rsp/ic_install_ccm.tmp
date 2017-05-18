@@ -1,0 +1,87 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<agent-input>
+  <variables>
+    <variable name='fqdn' value='FQDN'/>
+    <variable name='iimSharedDataDir' value='IIM_SHARED_DATA_DIR'/>
+    <variable name='icRepositoryDir' value='IC_REPOSITORY_DIR'/>
+    <variable name='icRepositoryId' value='IC_REPOSITORY_ID'/>
+    <variable name='icRepositoryVersion' value='IC_REPOSITORY_VERSION'/>
+    <variable name='icInstallDir' value='IC_INSTALL_DIR'/>
+    <variable name='ccmCEInstallDir' value='CCM_CE_INSTALL_DIR'/>
+    <variable name='ccmCEClientInstallDir' value='CCM_CECLIENT_INSTALL_DIR'/>
+    <variable name='ccmFNCSInstallDir' value='CCM_FNCS_INSTALL_DIR'/>
+    <variable name='jdbcDir' value='JDBC_DIR'/>
+    <variable name='dbPwd' value='DB_PWD'/>
+    <variable name='icNodeName' value='IC_NODE_NAME'/>
+    <variable name='webServerName' value='WEB_SERVER_NAME'/>
+    <variable name='icClusterName' value='IC_CLUSTER_NAME'/>
+    <variable name='icServerName' value='IC_SERVER_NAME'/>
+    <variable name='icAdminUser' value='IC_ADMIN_USER'/>
+    <variable name='icAdminPwd' value='IC_ADMIN_PWD'/>
+  </variables>
+
+  <!-- Preferences -->
+  <preference name='com.ibm.cic.common.core.preferences.eclipseCache' value='${iimSharedDataDir}'/>
+
+  <!-- Repositories -->
+  <server>
+    <repository location='${icRepositoryDir}'/> 
+  </server>
+
+  <!-- Components to be installed  -->
+  <install>
+    <offering 
+        profile='IBM Connections' 
+        id='${icRepositoryId}' 
+        version='${icRepositoryVersion}' 
+        features='ccm'/>
+  </install>
+
+  <!-- Connections profile -->
+  <profile id='IBM Connections' installLocation='${icInstallDir}'>
+
+    <!-- CCM General -->
+	<data key='user.ccm.install.now' value='false'/>
+    <data key='user.ccm.installers.original.path' value='/linux_ccm_installer'/>
+    <data key='user.ccm.installers.path' value='/linux_ccm_installer'/>
+	<data key='user.ccm.existingDeployment' value='false'/>
+	<data key='user.ccm.adminuser.id' value='${icAdminUser}'/>
+    <data key='user.ccm.adminuser.password' value='${icAdminPwd}'/>
+    <data key='user.ccm.firstNodeName' value='${icNodeName}'/>
+    <data key='user.ccm.serverInfo' value='ccm.${icNodeName}.ServerName=${icServerName};'/>
+    <data key='user.ccm.clusterExist' value='false'/>
+    <data key='user.ccm.clusterName' value='${icClusterName}'/>
+    <data key='user.ccm.clusterInfo' value='[{&quot;node&quot;: &quot;${icNodeName}&quot;, &quot;name&quot;: &quot;${icServerName}&quot;},]'/>
+    <data key='user.ccm.userName' value='${icAdminUser}'/>
+    <data key='user.ccm.password' value='${icAdminPwd}'/>
+    <data key='user.ccm.serverName' value='${icServerName}'/>
+    <data key='user.ccm.jdbcLibraryPath' value='${jdbcDir}'/>
+    <data key='user.ccm.dbType' value='DB2'/>
+    <data key='user.ccm.gcd.dbHostName' value='${fqdn}'/>
+    <data key='user.ccm.gcd.dbPort' value='50000'/>
+    <data key='user.ccm.gcd.dbName' value='FNGCD'/>
+    <data key='user.ccm.gcd.dbUser' value='LCUSER'/>
+    <data key='user.ccm.gcd.dbUserPassword' value='${dbPwd}'/>
+    <data key='user.ccm.objstore.dbHostName' value='${fqdn}'/>
+    <data key='user.ccm.objstore.dbPort' value='50000'/>
+    <data key='user.ccm.objstore.dbName' value='FNOS'/>
+    <data key='user.ccm.objstore.dbUser' value='LCUSER'/>
+    <data key='user.ccm.objstore.dbUserPassword' value='${dbPwd}'/>
+    
+    <!-- CCM CE -->
+    <data key='user.ce.install.location' value='${ccmCEInstallDir}'/>
+    <data key='user.ccm.ce.installer' value='5.2.1-P8CPE-ZLINUX.BIN'/>
+    <data key='user.ccm.ce.fp.installer' value='5.2.1.2-P8CPE-ZLINUX-FP002.BIN'/>
+
+    <!-- CCM CE Client -->
+    <data key='user.ceclient.install.location' value='${ccmCEClientInstallDir}'/>
+    <data key='user.ccm.ceclient.installer' value='5.2.1.2-P8CPE-CLIENT-ZLINUX-FP002.BIN'/>
+
+    <!-- CCM FNCS -->
+    <data key='user.fncs.install.location' value='${ccmFNCSInstallDir}'/>
+    <data key='user.ccm.fncs.installer' value='IBM_CONTENT_NAVIGATOR-2.0.3-zLINUX.bin'/>
+    <data key='user.ccm.fncs.fp.installer' value='IBM_CONTENT_NAVIGATOR-2.0.3.5-FP005-zLINUX.bin'/>
+
+  </profile>
+  
+</agent-input>

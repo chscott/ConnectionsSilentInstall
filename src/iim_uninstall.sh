@@ -8,6 +8,7 @@
 # Local variables
 iimUninstallLog="${logDir}/iim_uninstall.log"
 iimUninstall="${iimDataDir}/uninstall/uninstallc -l ${iimUninstallLog}"
+doUninstall="true"
 
 # Do initialization stuff
 init iim uninstall
@@ -15,21 +16,23 @@ init iim uninstall
 # First see if IIM is even installed
 result=$(isInstalled ${iimInstallDir})
 if [ ${result} -eq 1 ]; then
-    log "INFO: IIM does not appear to be installed. Exiting."
-    exit 0 
+    log "INFO: IIM does not appear to be installed. Skipping uninstall."
+    doUninstall="false"
 fi
 
 # Uninstall IIM
-log "INFO: Uninstalling IIM..."
-${iimUninstall} >>${scriptLog} 2>&1
-checkStatus ${?} "ERROR: Failed to uninstall IIM. Exiting."
+if [ ${doUninstall} == "true" ]; then
+    log "INFO: Uninstalling IIM..."
+    ${iimUninstall} >>${scriptLog} 2>&1
+    checkStatus ${?} "ERROR: Failed to uninstall IIM. Exiting."
+fi
 
 # Clean up install artifacts
-log "INFO: Deleting ${iimInstallDir}..."
+log "INFO: Removing IIM installation directory..."
 ${rm} -f -r ${iimInstallDir}
-log "INFO: Deleting ${iimDataDir}..."
+log "INFO: Removing IIM data directory..."
 ${rm} -f -r ${iimDataDir}
-log "INFO: Deleting ${iimSharedDataDir}..."
+log "INFO: Removing IIM shared data directory..."
 ${rm} -f -r ${iimSharedDataDir}
 
 # Print the results

@@ -125,7 +125,7 @@ function checkUserGroupStatus() {
                 log "WARNING: ${userOrGroup} already exists. Continuing..."	
             # Fatal
             else
-                log "ERROR: ${message} ${userOrGroup}"
+                log "${message} ${userOrGroup}"
                 log "ERROR: Exit status: ${code}"
                 exit 1
             fi
@@ -133,7 +133,7 @@ function checkUserGroupStatus() {
     elif [ ${operation} == "DELETE" ]; then
         # Non-fatal error
         if [ ${code} -ne 0 ]; then
-            log "WARNING: ${message} ${userOrGroup}"
+            log "${message} ${userOrGroup}"
         fi
     fi
 
@@ -304,11 +304,16 @@ function init() {
     local component=${1}
     local operation=${2}
 
-    redirectOutput
+    # Skip redirection for main script to avoid duplicated log lines
+    if [ ${component} != "main" ]; then
+        redirectOutput
+    fi
+
     checkForRoot
     grantAccessToStagingDir
     checkForLogDir    
 
+    # When installing, additional tasks are required
     if [ ${operation} == "install" ]; then
 
         local installDir
@@ -321,11 +326,13 @@ function init() {
             installDir=${websphereInstallDir}
         elif [ ${component} == "tdi" ]; then
             installDir=${tdiInstallDir}
+        elif [ ${component} == "ic" ]; then
+            installDir=${icInstallDir}
         else
-            installDir=null 
+            installDir="null" 
         fi 
 
-        # Only check for existing install if it's one we're interested in
+        # For installable components, check to see if it appears that the component has already been installed 
         if [ ${installDir} != "null" ]; then
             local installed=$(isInstalled ${installDir})
             if [ ${installed} -eq 0 ]; then
@@ -334,6 +341,7 @@ function init() {
             fi    
         fi
 
+        # Recreate the staging directory
         clean ${component}
         cdToStagingDir ${component}
 
@@ -344,21 +352,29 @@ function init() {
 # Move live logs to archive directory
 function logRotate() {
 
-    local now=$(date '+%Y%m%d_%H%M%S')
+    local now=$(${date} '+%Y%m%d_%H%M%S')
+    local originalDir=$(${pwd})
 
-    # cd to logs dir to use relative paths for tar
-    cd ${logDir}
+    # Skip if the log directory doesn't exist
+    if [ -d ${logDir} ]; then
 
-    # Create the archive subdirectory if it doesn't already exist
-    if [ ! -d ${logDir}/archive ]; then
-        ${mkdir} ${logDir}/archive
+        # cd to logs dir to use relative paths for tar
+        cd ${logDir}
+
+        # Create the archive subdirectory if it doesn't already exist
+        if [ ! -d ${logDir}/archive ]; then
+            ${mkdir} ${logDir}/archive
+        fi
+
+        # Create an archive of the existing logs 
+        ${find} . -maxdepth 1 -type f | ${tar} -czf ${logDir}/archive/logs_${now}.tar.gz -T -
+
+        # Delete the live logs to prepare for the next run
+        ${find} . -maxdepth 1 -type f | ${xargs} ${rm} -f
     fi
 
-    # Create an archive of the existing logs 
-    ${find} . -maxdepth 1 -type f | ${tar} -czf ${logDir}/archive/logs_${now}.tar.gz -T -
-
-    # Delete the live logs to prepare for the next run
-    ${find} . -maxdepth 1 -type f | ${xargs} ${rm} -f
+    # cd back to the original directory
+    cd ${originalDir}
 
 }
 
@@ -374,6 +390,7 @@ function getWASServerStatus() {
     local functionStatus="undefined"
 
     # Get the result of the serverStatus.sh command
+    log "INFO: Checking WAS server status for server ${server}..."
     serverStatus=$(${profileRoot}/bin/serverStatus.sh ${server} -username ${dmgrAdminUser} -password ${defaultPwd})
     
     # Check to see if the server is stopped
@@ -483,6 +500,66 @@ function restartWASServer() {
         else
             functionStatus=0
         fi 
+    fi
+
+    echo ${functionStatus}
+
+}
+
+# Start IHS Admin server
+function startIHSAdminServer() {
+
+    local serverStatus
+    local functionStatus
+
+    log "INFO: Starting IHS administration server..."
+    ${ihsInstallDir}/bin/adminctl start >>${scriptLog} 2>&1
+    serverStatus=${?}
+
+    if [ ${serverStatus} -ne 0 ]; then
+        functionStatus=1
+    else
+        functionStatus=0
+    fi
+
+    echo ${functionStatus}
+
+}
+
+# Start IHS server
+function startIHSServer() {
+
+    local serverStatus
+    local functionStatus
+
+    log "INFO: Starting IHS server..."
+    ${ihsInstallDir}/bin/apachectl start >>${scriptLog} 2>&1
+    serverStatus=${?}
+
+    if [ ${serverStatus} -ne 0 ]; then
+        functionStatus=1
+    else
+        functionStatus=0
+    fi
+
+    echo ${functionStatus}
+
+}
+
+# Stop IHS server
+function stopIHSServer() {
+
+    local serverStatus
+    local functionStatus
+
+    log "INFO: Stopping IHS server..."
+    ${ihsInstallDir}/bin/apachectl stop >>${scriptLog} 2>&1
+    serverStatus=${?}
+
+    if [ ${serverStatus} -ne 0 ]; then
+        functionStatus=1
+    else
+        functionStatus=0
     fi
 
     echo ${functionStatus}

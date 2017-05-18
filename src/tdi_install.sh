@@ -6,7 +6,7 @@
 . src/vars.sh
 
 # Local variables 
-tdiResponseFileTemplate="${stagingDir}/responsefiles/tdi_install.template"
+tdiResponseFileTemplate="${stagingDir}/rsp/tdi_install.tmp"
 tdiInstallResponseFile="${stagingDir}/${tdiStagingDir}/tdi_install.rsp"
 tdiVersion="${tdiInstallDir}/bin/applyUpdates.sh -queryreg"
 tdiFixPackDir=$(${echo} ${tdiFixPackPackage} | ${awk} -F '.zip' '{print $1}')

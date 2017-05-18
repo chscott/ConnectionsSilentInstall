@@ -6,7 +6,7 @@
 . src/vars.sh
 
 # Local variables 
-icDbScriptDir="${stagingDir}/${icStagingDir}/${icDbStagingDir}/Wizards/connections.sql"
+icDbScriptDir="${stagingDir}/${icDbStagingDir}/Wizards/connections.sql"
 icDbLog="${logDir}/ic_create_dbs.log"
 icDbs=( \
     homepage \
@@ -27,7 +27,7 @@ icDbs=( \
     )
 
 # Do initialization stuff
-init ${icStagingDir}/${icDbStagingDir} install 
+init ${icDbStagingDir} install 
 
 # Download the install files 
 downloadFile connections ${icDbPackage}

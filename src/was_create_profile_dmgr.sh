@@ -18,7 +18,7 @@ ${manageProfiles} \
     "-templatePath" "${wasInstallDir}/profileTemplates/management" \
     "-serverType" "DEPLOYMENT_MANAGER" \
     "-profileName" "${dmgrProfileName}" \
-    "-profilePath" "${dmgrProfilePath}" \
+    "-profilePath" "${dmgrProfileDir}" \
     "-nodeName" "${dmgrNodeName}" \
     "-cellName" "${dmgrCellName}" \
     "-serverName" "${dmgrServerName}" \

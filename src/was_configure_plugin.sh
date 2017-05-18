@@ -6,7 +6,7 @@
 . src/vars.sh
 
 # Local variables
-plgResponseFileTemplate="${stagingDir}/responsefiles/was_plugin.template"
+plgResponseFileTemplate="${stagingDir}/rsp/was_plugin.tmp"
 plgResponseFile="${stagingDir}/${wasStagingDir}/was_plugin.rsp"
 wctpct="${wctInstallDir}/WCT/wctcmd.sh -tool pct"
 configScript="configurewebserver1.sh"
@@ -17,7 +17,8 @@ init was configure
 # Build the response file
 copyTemplate ${plgResponseFileTemplate} ${plgResponseFile}
 ${sed} -i "s|IHS_ADMIN_GROUP|${ihsAdminGroup}|" ${plgResponseFile}
-${sed} -i "s|IHS_ADMIN|${ihsAdmin}|" ${plgResponseFile}
+${sed} -i "s|IHS_ADMIN_USER|${ihsAdmin}|" ${plgResponseFile}
+${sed} -i "s|IHS_ADMIN_PWD|${defaultPwd}|" ${plgResponseFile}
 ${sed} -i "s|WAS_PROFILE|${dmgrProfileName}|" ${plgResponseFile}
 ${sed} -i "s|WAS_INSTALL_DIR|${wasInstallDir}|" ${plgResponseFile}
 ${sed} -i "s|IHS_INSTALL_DIR|${ihsInstallDir}|" ${plgResponseFile}

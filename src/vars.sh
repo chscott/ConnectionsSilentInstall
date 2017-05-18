@@ -45,6 +45,8 @@ tdiBasePackage="TDI_IDENTITY_E_V7.1.1_LIN-X86-64.tar"
 tdiFixPackPackage="7.1.1-TIV-TDI-FP0006.zip"
 # Connections DB package
 icDbPackage="Connections_6.0_Wizards_lin_aix.tar"
+# Connections install package
+icInstallPackage="IBM_Connections_6.0_lin.tar"
 # LDAP type for Deployment Manager
 # See -ldapServerType option in createIdMgrLDAPRepository WAS help doc for
 # available options. Examples: AD, IDS, DOMINO, SUNONE.
@@ -65,6 +67,10 @@ ldapBindPwd="Passw0rd"
 ldapBase="ou=ic,dc=ad,dc=com"
 # LDAP attributes used for login
 loginProperties="uid;mail"
+# Organization name used for key generation
+orgName="IBM"
+# Country code used for key generation
+countryCode="US"
 ###############################################################################
 
 ###############################################################################
@@ -92,6 +98,8 @@ installPlg="true"
 installWct="true"
 # Set true to install TDI or false to skip it
 installTdi="true"
+# Set true to install IC or false to skip it
+installIc="true"
 # Set true to use FTP to download install files or false if files are local 
 useFtp="true"
 # Directory for all log files
@@ -159,19 +167,33 @@ wctInstallDir="${websphereInstallDir}/toolbox"
 # Profile name for Deployment Manager
 dmgrProfileName="dmgr"
 # Profile directory for Deployment Manager
-dmgrProfilePath="${wasDataDir}/profiles/${dmgrProfileName}"
+dmgrProfileDir="${wasDataDir}/profiles/${dmgrProfileName}"
 # Node name for Deployment Manager
 dmgrNodeName="dmgr1"
 # Cell name for Deployment Manager
 dmgrCellName="icCell"
 # Server name for Deployment Manager
 dmgrServerName="dmgr"
+# Web server name in cell
+webServerName="webserver1"
+# Connections data directory
+icDataDir="/var/IBM/ic"
+# Connections local data directory
+icLocalDataDir="${icDataDir}/local"
+# Connections shared data directory
+icSharedDataDir="${icDataDir}/shared"
 # Profile name for Connections
 icProfileName="ic"
 # Profile directory for Connections
-icProfilePath="${wasDataDir}/profiles/${icProfileName}"
+icProfileDir="${wasDataDir}/profiles/${icProfileName}"
 # Node name for Connections
 icNodeName="ic1"
+# Connections cluster name
+icClusterName="ic_cluster"
+# Connections app server name
+icServerName="ic1"
+# Connections admin user
+icAdminUser="wasadmin"
 # WAS admin user
 dmgrAdminUser="wasadmin"
 # WAS realm name
@@ -184,6 +206,16 @@ tdiInstallDir="/opt/IBM/tdi"
 icStagingDir="ic"
 # Connections database staging directory (subdirectory of icStagingDir)
 icDbStagingDir="db"
+# Location where Connections will be installed
+icInstallDir="/opt/IBM/ic"
+# Location where CCM components will be installed
+ccmInstallDir="${icInstallDir}/ccm"
+# Location where CCM Content Engine will be installed
+ccmCEInstallDir="${ccmInstallDir}/ce"
+# Location where CCM Content Engine Client will be installed
+ccmCEClientInstallDir="${ccmInstallDir}/ce_client"
+# Location where CCM FNCS will be installed
+ccmFNCSInstallDir="${ccmInstallDir}/fncs"
 # IHS admin group (OS)
 ihsAdminGroup="ihsadmins"
 # IHS admin user (OS)

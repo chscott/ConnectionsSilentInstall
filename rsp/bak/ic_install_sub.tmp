@@ -1,0 +1,118 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<agent-input>
+  <variables>
+    <variable name='fqdn' value='FQDN'/>
+    <variable name='dnsSuffix' value='DNS_SUFFIX'/>
+    <variable name='iimSharedDataDir' value='IIM_SHARED_DATA_DIR'/>
+    <variable name='wasInstallDir' value='WAS_INSTALL_DIR'/>
+    <variable name='icRepositoryDir' value='IC_REPOSITORY_DIR'/>
+    <variable name='icRepositoryId' value='IC_REPOSITORY_ID'/>
+    <variable name='icRepositoryVersion' value='IC_REPOSITORY_VERSION'/>
+    <variable name='icInstallDir' value='IC_INSTALL_DIR'/>
+    <variable name='icLocalDataDir' value='IC_LOCAL_DATA_DIR'/>
+    <variable name='icSharedDataDir' value='IC_SHARED_DATA_DIR'/>
+    <variable name='dmgrProfileDir' value='DMGR_PROFILE_DIR'/>
+    <variable name='dmgrProfileName' value='DMGR_PROFILE_NAME'/>
+    <variable name='jdbcDir' value='JDBC_DIR'/>
+    <variable name='dbPwd' value='DB_PWD'/>
+    <variable name='dmgrCellName' value='DMGR_CELL_NAME'/>
+    <variable name='icNodeName' value='IC_NODE_NAME'/>
+    <variable name='webServerName' value='WEB_SERVER_NAME'/>
+    <variable name='icClusterName' value='IC_CLUSTER_NAME'/>
+    <variable name='icServerName' value='IC_SERVER_NAME'/>
+    <variable name='wasAdminUser' value='WAS_ADMIN_USER'/>
+    <variable name='wasAdminPwd' value='WAS_ADMIN_PWD'/>
+    <variable name='icAdminUser' value='IC_ADMIN_USER'/>
+    <variable name='icAdminPwd' value='IC_ADMIN_PWD'/>
+  </variables>
+
+  <!-- Location of the IBM Connections repository.config-->
+  <server>
+    <repository location='${icRepositoryDir}'/> 
+  </server>
+
+  <!-- Specify name and version data for IBM Installation Manager and IBM Connections, and specify which applications to install. -->
+  <profile id='IBM Connections' installLocation='${icInstallDir}'>
+    <data key='cic.selector.arch' value='x86_64'/>
+    <data key='user.job' value='INSTALL'/>
+
+    <!-- WAS -->
+    <data key='user.was.install.location' value='${wasInstallDir}'/>
+    <data key='user.was.userhome' value='${dmgrProfileDir}'/>
+    <data key='user.was.profileName' value='${dmgrProfileName}'/>
+    <data key='user.was.dmCellName' value='${dmgrCellName}'/>
+    <data key='user.nodeslist' value='${icNodeName}'/>
+    <data key='user.nodesHostnamelist' value='${fqdn}'/>
+    <data key='user.was.install.location.configproperties' value='${wasInstallDir}'/>
+    <data key='user.was.install.location.win32format' value='${wasInstallDir}'/>
+    <data key='user.was.userhome.original' value='${dmgrProfileDir}'/>
+    <data key='user.was.userhome.configproperties' value='${dmgrProfileDir}'/>
+    <data key='user.was.wasSoapPort' value='8879'/>
+    <data key='user.was.dmHostname' value='${fqdn}'/>
+    <data key='user.was.domainName' value='.swg.usma.ibm.com'/>
+    <data key='user.was.adminuser.id' value='${wasAdminUser}'/>
+    <data key='user.was.adminuser.password' value='${wasAdminPwd}'/>
+
+    <!-- Connections -->
+    <data key='user.deployment.type' value='small'/>
+    <data key='user.web.server.name' value='${webServerName}'/>
+    <data key='user.web.server.node' value='${icNodeName}'/>
+    <data key='user.contentStore.local.path' value='${icLocalDataDir}'/>
+    <data key='user.contentStore.shared.path' value='${icSharedDataDir}'/>
+    <data key='user.contentStore.shared.path.configproperties' value='${icSharedDataDir}'/>
+    <data key='user.messageStore.shared.path' value='${icSharedDataDir}'/>
+    <data key='user.connections.install.location' value='${icInstallDir}'/>
+    <data key='user.notification.replyto.enabled' value='false'/>
+    <data key='user.user.mapping.administrative.users' value='${icAdminUser}'/>
+    <data key='user.database.type' value='DB2'/>
+
+    <!-- Homepage -->
+    <data key='user.homepage.adminuser.id' value='${icAdminUser}'/>
+    <data key='user.homepage.adminuser.password' value='${icAdminPwd}'/>
+    <data key='user.homepage.clusterExist' value='false'/>
+    <data key='user.homepage.clusterName' value='${icClusterName}'/>
+    <data key='user.homepage.firstNodeName' value='${icNodeName}'/>
+    <data key='user.homepage.serverInfo' value='homepage.${icNodeName}.ServerName=${icServerName};'/>
+    <data key='user.homepage.clusterInfo' value='[{&quot;node&quot;: &quot;${icNodeName}&quot;, &quot;name&quot;: &quot;${icServerName}&quot;},]'/>
+    <data key='user.homepage.dbHostName' value='${fqdn}'/>
+    <data key='user.homepage.dbPort' value='50000'/>
+    <data key='user.homepage.jdbcLibraryPath' value='${jdbcDir}'/>
+    <data key='user.homepage.dbName' value='HOMEPAGE'/>
+    <data key='user.homepage.dbUser' value='LCUSER'/>
+    <data key='user.homepage.dbUserPassword' value='${dbPwd}'/>
+    <data key='user.homepage.dbType' value='DB2'/>
+
+    <!-- News -->
+	<data key='user.news.adminuser.id' value='${icAdminUser}'/>
+    <data key='user.news.adminuser.password' value='${icAdminPwd}'/>
+    <data key='user.news.clusterExist' value='false'/>
+    <data key='user.news.clusterName' value='${icClusterName}'/>
+    <data key='user.news.firstNodeName' value='${icNodeName}'/>
+    <data key='user.news.serverInfo' value='news.${icNodeName}.ServerName=${icServerName};'/>
+    <data key='user.news.clusterInfo' value='[{&quot;node&quot;: &quot;${icNodeName}&quot;, &quot;name&quot;: &quot;${icServerName}&quot;},]'/>
+    <data key='user.news.serverName' value='${icServerName}'/>
+    <data key='user.news.dbHostName' value='${fqdn}'/>
+    <data key='user.news.dbPort' value='50000'/>
+    <data key='user.news.jdbcLibraryPath' value='${jdbcDir}'/>
+    <data key='user.news.dbName' value='HOMEPAGE'/>
+    <data key='user.news.dbUser' value='LCUSER'/>
+    <data key='user.news.dbUserPassword' value='${dbPwd}'/>
+    <data key='user.news.dbType' value='DB2'/>
+
+    <!-- Common -->
+    <data key='user.common.adminuser.id' value='${icAdminUser}'/>
+    <data key='user.common.adminuser.password' value='${icAdminPwd}'/>
+    <data key='user.common.clusterExist' value='false'/>
+    <data key='user.common.clusterName' value='${icClusterName}'/>
+    <data key='user.common.firstNodeName' value='${icNodeName}'/>
+    <data key='user.common.serverInfo' value='common.${icNodeName}.ServerName=${icServerName};'/>
+    <data key='user.common.clusterInfo' value='[{&quot;node&quot;: &quot;${icNodeName}&quot;, &quot;name&quot;: &quot;${icServerName}&quot;},]'/>
+    <data key='user.common.serverName' value='${icServerName}'/>
+
+ </profile>
+  
+  <install>
+    <offering profile='IBM Connections' id='${icRepositoryId}' version='${icRepositoryVersion}' features='main,common,homepage,news'/>
+  </install>
+  <preference name='com.ibm.cic.common.core.preferences.eclipseCache' value='${iimSharedDataDir}'/>
+</agent-input>

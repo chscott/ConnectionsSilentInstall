@@ -7,7 +7,8 @@
 
 # Local variables 
 tdiUninstall="${tdiInstallDir}/_uninst/uninstaller"
-tdiUninstallResponseFile="${stagingDir}/responsefiles/tdi_uninstall.rsp"
+tdiUninstallResponseFile="${stagingDir}/rsp/tdi_uninstall.rsp"
+doUninstall="true"
 
 # Do initialization stuff
 init tdi uninstall
@@ -15,17 +16,19 @@ init tdi uninstall
 # Verify TDI is installed
 result=$(isInstalled ${tdiInstallDir})
 if [ ${result} -eq 1 ]; then
-    log "INFO: TDI does not appear to be installed. Exiting."
-    exit 0
+    log "INFO: TDI does not appear to be installed. Skipping uninstall."
+    doUninstall="false"
 fi
 
 # Uninstall TDI
-log "INFO: Uninstalling TDI..."
-${tdiUninstall} -f ${tdiUninstallResponseFile} -i silent
-checkStatus ${?} "ERROR: TDI uninstall failed. Exiting."
+if [ ${doUninstall} == "true" ]; then
+    log "INFO: Uninstalling TDI..."
+    ${tdiUninstall} -f ${tdiUninstallResponseFile} -i silent
+    checkStatus ${?} "ERROR: TDI uninstall failed. Exiting."
+fi
 
-# Clean up install artifacts
-log "INFO: Deleting ${tdiInstallDir}..."
+# Remove install directory 
+log "INFO: Removing TDI installation directory ..."
 ${rm} -f -r ${tdiInstallDir}
 
 # Print the results
