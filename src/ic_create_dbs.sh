@@ -26,6 +26,8 @@ icDbs=( \
     library.os \
     )
 
+log "INSTALL: Beginning creation of Connections databases..."
+
 # Do initialization stuff
 init ${icDbStagingDir} install 
 
@@ -62,4 +64,4 @@ do
 done
 
 # Print the results
-log "INFO: Success! Connections databases have been created."
+log "INSTALL: Success! Connections databases have been created."

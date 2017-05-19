@@ -10,6 +10,8 @@ iimInstallLog="${logDir}/iim_install.log"
 iimInstall="./installc -installationDirectory ${iimInstallDir} -dataLocation ${iimDataDir} -l ${iimInstallLog} -acceptLicense"
 iimVersion="${iimInstallDir}/eclipse/tools/imcl version"
 
+log "INSTALL: Beginning installation of IIM..."
+
 # Do initialization stuff
 init ${iimStagingDir} install
 
@@ -26,4 +28,4 @@ checkStatus ${?} "ERROR: IIM installation failed. Exiting."
 
 # Print the results
 version=$(${iimVersion} | ${grep} "^Version" | ${cut} -d ' ' -f 2)
-log "INFO: Success! IBM Installation Manager ${version} has been installed."
+log "INSTALL: Success! IIM ${version} has been installed."

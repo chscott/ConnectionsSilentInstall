@@ -10,6 +10,8 @@ iimUninstallLog="${logDir}/iim_uninstall.log"
 iimUninstall="${iimDataDir}/uninstall/uninstallc -l ${iimUninstallLog}"
 doUninstall="true"
 
+log "UNINSTALL: Beginning uninstall of IIM..."
+
 # Do initialization stuff
 init ${iimStagingDir} uninstall
 
@@ -36,4 +38,4 @@ log "INFO: Removing IIM shared data directory..."
 ${rm} -f -r ${iimSharedDataDir}
 
 # Print the results
-log "INFO: Success! IIM has been uninstalled."
+log "UNINSTALL: Success! IIM has been uninstalled."

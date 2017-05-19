@@ -10,6 +10,8 @@ wsadmin="${dmgrProfileDir}/bin/wsadmin.sh"
 stopManager="${dmgrProfileDir}/bin/stopManager.sh"
 startManager="${dmgrProfileDir}/bin/startManager.sh"
 
+log "INSTALL: Configuring LDAP for WAS..."
+
 # Do initialization stuff
 init ${wasStagingDir} configure
 
@@ -40,4 +42,4 @@ result=$(restartWASServer ${dmgrServerName} ${dmgrProfileDir})
 checkStatus ${result} "ERROR: Unable to restart deployment manager. Exiting."
 
 # Print the results
-log "INFO: Success! LDAP has been configured for WAS."
+log "INSTALL: Success! LDAP has been configured for WAS."

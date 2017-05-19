@@ -26,6 +26,8 @@ icDbs=( \
     library.os \
     )
 
+log "UNINSTALL: Beginning drop of Connections databases..."
+
 # Do initialization stuff
 init ${icDbStagingDir} uninstall 
 
@@ -43,4 +45,4 @@ do
 done
 
 # Print the results
-log "INFO: Success! Connections databases have been dropped"
+log "UNINSTALL: Success! Connections databases have been dropped"

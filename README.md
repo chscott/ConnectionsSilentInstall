@@ -25,8 +25,8 @@ deployment is available for use.
 
 ## Quick Start Guide
 
-1. Download the project zip file to your system and extract responsefiles/ and src/ into a staging directory. For example,
-   /home/user/staging.
+1. Download the project zip file to your system and extract rsp/ and src/ into a staging directory. For example,
+   /var/tmp/staging.
 	
 2. Open src/vars.sh and inspect the variables in the Must Review section. The variables in this section are likely (but
    not required) to need modification to match the environment. Variables in the Acceptable Defaults section may also 
@@ -41,28 +41,42 @@ deployment is available for use.
 	```
 
 4. Review the output and log files during and after installation. Assuming no errors, you should be able to open a browser
-   and connect to https://<your_system>:9043/ibm/console.
+   and connect to https://<your_system>/files.
 
 ## What currently works
 
 The following functionality is currently working:
 
-1. Install package retrieval from FTP
+- Install package retrieval from FTP
 
-2. DB2 installation with associated configuration
+- DB2 installation with associated configuration
 
-3. IIM installation
+- Connections database creation
 
-4. WAS, IHS, Plug-ins and WCT installation (with fix pack)
+- TDI installation (with fix pack)
 
-5. Dmgr profile creation
+- IIM installation
 
-6. LDAP repository configuration and link to realm
+- WAS, IHS, Plug-ins and WCT installation (with fix pack)
 
-7. TDI installation (with fix pack)
+- IHS SSL configuration
 
-8. Connections database creation
+- Dmgr profile creation
 
-9. Web server definition added to cell
+- LDAP repository configuration and link to realm
 
-10. Uninstall of all components (individually or collectively)
+- Web server plug-in definition
+
+- Connections application server profile creation
+
+- Connections installation (minus CCM and other add-ons)
+
+- Uninstall of all components (individually or collectively)
+
+## What does not currently work
+
+The following functionality has not yet been implemented:
+
+- Installation of CCM, OrientMe, and additional add-ons
+
+- Profile population

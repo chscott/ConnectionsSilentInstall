@@ -40,6 +40,8 @@ icResponseFiles=( \
     ${icWikisRsp}
 )
 
+log "INSTALL: Beginning installation of Connections..."
+
 # Do initialization stuff
 init ${icStagingDir} install 
 
@@ -160,4 +162,4 @@ ${installPackages} ${stagingDir}/${icStagingDir}/${icWikisRsp}.xml >>${scriptLog
 checkStatus ${?} "ERROR: unable to install the Wikis feature. Exiting."
 
 # Print the results
-log "INFO: Success! Connections has been installed."
+log "INSTALL: Success! Connections has been installed."

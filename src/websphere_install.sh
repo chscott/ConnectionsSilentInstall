@@ -21,6 +21,8 @@ getWctVersion="${wctInstallDir}/bin/versionInfo.sh"
 wasResponseFileTemplate="${stagingDir}/rsp/was_install.tmp"
 wasInstallResponseFile="${stagingDir}/${wasStagingDir}/was_install.xml"
 
+log "INSTALL: Beginning installation of WebSphere components."
+
 # Do initialization stuff
 init ${wasStagingDir} install
 
@@ -109,12 +111,12 @@ checkStatus ${?} "ERROR: Unable to add IHS shared libraries to ${sysSharedLibDir
 ${ldconfig}
 
 # Print the results
-log "INFO: Success! All WebSphere packages were installed. Printing version info..."
+log "INSTALL: Success! All WebSphere packages were installed. Printing version info..."
 wasVersion=$(${getWasVersion} | ${grep} "^Version  " | ${tr} -s ' ' | ${cut} -d ' ' -f 2)
 plgVersion=$(${getPlgVersion} | ${grep} "^Version  " | ${tr} -s ' ' | ${cut} -d ' ' -f 2)
 wctVersion=$(${getWctVersion} | ${grep} "^Version  " | ${tr} -s ' ' | ${cut} -d ' ' -f 2)
 ihsVersion=$(${getIhsVersion} | ${grep} "version" | ${cut} -d '/' -f 2 | ${cut} -d ' ' -f 1)
-log "INFO: WebSphere Application Server version: ${wasVersion}"
-log "INFO: WebSphere Plugins version: ${plgVersion}"
-log "INFO: WebSphere Toolbox version: ${wctVersion}"
-log "INFO: IBM HTTP Server version: ${ihsVersion}"
+log "INSTALL: WebSphere Application Server version: ${wasVersion}"
+log "INSTALL: WebSphere Plugins version: ${plgVersion}"
+log "INSTALL: WebSphere Toolbox version: ${wctVersion}"
+log "INSTALL: IBM HTTP Server version: ${ihsVersion}"

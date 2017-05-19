@@ -19,6 +19,8 @@ ihsSSLTemplate="${stagingDir}/rsp/ihs_ssl_config.tmp"
 ihsSSLFragment="${stagingDir}/${wasStagingDir}/ihs_ssl_config.frg"
 ihsConfFile="${ihsInstallDir}/conf/httpd.conf"
 
+log "INSTALL: Beginning SSL configuration for IHS..."
+
 # Do initialization stuff
 init ${wasStagingDir} configure
 
@@ -62,4 +64,4 @@ ihsStatus=$(startIHSServer)
 checkStatus ${ihsStatus} "ERROR: Unable to start IHS server. Exiting."
 
 # Print the results
-log "INFO: Success! SSL has been enabled for IHS."
+log "INSTALL: Success! SSL has been enabled for IHS."

@@ -12,6 +12,8 @@ uninstallPackages="${iimInstallDir}/eclipse/tools/imcl -log ${wasUninstallLog} u
 stopManager="${dmgrProfileDir}/bin/stopManager.sh"
 doUninstall="true"
 
+log "UNINSTALL: Beginning uninstall of WebSphere components..."
+
 # Do initialization stuff
 init ${wasStagingDir} uninstall
 
@@ -61,4 +63,4 @@ log "INFO: Removing WebSphere data directory..."
 ${rm} -f -r ${websphereDataDir}
 
 # Print the results
-log "INFO: Success! WebSphere has been uninstalled."
+log "UNINSTALL: Success! WebSphere components have been uninstalled."

@@ -8,6 +8,8 @@
 # Local variables
 manageProfiles="${wasInstallDir}/bin/manageprofiles.sh"
 
+log "INSTALL: Creating WAS deployment manager profile..."
+
 # Do initialization stuff
 init ${wasStagingDir} configure
 
@@ -28,4 +30,4 @@ ${manageProfiles} \
 checkStatus ${?} "ERROR: Unable to create DMGR profile. Exiting."
 
 # Print the results
-log "INFO: Success! A new DMGR profile has been created."
+log "INSTALL: Success! WAS deployment manager profile has been created."

@@ -11,6 +11,8 @@ listInstalledPackages="${iimInstallDir}/eclipse/tools/imcl listInstalledPackages
 uninstallPackages="${iimInstallDir}/eclipse/tools/imcl -log ${icUninstallLog} uninstall"
 doUninstall="true"
 
+log "UNINSTALL: Beginning uninstall of Connections"
+
 # Do initialization stuff
 init ${icStagingDir} uninstall
 
@@ -46,4 +48,4 @@ log "INFO: Removing Connections data directory..."
 ${rm} -f -r ${icDataDir}
 
 # Print the results
-log "INFO: Success! Connections has been uninstalled."
+log "UNINSTALL: Success! Connections has been uninstalled."

@@ -11,6 +11,8 @@ plgResponseFile="${stagingDir}/${wasStagingDir}/was_plugin.rsp"
 wctpct="${wctInstallDir}/WCT/wctcmd.sh -tool pct"
 configScript="configurewebserver1.sh"
 
+log "INSTALL: Configuring web server for WAS..."
+
 # Do initialization stuff
 init ${wasStagingDir} configure
 
@@ -38,4 +40,4 @@ ${wasInstallDir}/bin/${configScript} -profileName ${dmgrProfileName} -user ${dmg
 checkStatus ${?} "ERROR: unable to define web server to the cell. Exiting."
 
 # Print the results
-log "INFO: Success! Web server has been defined to the cell."
+log "INSTALL: Success! Web server has been configured for WAS."

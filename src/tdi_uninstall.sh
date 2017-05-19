@@ -10,6 +10,8 @@ tdiUninstall="${tdiInstallDir}/_uninst/uninstaller"
 tdiUninstallResponseFile="${stagingDir}/rsp/tdi_uninstall.rsp"
 doUninstall="true"
 
+log "UNINSTALL: Beginning uninstall of TDI..."
+
 # Do initialization stuff
 init ${tdiStagingDir} uninstall
 
@@ -32,4 +34,4 @@ log "INFO: Removing TDI installation directory ..."
 ${rm} -f -r ${tdiInstallDir}
 
 # Print the results
-log "INFO: Success! TDI has been uninstalled."
+log "UNINSTALL: Success! TDI has been uninstalled."

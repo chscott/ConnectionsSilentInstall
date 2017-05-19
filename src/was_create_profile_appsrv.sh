@@ -8,6 +8,8 @@
 # Local variables
 manageProfiles="${wasInstallDir}/bin/manageprofiles.sh"
 
+log "INSTALL: Creating WAS application server profile..."
+
 # Do initialization stuff
 init ${wasStagingDir} configure
 
@@ -15,7 +17,7 @@ init ${wasStagingDir} configure
 dmgrStatus=$(startWASServer ${dmgrServerName} ${dmgrProfileDir})
 checkStatus ${dmgrStatus} "ERROR: Unable to start deployment manager. Exiting."
 
-# Create the DMGR profile
+# Create the application server profile
 log "INFO: Creating Connections profile..."
 ${manageProfiles} \
     "-create" \
@@ -30,4 +32,4 @@ ${manageProfiles} \
 checkStatus ${?} "ERROR: Unable to create Connections profile. Exiting."
 
 # Print the results
-log "INFO: Success! A new Connections profile has been created."
+log "INSTALL: Success! WAS application server profile has been created."

@@ -26,6 +26,8 @@ db2PrereqSuccess="DBT3533I"
 db2FilesValidated="DBI1335I"
 db2InstanceValidated="DBI1339I"
 
+log "INSTALL: Beginning installation of DB2..."
+
 # Do initialization stuff
 init ${db2StagingDir} install
 
@@ -136,4 +138,4 @@ fi
 
 # Print the results
 version=$(${db2Level} | ${grep} tokens | ${cut} -d ' ' -f 4,5 | ${tr} -d '",\,')
-log "INFO: Success! DB2 ${version} has been installed."
+log "INSTALL: Success! DB2 ${version} has been installed."

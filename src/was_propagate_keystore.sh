@@ -9,6 +9,8 @@
 wsadmin="${dmgrProfileDir}/bin/wsadmin.sh"
 options="${dmgrProfileDir}/config ${dmgrCellName} ${fqdn}-node ${webServerName}"
 
+log "INSTALL: Beginning propagation of web server plug-in keystore..."
+
 # Do initialization stuff
 init ${wasStagingDir} configure
 
@@ -27,4 +29,4 @@ ${wsadmin} \
 checkStatus ${?} "ERROR: Unable to propagate web server plug-in keystore. Exiting."
 
 # Print the results
-log "INFO: Success! Web server plug-in keystore propagated."
+log "INSTALL: Success! Web server plug-in keystore propagated."

@@ -9,6 +9,8 @@
 propagatePluginKeystore="${stagingDir}/src/was_propagate_keystore.sh"
 syncNode="${icProfileDir}/bin/syncNode.sh ${fqdn} -username ${dmgrAdminUser} -password ${defaultPwd}"
 
+log "INSTALL: Beginning Connections post-install tasks..."
+
 # Do initialization stuff
 init ${icStagingDir} configure 
 
@@ -50,3 +52,5 @@ checkStatus ${result} "ERROR: Unable to start node agent. Exiting."
 # Restart the Connections application server
 result=$(restartWASServer ${icServerName} ${icProfileDir})
 checkStatus ${result} "ERROR: Unable to restart the Connections application server. Exiting."
+
+log "INSTALL: Success! Connections post-install tasks completed."

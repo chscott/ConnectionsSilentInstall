@@ -14,6 +14,8 @@ updateInstaller="${stagingDir}/${tdiStagingDir}/${tdiFixPackDir}/UpdateInstaller
 fixPackFile="$(${echo} ${tdiFixPackPackage} | ${awk} -F '-' '{print $3"-"$1"-"$4}')"
 fixPack=${stagingDir}/${tdiStagingDir}/${tdiFixPackDir}/${fixPackFile}
 
+log "INSTALL: Beginning installation of TDI..."
+
 # Do initialization stuff
 init ${tdiStagingDir} install
 
@@ -44,4 +46,4 @@ checkStatus ${?} "ERROR: TDI fix pack installation failed. Exiting."
 
 # Print the results
 version=$(${tdiVersion} | ${grep} "^Level" | ${cut} -d ' ' -f 2)
-log "INFO: Success! TDI ${version} has been installed."
+log "INSTALL: Success! TDI ${version} has been installed."

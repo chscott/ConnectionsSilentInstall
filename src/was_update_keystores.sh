@@ -9,6 +9,8 @@
 wsadmin="${dmgrProfileDir}/bin/wsadmin.sh"
 scope="(cell):${dmgrCellName}:(node):${fqdn}-node:(server):${webServerName}"
 
+log "INSTALL: Beginning update of web server plug-in keystore..."
+
 # Do initialization stuff
 init ${wasStagingDir} configure
 
@@ -31,4 +33,4 @@ ${wsadmin} \
 checkStatus ${?} "ERROR: Unable to update web server plug-in keystore. Exiting."
 
 # Print the results
-log "INFO: Success! LDAP has been configured for WAS."
+log "INSTALL: Success! Web server plug-in keystore has been updated."

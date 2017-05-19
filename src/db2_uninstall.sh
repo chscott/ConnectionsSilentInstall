@@ -17,6 +17,8 @@ db2Uninstall="${db2InstallDir}/install/db2_deinstall -l ${db2UninstallLog} -t ${
 db2UninstallResponseFile="${stagingDir}/rsp/db2_uninstall.rsp"
 doUninstall="true"
 
+log "UNINSTALL: Beginning uninstall of DB2..."
+
 # Do initialization stuff
 init ${db2StagingDir} uninstall
 
@@ -83,4 +85,4 @@ ${groupdel} ${db2DASGroup} >>${scriptLog} 2>&1
 checkUserGroupStatus ${?} "WARNING: Unable to remove" ${db2DASGroup} "DELETE"
 
 # Print the results
-log "INFO: Success! DB2 has been uninstalled."
+log "UNINSTALL: Success! DB2 has been uninstalled."
