@@ -18,7 +18,7 @@ db2UninstallResponseFile="${stagingDir}/rsp/db2_uninstall.rsp"
 doUninstall="true"
 
 # Do initialization stuff
-init db2 uninstall
+init ${db2StagingDir} uninstall
 
 # First see if DB2 is even installed
 result=$(isInstalled ${db2InstallDir})

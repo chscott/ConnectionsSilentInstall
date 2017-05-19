@@ -11,7 +11,7 @@ iimInstall="./installc -installationDirectory ${iimInstallDir} -dataLocation ${i
 iimVersion="${iimInstallDir}/eclipse/tools/imcl version"
 
 # Do initialization stuff
-init iim install
+init ${iimStagingDir} install
 
 # Download the install file
 downloadFile iim "${iimInstallPackage}"

@@ -20,7 +20,7 @@ ihsSSLFragment="${stagingDir}/${wasStagingDir}/ihs_ssl_config.frg"
 ihsConfFile="${ihsInstallDir}/conf/httpd.conf"
 
 # Do initialization stuff
-init was configure
+init ${wasStagingDir} configure
 
 # Stop IHS
 ihsStatus=$(stopIHSServer)

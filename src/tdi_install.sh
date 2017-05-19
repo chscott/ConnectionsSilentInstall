@@ -15,7 +15,7 @@ fixPackFile="$(${echo} ${tdiFixPackPackage} | ${awk} -F '-' '{print $3"-"$1"-"$4
 fixPack=${stagingDir}/${tdiStagingDir}/${tdiFixPackDir}/${fixPackFile}
 
 # Do initialization stuff
-init tdi install
+init ${tdiStagingDir} install
 
 # Download the install files 
 downloadFile tdi ${tdiBasePackage}

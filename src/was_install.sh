@@ -22,7 +22,7 @@ wasResponseFileTemplate="${stagingDir}/rsp/was_install.tmp"
 wasInstallResponseFile="${stagingDir}/${wasStagingDir}/was_install.xml"
 
 # Do initialization stuff
-init was install
+init ${wasStagingDir} install
 
 # First see if IIM is installed
 result=$(isInstalled ${iimInstallDir})

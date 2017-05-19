@@ -11,11 +11,11 @@ stopManager="${dmgrProfileDir}/bin/stopManager.sh"
 startManager="${dmgrProfileDir}/bin/startManager.sh"
 
 # Do initialization stuff
-init was configure
+init ${wasStagingDir} configure
 
 # Make sure deployment manager is started 
-dmgrStatus=$(startWASServer ${dmgrServerName} ${dmgrProfileDir})
-checkStatus ${dmgrStatus} "ERROR: Unable to start deployment manager. Exiting."
+result=$(startWASServer ${dmgrServerName} ${dmgrProfileDir})
+checkStatus ${result} "ERROR: Unable to start deployment manager. Exiting."
 
 # Invoke wsadmin to add the LDAP repository
 log "INFO: Adding LDAP repository to Deployment Manager..."
@@ -36,11 +36,8 @@ ${wsadmin} \
 checkStatus ${?} "ERROR: Unable to configure LDAP for WAS. Exiting."
 
 # Restart the Deployment Manager
-log "INFO: Restarting Deployment Manager..."
-${stopManager} "-user" "${dmgrAdminUser}" "-password" "${defaultPwd}" >>${scriptLog} 2>&1
-checkStatus ${?} "ERROR: Unable to stop Deployment Manager. Please restart the Deployment Manager manually to complete configuration."
-${startManager} >>${scriptLog} 2>&1
-checkStatus ${?} "ERROR: Unable to start Deployment Manager. Please restart the Deployment Manager manually to complete configuration."
+result=$(restartWASServer ${dmgrServerName} ${dmgrProfileDir})
+checkStatus ${result} "ERROR: Unable to restart deployment manager. Exiting."
 
 # Print the results
 log "INFO: Success! LDAP has been configured for WAS."

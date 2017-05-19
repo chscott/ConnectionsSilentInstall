@@ -9,7 +9,7 @@
 manageProfiles="${wasInstallDir}/bin/manageprofiles.sh"
 
 # Do initialization stuff
-init was configure
+init ${wasStagingDir} configure
 
 # Create the DMGR profile
 log "INFO: Creating DMGR profile..."

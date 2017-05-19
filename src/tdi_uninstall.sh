@@ -11,7 +11,7 @@ tdiUninstallResponseFile="${stagingDir}/rsp/tdi_uninstall.rsp"
 doUninstall="true"
 
 # Do initialization stuff
-init tdi uninstall
+init ${tdiStagingDir} uninstall
 
 # Verify TDI is installed
 result=$(isInstalled ${tdiInstallDir})

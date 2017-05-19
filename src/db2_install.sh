@@ -27,7 +27,7 @@ db2FilesValidated="DBI1335I"
 db2InstanceValidated="DBI1339I"
 
 # Do initialization stuff
-init db2 install
+init ${db2StagingDir} install
 
 # Download the install files
 downloadFile db2 "${db2InstallPackage}"

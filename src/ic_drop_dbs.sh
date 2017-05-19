@@ -27,7 +27,7 @@ icDbs=( \
     )
 
 # Do initialization stuff
-init ${icStagingDir}/${icDbStagingDir} uninstall 
+init ${icDbStagingDir} uninstall 
 
 # Drop the databases 
 for i in "${icDbs[@]}"

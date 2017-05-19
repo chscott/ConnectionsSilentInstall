@@ -55,7 +55,7 @@ function log() {
     local message=${1}
     local now=$(date '+%F %T')
 
-	printf "${now}\t${message}\n" >&2
+	printf "${now} ${message}\n" >&2
 
 }
 
@@ -69,7 +69,7 @@ function checkStatus() {
     local message=${2}
 
 	if [ ${code} -ne 0 ]; then
-		log "ERROR: ${message}"
+		log "${message}"
 		log "ERROR: Exit status: ${code}"
 		exit
 	fi
@@ -167,7 +167,7 @@ function updatePamFiles() {
 	if [ ${status} -ne 0 ]; then
 		${printf} "${pamLimits}" >> ${pamSshdFile}
 	else
-		log "INFO: ${pamSshdFile} already contains an entry for pam_limits.so. Manual review recommended."
+		log "WARNING: ${pamSshdFile} already contains an entry for pam_limits.so. Manual review recommended."
 	fi
 
 	# /etc/pam.d/su
@@ -176,7 +176,7 @@ function updatePamFiles() {
 	if [ ${status} -ne 0 ]; then
 		${printf} "${pamLimits}" >> ${pamSuFile}
 	else
-		log "INFO: ${pamSuFile} already contains an entry for pam_limits.so. Manual review recommended."
+		log "WARNING: ${pamSuFile} already contains an entry for pam_limits.so. Manual review recommended."
 	fi
 
 	# /etc/pam.d/sudo
@@ -185,7 +185,7 @@ function updatePamFiles() {
 	if [ ${status} -ne 0 ]; then
 		${printf} "${pamLimits}" >> ${pamSudoFile}
 	else
-		log "INFO: ${pamSudoFile} already contains an entry for pam_limits.so. Manual review recommended."
+		log "WARNING: ${pamSudoFile} already contains an entry for pam_limits.so. Manual review recommended."
 	fi
 
 }
@@ -318,15 +318,15 @@ function init() {
 
         local installDir
 
-        if [ ${component} == "db2" ]; then
+        if [ ${component} == ${db2StagingDir} ]; then
             installDir=${db2InstallDir}
-        elif [ ${component} == "iim" ]; then
+        elif [ ${component} == ${iimStagingDir} ]; then
             installDir=${iimInstallDir}
-        elif [ ${component} == "was" ]; then
+        elif [ ${component} == ${wasStagingDir} ]; then
             installDir=${websphereInstallDir}
-        elif [ ${component} == "tdi" ]; then
+        elif [ ${component} == ${tdiInstallDir} ]; then
             installDir=${tdiInstallDir}
-        elif [ ${component} == "ic" ]; then
+        elif [ ${component} == ${icStagingDir} ]; then
             installDir=${icInstallDir}
         else
             installDir="null" 
@@ -390,14 +390,12 @@ function getWASServerStatus() {
     local functionStatus="undefined"
 
     # Get the result of the serverStatus.sh command
-    log "INFO: Checking WAS server status for server ${server}..."
     serverStatus=$(${profileRoot}/bin/serverStatus.sh ${server} -username ${dmgrAdminUser} -password ${defaultPwd})
     
     # Check to see if the server is stopped
     ${echo} ${serverStatus} | ${grep} stopped >/dev/null 2>&1
     result=${?}
     if [ ${result} -eq 0 ]; then
-        log "INFO: WAS server ${server} is stopped."
         functionStatus="stopped"
     fi 
 
@@ -405,7 +403,6 @@ function getWASServerStatus() {
     ${echo} ${serverStatus} | ${grep} STARTED >/dev/null 2>&1
     result=${?}
     if [ ${result} -eq 0 ]; then
-        log "INFO: WAS server ${server} is started."
         functionStatus="started"
     fi
 
@@ -458,7 +455,7 @@ function stopWASServer() {
     # Only need to stop the server if it's not already stopped
     if [ ${serverStatus} != "stopped" ]; then
         log "INFO: Stopping ${server}..."
-        ${profileRoot}/bin/stopServer.sh ${server} >>${scriptLog} 2>&1
+        ${profileRoot}/bin/stopServer.sh ${server} -username ${dmgrAdminUser} -password ${defaultPwd} >>${scriptLog} 2>&1
         serverStatus=$(getWASServerStatus ${server} ${profileRoot})
     fi
 
@@ -533,6 +530,7 @@ function startIHSServer() {
     local functionStatus
 
     log "INFO: Starting IHS server..."
+
     ${ihsInstallDir}/bin/apachectl start >>${scriptLog} 2>&1
     serverStatus=${?}
 
@@ -553,6 +551,7 @@ function stopIHSServer() {
     local functionStatus
 
     log "INFO: Stopping IHS server..."
+
     ${ihsInstallDir}/bin/apachectl stop >>${scriptLog} 2>&1
     serverStatus=${?}
 
@@ -561,6 +560,27 @@ function stopIHSServer() {
     else
         functionStatus=0
     fi
+
+    echo ${functionStatus}
+
+}
+
+# Restart IHS server
+function restartIHSServer() {
+
+    local serverStatus
+    local functionStatus
+
+    log "INFO: Restarting IHS server..."
+    
+    ${ihsInstallDir}/bin/apachectl restart >>${scriptLog} 2>&1
+    serverStatus=${?}
+
+    if [ ${serverStatus} -ne 0 ]; then
+        functionStatus=1
+    else
+        functionStatus=0
+    fi 
 
     echo ${functionStatus}
 

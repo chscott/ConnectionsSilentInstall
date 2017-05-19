@@ -12,7 +12,7 @@ wctpct="${wctInstallDir}/WCT/wctcmd.sh -tool pct"
 configScript="configurewebserver1.sh"
 
 # Do initialization stuff
-init was configure
+init ${wasStagingDir} configure
 
 # Build the response file
 copyTemplate ${plgResponseFileTemplate} ${plgResponseFile}

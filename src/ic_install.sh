@@ -93,7 +93,7 @@ do
 done
 
 # Make sure the WAS servers are running
-result=$(startWASServer dmgr ${dmgrProfileDir})
+result=$(startWASServer ${dmgrServerName} ${dmgrProfileDir})
 checkStatus ${result} "ERROR: Unable to start deployment manager. Exiting."
 result=$(startWASServer nodeagent ${icProfileDir})
 checkStatus ${result} "ERROR: Unable to start node agent. Exiting."
@@ -158,10 +158,6 @@ checkStatus ${?} "ERROR: unable to install the Profiles feature. Exiting."
 log "INFO: Installing the Wikis feature..."
 ${installPackages} ${stagingDir}/${icStagingDir}/${icWikisRsp}.xml >>${scriptLog} 2>&1
 checkStatus ${?} "ERROR: unable to install the Wikis feature. Exiting."
-
-# Start Connections
-result=$(startWASServer ${icServerName} ${icProfileDir})
-checkStatus ${result} "ERROR: Unable to start Connections application server. Exiting."
 
 # Print the results
 log "INFO: Success! Connections has been installed."

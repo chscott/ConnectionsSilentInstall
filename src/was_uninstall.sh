@@ -13,7 +13,7 @@ stopManager="${dmgrProfileDir}/bin/stopManager.sh"
 doUninstall="true"
 
 # Do initialization stuff
-init was uninstall
+init ${wasStagingDir} uninstall
 
 # Kill WebSphere processes
 log "INFO: Terminating IHS processes..."

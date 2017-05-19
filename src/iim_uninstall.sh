@@ -11,7 +11,7 @@ iimUninstall="${iimDataDir}/uninstall/uninstallc -l ${iimUninstallLog}"
 doUninstall="true"
 
 # Do initialization stuff
-init iim uninstall
+init ${iimStagingDir} uninstall
 
 # First see if IIM is even installed
 result=$(isInstalled ${iimInstallDir})

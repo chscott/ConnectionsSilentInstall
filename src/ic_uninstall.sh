@@ -12,7 +12,7 @@ uninstallPackages="${iimInstallDir}/eclipse/tools/imcl -log ${icUninstallLog} un
 doUninstall="true"
 
 # Do initialization stuff
-init ic uninstall
+init ${icStagingDir} uninstall
 
 # See if Connections appears to be installed
 log "INFO: Checking to see if Connections is installed..."

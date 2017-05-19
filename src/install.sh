@@ -17,6 +17,7 @@ addLdapScript="${stagingDir}/src/was_add_ldap.sh"
 confPlgScript="${stagingDir}/src/was_configure_plugin.sh"
 installTdiScript="${stagingDir}/src/tdi_install.sh"
 installConnectionsScript="${stagingDir}/src/ic_install.sh"
+postInstallConnectionsScript="${stagingDir}/src/ic_post_install.sh"
 error="exited with an error. Aborting install."
 
 # Do initialization stuff
@@ -33,13 +34,19 @@ if [ ${installDb2} == "true" ]; then
     checkStatus "${?}" "ERROR: ${createDbsScript} ${error}" 
 fi
 
-# Step 2: Install IIM, if requested
+# Step 2: Install TDI, if requested
+if [ ${installTdi} == "true" ]; then
+    ${installTdiScript}
+    checkStatus "${?}" "ERROR: ${installTdiScript} ${error}"
+fi
+
+# Step 3: Install IIM, if requested
 if [ ${installIim} == "true" ]; then
     ${installIimScript} 
     checkStatus "${?}" "ERROR: ${installIimScript} ${error}" 
 fi
 
-# Step 3: Install and configure WebSphere components, if requested
+# Step 4: Install and configure WebSphere components, if requested
 if [ ${installWas} == "true" ]; then
     ${installWasScript} 
     checkStatus "${?}" "ERROR: ${installWasScript} ${error}" 
@@ -53,13 +60,12 @@ if [ ${installWas} == "true" ]; then
     checkStatus "${?}" "ERROR: ${confPlgScript} ${error}"
     ${createAppSrvProfileScript} 
     checkStatus "${?}" "ERROR: ${createAppSrvProfileScript} ${error}" 
+fi
+
+# Step 5: Install Connections, if requested
+if [ ${installIc} == "true" ]; then
     ${installConnectionsScript} 
     checkStatus "${?}" "ERROR: ${installConnectionsScript} ${error}" 
+    ${postInstallConnectionsScript}
+    checkStatus "${?}" "ERROR: ${postInstallConnectionsScript} ${error}"
 fi
-
-# Step 4: Install TDI, if requested
-if [ ${installTdi} == "true" ]; then
-    ${installTdiScript}
-    checkStatus "${?}" "ERROR: ${installTdiScript} ${error}"
-fi
-

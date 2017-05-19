@@ -9,7 +9,7 @@
 manageProfiles="${wasInstallDir}/bin/manageprofiles.sh"
 
 # Do initialization stuff
-init was configure
+init ${wasStagingDir} configure
 
 # Make sure deployment manager is started 
 dmgrStatus=$(startWASServer ${dmgrServerName} ${dmgrProfileDir})
