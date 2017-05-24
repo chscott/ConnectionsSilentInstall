@@ -1,20 +1,20 @@
 #!/bin/bash
 
 # Source prereq scripts
-. src/commands.sh
-. src/utils.sh
-. src/vars.sh
+. src/misc/commands.sh
+. src/misc/utils.sh
+. src/misc/vars.sh
 
 # Local variables
-plgResponseFileTemplate="${stagingDir}/rsp/was_plugin.tmp"
-plgResponseFile="${stagingDir}/${wasStagingDir}/was_plugin.rsp"
+plgResponseFileTemplate="${stagingDir}/rsp/web_plugin.tmp"
+plgResponseFile="${stagingDir}/${webStagingDir}/web_plugin.rsp"
 wctpct="${wctInstallDir}/WCT/wctcmd.sh -tool pct"
 configScript="configurewebserver1.sh"
 
-log "INSTALL: Configuring web server for WAS..."
+log "I Configuring web server for WAS..."
 
 # Do initialization stuff
-init ${wasStagingDir} configure
+init ${webStagingDir} configure
 
 # Build the response file
 copyTemplate ${plgResponseFileTemplate} ${plgResponseFile}
@@ -27,17 +27,17 @@ ${sed} -i "s|IHS_INSTALL_DIR|${ihsInstallDir}|" ${plgResponseFile}
 ${sed} -i "s|IHS_HOSTNAME|${fqdn}|" ${plgResponseFile}
 
 # Generate the config script
-log "INFO: Generating the web server configuration script..."
+log "I Generating the web server configuration script..."
 ${wctpct} -defLocPathName ${plgInstallDir} -defLocName plugins -createDefinition -response ${plgResponseFile} >>${scriptLog} 2>&1
-checkStatus ${?} "ERROR: unable to generate web server configuration script. Exiting."
+checkStatus ${?} "E unable to generate web server configuration script. Exiting."
 
 # Copy the config script to the WAS bin directory
 ${cp} ${plgInstallDir}/bin/${configScript} ${wasInstallDir}/bin/${configScript} 
 
 # Run the config script
-log "INFO: Defining the web server configuration to the cell..."
+log "I Defining the web server configuration to the cell..."
 ${wasInstallDir}/bin/${configScript} -profileName ${dmgrProfileName} -user ${dmgrAdminUser} -password ${defaultPwd} >>${scriptLog} 2>&1
-checkStatus ${?} "ERROR: unable to define web server to the cell. Exiting."
+checkStatus ${?} "E unable to define web server to the cell. Exiting."
 
 # Print the results
-log "INSTALL: Success! Web server has been configured for WAS."
+log "I Success! Web server has been configured for WAS."

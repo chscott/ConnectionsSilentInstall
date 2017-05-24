@@ -1,3 +1,5 @@
+me=$(${echo} ${0} | ${awk} -F '/' '{print $(NF-1)"/"$NF}')
+
 # Saved original stdout and stderr
 exec 3>&1
 exec 4>&2
@@ -8,9 +10,9 @@ function checkForLogDir() {
     if [ ! -d ${logDir} ]; then
         ${mkdir} ${logDir}
         ${chmod} a+rwx ${logDir}
-        local now=$(date '+%F %T')
-	    printf "${now}\tCreated log file.\n" >${scriptLog}
+        ${touch} ${scriptLog}
         ${chmod} a+w ${scriptLog}
+        log "I Created log file."
     fi
 
 }
@@ -40,10 +42,10 @@ function checkForRoot() {
     local script=${0}
 
 	if [ "${EUID}" -ne 0 ]; then
-		log "ERROR: Script ${script} needs to run as root. Exiting."
+		log "E Script ${script} needs to run as root. Exiting."
 		exit 1
 	else
-		log "INFO: Script ${script} is running as root. Continuing..."
+		log "I Script ${script} is running as root. Continuing..."
 	fi
 
 }
@@ -55,7 +57,7 @@ function log() {
     local message=${1}
     local now=$(date '+%F %T')
 
-	printf "${now} ${message}\n" >&2
+	printf "%s %-16.16s %s\n" "${now}" "${me}" "${message}" >&2
 
 }
 
@@ -70,9 +72,29 @@ function checkStatus() {
 
 	if [ ${code} -ne 0 ]; then
 		log "${message}"
-		log "ERROR: Exit status: ${code}"
-		exit
+		log "E Exit status: ${code}"
+		exit 1
 	fi
+
+}
+
+# Check the exit status for child processes
+# $1: child process temp directory
+function checkChildProcessStatus() {
+
+    local tempDir=${1}
+    local childStatus
+
+    if [ ! -d ${tempDir} ]; then
+        log "E Child process temp directory ${tempDir} does not exist. Exiting."
+        exit 1
+    fi
+
+    for i in $(${find} ${tempDir} -maxdepth 1 -type f); do
+        log "I Child process is: ${i}"
+        childStatus=$(${cat} ${i})        
+        checkStatus ${childStatus} "E Child process with pid ${i} completed with error. Exiting."
+    done
 
 }
 
@@ -91,8 +113,8 @@ function checkStatusDb() {
     # Exit on errors when creating
     if [ ${operation} == "create" ]; then
 	    if [ ${code} -ne 0 -a ${code} -ne 1 -a ${code} -ne 2 -a ${code} -ne 3 ]; then
-		    log "ERROR: ${message}"
-		    log "ERROR: Exit status: ${code}"
+		    log "E ${message}"
+		    log "E Exit status: ${code}"
 		    exit 1
 	    fi
     fi
@@ -100,9 +122,28 @@ function checkStatusDb() {
     # Continue on errors when dropping
     if [ ${operation} == "drop" ]; then
 	    if [ ${code} -ne 0 -a ${code} -ne 1 -a ${code} -ne 2 ]; then
-		    log "WARNING: ${message}"
+		    log "W ${message}"
 	    fi
     fi
+
+}
+
+# Check the exit status for child processes (database creation)
+# $1: operation (create|drop)
+function checkChildProcessStatusDb() {
+
+    local operation=${1}
+    local childStatus
+
+    if [ ! -d ${childProcessTempDir}/db ]; then
+        log "E Child process temp directory ${childProcessTempDir}/db does not exist. Exiting."
+        exit 1
+    fi
+
+    for i in $(${ls} ${childProcessTempDir}/db); do
+        childStatus=$(${cat} ${childProcessTempDir}/db/${i})        
+        checkStatusDb ${operation} ${childStatus} "E Child process with pid ${i} completed with error. Exiting."
+    done
 
 }
 
@@ -122,11 +163,11 @@ function checkUserGroupStatus() {
         if [ ${code} -ne 0 ]; then
             # Non-fatal error
             if [ ${code} -eq 9 ]; then
-                log "WARNING: ${userOrGroup} already exists. Continuing..."	
+                log "W ${userOrGroup} already exists. Continuing..."	
             # Fatal
             else
                 log "${message} ${userOrGroup}"
-                log "ERROR: Exit status: ${code}"
+                log "E Exit status: ${code}"
                 exit 1
             fi
         fi
@@ -167,7 +208,7 @@ function updatePamFiles() {
 	if [ ${status} -ne 0 ]; then
 		${printf} "${pamLimits}" >> ${pamSshdFile}
 	else
-		log "WARNING: ${pamSshdFile} already contains an entry for pam_limits.so. Manual review recommended."
+		log "W ${pamSshdFile} already contains an entry for pam_limits.so. Manual review recommended."
 	fi
 
 	# /etc/pam.d/su
@@ -176,7 +217,7 @@ function updatePamFiles() {
 	if [ ${status} -ne 0 ]; then
 		${printf} "${pamLimits}" >> ${pamSuFile}
 	else
-		log "WARNING: ${pamSuFile} already contains an entry for pam_limits.so. Manual review recommended."
+		log "W ${pamSuFile} already contains an entry for pam_limits.so. Manual review recommended."
 	fi
 
 	# /etc/pam.d/sudo
@@ -185,7 +226,7 @@ function updatePamFiles() {
 	if [ ${status} -ne 0 ]; then
 		${printf} "${pamLimits}" >> ${pamSudoFile}
 	else
-		log "WARNING: ${pamSudoFile} already contains an entry for pam_limits.so. Manual review recommended."
+		log "W ${pamSudoFile} already contains an entry for pam_limits.so. Manual review recommended."
 	fi
 
 }
@@ -197,11 +238,25 @@ function downloadFile() {
 
     local dir=${1}
     local file=${2}
-    local result
 
-    log "INFO: Downloading ${file} from ${ftpServer}..."
+    log "I Downloading ${file} from ${ftpServer}..."
     ${curl} ftp://${ftpServer}/${dir}/${file} >>${scriptLog}
-    checkStatus ${?} "ERROR: Download failed. Exiting."
+    checkStatus ${?} "E Download failed. Exiting."
+
+}
+
+# Download multiple files from FTP
+# $1: List of files 
+function downloadFiles() {
+
+    local files="${1}"
+
+    for i in ${files}; do
+        log "I Downloading ${i}..."
+    done
+
+    echo ${files} | ${xargs} -n 1 -P 8 ${curl} >>${scriptLog} 2>&1 
+    checkStatus ${?} "E Download failed. Exiting."
 
 }
 
@@ -214,7 +269,7 @@ function unpackFile() {
     local file=${2}
     local result
 
-    log "INFO: Unpacking ${file}..."
+    log "I Unpacking ${file}..."
 
     if [ ${archiveType} == "zip" ]; then
         ${unzip} -qq ${file}
@@ -224,9 +279,44 @@ function unpackFile() {
         result=${?}
     fi
 
-    checkStatus ${result} "ERROR: Unpack operation failed. Exiting."
+    checkStatus ${result} "E Unpack operation failed. Exiting."
 
 }
+
+# Unpack zip archive files
+# $1: List of files 
+function unpackZipFiles() {
+
+    local files=${1}
+    local result
+
+    for i in ${files}; do
+        log "I Unpacking ${i}..."
+    done
+
+    echo ${files} | ${xargs} -n 1 -P 8 ${unzip} -qq >>${scriptLog} 2>&1 
+
+    checkStatus ${?} "E Unpack operation failed. Exiting."
+
+}
+
+# Unpack tar archive files
+# $1: List of files 
+function unpackTarFiles() {
+
+    local files=${1}
+    local result
+
+    for i in ${files}; do
+        log "I Unpacking ${i}..."
+    done
+
+    echo ${files} | ${xargs} -n 1 -P 24 ${tar} -xf >>${scriptLog} 2>&1 
+
+    checkStatus ${?} "E Unpack operation failed. Exiting."
+
+}
+
 
 # Unpack an archive file to the specified directory
 # $1: file type
@@ -239,14 +329,14 @@ function unpackFileToDirectory() {
     local directory=${3}
     local result
 
-    log "INFO: Unpacking ${file} to ${directory}..."
+    log "I Unpacking ${file} to ${directory}..."
 
     if [ ${archiveType} == "zip" ]; then
         ${unzip} -qq ${file} -d ${directory}
         result=${?}
     fi
 
-    checkStatus ${result} "ERROR: Unpack operation failed. Exiting."
+    checkStatus ${result} "E Unpack operation failed. Exiting."
 
 }
 
@@ -257,10 +347,10 @@ function clean() {
 
     local installStagingDir=${1}
 
-    log "INFO: Recreating product install staging directory..."
+    log "I Recreating product install staging directory..."
     ${rm} -f -r ${stagingDir}/${installStagingDir}
     ${mkdir} -p ${stagingDir}/${installStagingDir}
-    checkStatus ${?} "ERROR: Unable to create ${stagingDir}/${installStagingDir}. Exiting."
+    checkStatus ${?} "E Unable to create ${stagingDir}/${installStagingDir}. Exiting."
 
 }
 
@@ -272,10 +362,10 @@ function copyTemplate() {
     local template=${1}
     local file=${2}
 
-    log "INFO: Building silent install response file..."
+    log "I Building silent install response file..."
 
     ${cp} ${template} ${file}
-    checkStatus ${?} "ERROR: Unable to copy ${template} to ${file}. Exiting."
+    checkStatus ${?} "E Unable to copy ${template} to ${file}. Exiting."
 
 }
 
@@ -313,30 +403,29 @@ function init() {
     grantAccessToStagingDir
     checkForLogDir    
 
-    # When installing, additional tasks are required
+    # When installing components, additional tasks are required
     if [ ${operation} == "install" ]; then
 
-        local installDir
+        # Some components like the Connections dbs have no install directory and shouldn't be checked
+        local installDir="null"
 
         if [ ${component} == ${db2StagingDir} ]; then
             installDir=${db2InstallDir}
         elif [ ${component} == ${iimStagingDir} ]; then
             installDir=${iimInstallDir}
-        elif [ ${component} == ${wasStagingDir} ]; then
-            installDir=${websphereInstallDir}
-        elif [ ${component} == ${tdiInstallDir} ]; then
+        elif [ ${component} == ${webStagingDir} ]; then
+            installDir=${webInstallDir}
+        elif [ ${component} == ${tdiStagingDir} ]; then
             installDir=${tdiInstallDir}
         elif [ ${component} == ${icStagingDir} ]; then
             installDir=${icInstallDir}
-        else
-            installDir="null" 
-        fi 
+        fi
 
         # For installable components, check to see if it appears that the component has already been installed 
         if [ ${installDir} != "null" ]; then
             local installed=$(isInstalled ${installDir})
             if [ ${installed} -eq 0 ]; then
-                log "ERROR: Install directory ${installDir} already exists. Assuming ${component} is already installed. Exiting."    
+                log "E Install directory ${installDir} already exists. Assuming ${component} is already installed. Exiting."    
                 exit 1
             fi    
         fi
@@ -344,6 +433,9 @@ function init() {
         # Recreate the staging directory
         clean ${component}
         cdToStagingDir ${component}
+
+        # Recreate the child process temp directory
+        resetChildProcessTempDir ${childProcessTempDir}/${component}
 
     fi
 
@@ -424,7 +516,7 @@ function startWASServer() {
 
     # Only need to start the server if it's not already started
     if [ ${serverStatus} != "started" ]; then
-        log "INFO: Starting ${server}..."
+        log "I Starting ${server}..."
         ${profileRoot}/bin/startServer.sh ${server} >>${scriptLog} 2>&1
         serverStatus=$(getWASServerStatus ${server} ${profileRoot})
     fi
@@ -454,7 +546,7 @@ function stopWASServer() {
 
     # Only need to stop the server if it's not already stopped
     if [ ${serverStatus} != "stopped" ]; then
-        log "INFO: Stopping ${server}..."
+        log "I Stopping ${server}..."
         ${profileRoot}/bin/stopServer.sh ${server} -username ${dmgrAdminUser} -password ${defaultPwd} >>${scriptLog} 2>&1
         serverStatus=$(getWASServerStatus ${server} ${profileRoot})
     fi
@@ -503,13 +595,33 @@ function restartWASServer() {
 
 }
 
+# See if WAS server is running
+# $1: server name
+# $2: profile directory
+function isWASServerRunning() {
+
+    local server=${1}
+    local profile=${2}
+    local functionStatus
+
+    result=$(getWASServerStatus ${server} ${profile})
+    if [ ${result} == "started" ]; then
+        functionStatus=0
+    else
+        functionStatus=1 
+    fi
+
+    echo ${functionStatus}
+
+}
+
 # Start IHS Admin server
 function startIHSAdminServer() {
 
     local serverStatus
     local functionStatus
 
-    log "INFO: Starting IHS administration server..."
+    log "I Starting IHS administration server..."
     ${ihsInstallDir}/bin/adminctl start >>${scriptLog} 2>&1
     serverStatus=${?}
 
@@ -529,7 +641,7 @@ function startIHSServer() {
     local serverStatus
     local functionStatus
 
-    log "INFO: Starting IHS server..."
+    log "I Starting IHS server..."
 
     ${ihsInstallDir}/bin/apachectl start >>${scriptLog} 2>&1
     serverStatus=${?}
@@ -550,7 +662,7 @@ function stopIHSServer() {
     local serverStatus
     local functionStatus
 
-    log "INFO: Stopping IHS server..."
+    log "I Stopping IHS server..."
 
     ${ihsInstallDir}/bin/apachectl stop >>${scriptLog} 2>&1
     serverStatus=${?}
@@ -571,7 +683,7 @@ function restartIHSServer() {
     local serverStatus
     local functionStatus
 
-    log "INFO: Restarting IHS server..."
+    log "I Restarting IHS server..."
     
     ${ihsInstallDir}/bin/apachectl restart >>${scriptLog} 2>&1
     serverStatus=${?}
@@ -583,5 +695,62 @@ function restartIHSServer() {
     fi 
 
     echo ${functionStatus}
+
+}
+
+# Reset the child process temp directory
+# $1: child process temp directory
+function resetChildProcessTempDir() {
+
+    local tempDir=${1}
+
+    log "I Resetting child process temp directory ${tempDir}..."
+
+    if [ -d ${tempDir} ]; then
+        ${find} ${tempDir} -maxdepth 1 -type f -delete
+    fi
+
+    ${mkdir} -p ${tempDir}
+
+}
+
+# Update placeholder variables in response file with actual data
+# $1: file to update
+function updateICRspFile() { 
+
+    local rspFile=${1}
+
+    ${sed} -i "s|FQDN|${fqdn}|" ${rspFile}
+    ${sed} -i "s|DNS_SUFFIX|${dnsSuffix}|" ${rspFile}
+    ${sed} -i "s|IIM_SHARED_DATA_DIR|${iimSharedDataDir}|" ${rspFile}
+    ${sed} -i "s|WAS_INSTALL_DIR|${wasInstallDir}|" ${rspFile}
+    ${sed} -i "s|IC_REPOSITORY_DIR|${icRepositoryDir}|" ${rspFile}
+    ${sed} -i "s|IC_REPOSITORY_ID|${icRepositoryId}|" ${rspFile}
+    ${sed} -i "s|IC_REPOSITORY_VERSION|${icRepositoryVersion}|" ${rspFile}
+    ${sed} -i "s|IC_INSTALL_DIR|${icInstallDir}|" ${rspFile}
+    ${sed} -i "s|IC_LOCAL_DATA_DIR|${icLocalDataDir}|" ${rspFile}
+    ${sed} -i "s|IC_SHARED_DATA_DIR|${icSharedDataDir}|" ${rspFile}
+    ${sed} -i "s|CCM_CE_INSTALL_DIR|${ccmCEInstallDir}|" ${rspFile}
+    ${sed} -i "s|CCM_CECLIENT_INSTALL_DIR|${ccmCEClientInstallDir}|" ${rspFile}
+    ${sed} -i "s|CCM_FNCS_INSTALL_DIR|${ccmFNCSInstallDir}|" ${rspFile}
+    ${sed} -i "s|CCM_INSTALLER_DIR|${stagingDir}/${icStagingDir}|" ${rspFile}
+    ${sed} -i "s|CCM_CE_BASE_PACKAGE|${ccmCEBasePackage}|" ${rspFile}
+    ${sed} -i "s|CCM_CE_FP_PACKAGE|${ccmCEFixPackPackage}|" ${rspFile}
+    ${sed} -i "s|CCM_CECLIENT_FP_PACKAGE|${ccmCEClientFixPackPackage}|" ${rspFile}
+    ${sed} -i "s|CCM_FNCS_BASE_PACKAGE|${ccmFNCSBasePackage}|" ${rspFile}
+    ${sed} -i "s|CCM_FNCS_FP_PACKAGE|${ccmFNCSFixPackPackage}|" ${rspFile}
+    ${sed} -i "s|DMGR_PROFILE_DIR|${dmgrProfileDir}|" ${rspFile}
+    ${sed} -i "s|DMGR_PROFILE_NAME|${dmgrProfileName}|" ${rspFile}
+    ${sed} -i "s|JDBC_DIR|${db2InstallDir}/java|" ${rspFile}
+    ${sed} -i "s|DB_PWD|${encryptedPwd}|" ${rspFile}
+    ${sed} -i "s|DMGR_CELL_NAME|${dmgrCellName}|" ${rspFile}
+    ${sed} -i "s|IC_NODE_NAME|${ic1NodeName}|" ${rspFile}
+    ${sed} -i "s|WEB_SERVER_NAME|${webServerName}|" ${rspFile}
+    ${sed} -i "s|IC_CLUSTER_NAME|${icClusterName}|" ${rspFile}
+    ${sed} -i "s|IC_SERVER_NAME|${ic1ServerName}|" ${rspFile}
+    ${sed} -i "s|WAS_ADMIN_USER|${dmgrAdminUser}|" ${rspFile}
+    ${sed} -i "s|WAS_ADMIN_PWD|${encryptedPwd}|" ${rspFile}
+    ${sed} -i "s|IC_ADMIN_USER|${icAdminUser}|" ${rspFile}
+    ${sed} -i "s|IC_ADMIN_PWD|${encryptedPwd}|" ${rspFile}
 
 }

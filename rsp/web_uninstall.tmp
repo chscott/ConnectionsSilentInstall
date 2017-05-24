@@ -2,11 +2,11 @@
 <agent-input>
 
   <server>
-  	<repository location='file:/home/ibmuser/staging/INSTALL_WAS/' temporary='true'/>
-    	<repository location='file:/home/ibmuser/staging/INSTALL_WAS_SUPPL/' temporary='true'/>
-    	<repository location='file:/home/ibmuser/staging/INSTALL_WAS_FP/' temporary='true'/>
-    	<repository location='file:/home/ibmuser/staging/INSTALL_WAS_SUPPL_FP/' temporary='true'/>
-    	<repository location='file:/home/ibmuser/staging/INSTALL_WAS_WCT_FP/' temporary='true'/>
+  	<repository location='file:/home/ibmuser/staging/INSTALL_WEB/' temporary='true'/>
+    	<repository location='file:/home/ibmuser/staging/INSTALL_WEB_SUPPL/' temporary='true'/>
+    	<repository location='file:/home/ibmuser/staging/INSTALL_WEB_FP/' temporary='true'/>
+    	<repository location='file:/home/ibmuser/staging/INSTALL_WEB_SUPPL_FP/' temporary='true'/>
+    	<repository location='file:/home/ibmuser/staging/INSTALL_WEB_WCT_FP/' temporary='true'/>
   </server>
 
   <preference name='com.ibm.cic.common.core.preferences.eclipseCache' value='/opt/IBM/IMShared'/>

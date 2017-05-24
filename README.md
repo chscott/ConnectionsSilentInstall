@@ -28,11 +28,11 @@ deployment is available for use.
 1. Download the project zip file to your system and extract rsp/ and src/ into a staging directory. For example,
    /var/tmp/staging.
 	
-2. Open src/vars.sh and inspect the variables in the Must Review section. The variables in this section are likely (but
+2. Open src/misc/vars.sh and inspect the variables in the Must Review section. The variables in this section are likely (but
    not required) to need modification to match the environment. Variables in the Acceptable Defaults section may also 
 	be reviewed but are unlikely to require modification.
 	
-3. Once src/vars.sh has been reviewed and modified to match the environment, run the src/install.sh script to begin the
+3. Once src/misc/vars.sh has been reviewed and modified to match the environment, run the src/main/install.sh script to begin the
    install process. Note that you must run the script with root as the effective user ID. This means either switching to
 	the root account or, more likely, running the script via sudo. For example: 
 	
@@ -69,7 +69,7 @@ The following functionality is currently working:
 
 - Connections application server profile creation
 
-- Connections installation (minus CCM and other add-ons)
+- Connections installation (core apps plus CCM)
 
 - Uninstall of all components (individually or collectively)
 
@@ -77,6 +77,6 @@ The following functionality is currently working:
 
 The following functionality has not yet been implemented:
 
-- Installation of CCM, OrientMe, and additional add-ons
+- Installation of OrientMe and additional add-ons
 
 - Profile population

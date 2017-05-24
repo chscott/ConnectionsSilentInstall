@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Source prereq scripts
-. src/commands.sh
-. src/utils.sh
-. src/vars.sh
+. src/misc/commands.sh
+. src/misc/utils.sh
+. src/misc/vars.sh
 
 # Local variables 
 icDbScriptDir="${stagingDir}/${icStagingDir}/${icDbStagingDir}/Wizards/connections.sql"
@@ -26,7 +26,7 @@ icDbs=( \
     library.os \
     )
 
-log "UNINSTALL: Beginning drop of Connections databases..."
+log "I Beginning drop of Connections databases..."
 
 # Do initialization stuff
 init ${icDbStagingDir} uninstall 
@@ -35,14 +35,14 @@ init ${icDbStagingDir} uninstall
 for i in "${icDbs[@]}"
 do
     if [ ${i} == "communities" ]; then
-        log "INFO: Dropping calendar database for: ${i}..."    
+        log "I Dropping calendar database for: ${i}..."    
         ${su} - ${db2InstanceUser} -c "db2 -td@ -f ${icDbScriptDir}/${i}/db2/calendar-dropDb.sql >>${icDbLog} 2>&1"; result=${?}
-        checkStatusDb drop ${result} "WARNING: calendar-dropDb.sql failed. Database may not exist. Continuing..."
+        checkStatusDb drop ${result} "W calendar-dropDb.sql failed. Database may not exist. Continuing..."
     fi
-    log "INFO: Dropping database for: ${i}..."    
+    log "I Dropping database for: ${i}..."    
     ${su} - ${db2InstanceUser} -c "db2 -td@ -f ${icDbScriptDir}/${i}/db2/dropDb.sql >>${icDbLog} 2>&1"; result=${?}
-    checkStatusDb drop ${result} "WARNING: dropDb.sql failed. Database may not exist. Continuing..."
+    checkStatusDb drop ${result} "W dropDb.sql failed. Database may not exist. Continuing..."
 done
 
 # Print the results
-log "UNINSTALL: Success! Connections databases have been dropped"
+log "I Success! Connections databases have been dropped"

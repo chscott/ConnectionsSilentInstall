@@ -10,6 +10,12 @@
     <variable name='ccmCEInstallDir' value='CCM_CE_INSTALL_DIR'/>
     <variable name='ccmCEClientInstallDir' value='CCM_CECLIENT_INSTALL_DIR'/>
     <variable name='ccmFNCSInstallDir' value='CCM_FNCS_INSTALL_DIR'/>
+    <variable name='ccmInstallerDir' value='CCM_INSTALLER_DIR'/>
+    <variable name='ccmCEBasePackage' value='CCM_CE_BASE_PACKAGE'/>
+    <variable name='ccmCEFixPackPackage' value='CCM_CE_FP_PACKAGE'/>
+    <variable name='ccmCEClientFixPackPackage' value='CCM_CECLIENT_FP_PACKAGE'/>
+    <variable name='ccmFNCSBasePackage' value='CCM_FNCS_BASE_PACKAGE'/>
+    <variable name='ccmFNCSFixPackPackage' value='CCM_FNCS_FP_PACKAGE'/>
     <variable name='jdbcDir' value='JDBC_DIR'/>
     <variable name='dbPwd' value='DB_PWD'/>
     <variable name='icNodeName' value='IC_NODE_NAME'/>
@@ -41,9 +47,9 @@
   <profile id='IBM Connections' installLocation='${icInstallDir}'>
 
     <!-- CCM General -->
-	<data key='user.ccm.install.now' value='false'/>
-    <data key='user.ccm.installers.original.path' value='/linux_ccm_installer'/>
-    <data key='user.ccm.installers.path' value='/linux_ccm_installer'/>
+	<data key='user.ccm.install.now' value='true'/>
+    <data key='user.ccm.installers.original.path' value='${ccmInstallerDir}'/>
+    <data key='user.ccm.installers.path' value='${ccmInstallerDir}'/>
 	<data key='user.ccm.existingDeployment' value='false'/>
 	<data key='user.ccm.adminuser.id' value='${icAdminUser}'/>
     <data key='user.ccm.adminuser.password' value='${icAdminPwd}'/>
@@ -70,17 +76,17 @@
     
     <!-- CCM CE -->
     <data key='user.ce.install.location' value='${ccmCEInstallDir}'/>
-    <data key='user.ccm.ce.installer' value='5.2.1-P8CPE-ZLINUX.BIN'/>
-    <data key='user.ccm.ce.fp.installer' value='5.2.1.2-P8CPE-ZLINUX-FP002.BIN'/>
+    <data key='user.ccm.ce.installer' value='${ccmCEBasePackage}'/>
+    <data key='user.ccm.ce.fp.installer' value='${ccmCEFixPackPackage}'/>
 
     <!-- CCM CE Client -->
     <data key='user.ceclient.install.location' value='${ccmCEClientInstallDir}'/>
-    <data key='user.ccm.ceclient.installer' value='5.2.1.2-P8CPE-CLIENT-ZLINUX-FP002.BIN'/>
+    <data key='user.ccm.ceclient.installer' value='${ccmCEClientFixPackPackage}'/>
 
     <!-- CCM FNCS -->
     <data key='user.fncs.install.location' value='${ccmFNCSInstallDir}'/>
-    <data key='user.ccm.fncs.installer' value='IBM_CONTENT_NAVIGATOR-2.0.3-zLINUX.bin'/>
-    <data key='user.ccm.fncs.fp.installer' value='IBM_CONTENT_NAVIGATOR-2.0.3.5-FP005-zLINUX.bin'/>
+    <data key='user.ccm.fncs.installer' value='${ccmFNCSBasePackage}'/>
+    <data key='user.ccm.fncs.fp.installer' value='${ccmFNCSFixPackPackage}'/>
 
   </profile>
   
