@@ -3,7 +3,6 @@
 ################################################################################
 # General 
 ################################################################################
-
 defaultPwd="password"
 hostName=$(${hostname})
 dnsSuffix=$(${hostname} -d)
@@ -17,7 +16,6 @@ installIc="true"
 ################################################################################
 # FTP variables 
 ################################################################################
-
 useFtp="true"
 ftpServer="cs-ftp.swg.usma.ibm.com"
 
@@ -86,10 +84,12 @@ icSharedDataDir="${icDataDir}/shared"
 # Directory for child process exit codes
 childProcessTempDir="${stagingDir}/tmp_child"
 
+# Shared lib directory
+sysSharedLibDir="/etc/ld.so.conf.d"
+
 ################################################################################
 # Package variables  
 ################################################################################
-
 # DB2
 db2InstallPackage="v11.1.1fp1_linuxx64_server_t.tar.gz"
 db2LicensePackage="DB2_AESE_AUSI_Activation_11.1.zip"
@@ -134,7 +134,6 @@ db2InstanceName=${db2InstanceUser}
 ################################################################################
 # WebSphere variables  
 ################################################################################
-
 dmgrProfileName="dmgr"
 dmgrCellName="icCell"
 dmgrNodeName="dmgrNode"
@@ -155,7 +154,6 @@ ihsAdmin="ihsadmin"
 ################################################################################
 # LDAP variables  
 ################################################################################
-
 # See -ldapServerType option in createIdMgrLDAPRepository
 ldapType="AD"
 # See -id option in createIdMgrLDAPRepository
@@ -170,7 +168,6 @@ loginProperties="uid;mail"
 ################################################################################
 # SSL variables  
 ################################################################################
-
 # Organization name used for key generation
 orgName="IBM"
 # Country code used for key generation
@@ -179,6 +176,5 @@ countryCode="US"
 ################################################################################
 # Misc  
 ################################################################################
-
 # Batch size to use for tasks running in parallel
 batchSize=1
