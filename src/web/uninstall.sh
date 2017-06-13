@@ -6,6 +6,7 @@
 . src/misc/vars.sh
 
 # Local variables
+webTempDir="~/.ibm"
 webUninstallLog="${logDir}/web_uninstall.log"
 listInstalledPackages="${iimInstallDir}/eclipse/tools/imcl listInstalledPackages"
 uninstallPackages="${iimInstallDir}/eclipse/tools/imcl -log ${webUninstallLog} uninstall"
@@ -57,6 +58,10 @@ ${rm} -f -r ${webInstallDir}
 # Remove data directory
 log "I Removing WebSphere data directory..."
 ${rm} -f -r ${webDataDir}
+
+# Remove WebSphere temp directory
+log "I Removing WebSphere temp directory..."
+${rm} -f -r ${webTempDir}
 
 # Print the results
 log "I Success! WebSphere components have been uninstalled."

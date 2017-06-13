@@ -28,7 +28,7 @@ ${sed} -i "s|IHS_HOSTNAME|${fqdn}|" ${plgResponseFile}
 
 # Generate the config script
 log "I Generating the web server configuration script..."
-${wctpct} -defLocPathName ${plgInstallDir} -defLocName plugins -createDefinition -response ${plgResponseFile} >>${scriptLog} 2>&1
+${wctpct} -defLocPathname ${plgInstallDir} -defLocName plugins -importDefinitionLocation -response ${plgResponseFile} >>${scriptLog} 2>&1
 checkStatus ${?} "E unable to generate web server configuration script. Exiting."
 
 # Copy the config script to the WAS bin directory
