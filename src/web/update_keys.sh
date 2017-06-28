@@ -15,8 +15,8 @@ log "I Beginning update of web server plug-in keystore..."
 init ${webStagingDir} configure
 
 # Make sure deployment manager is started 
-dmgrStatus=$(startWASServer ${dmgrServerName} ${dmgrProfileDir})
-checkStatus ${dmgrStatus} "E Unable to start deployment manager. Exiting."
+startWASServer ${dmgrServerName} ${dmgrProfileDir}
+checkStatus ${?} "E Unable to start deployment manager. Exiting."
 
 # Invoke wsadmin to add the LDAP repository
 log "I Updating web server plug-in keystore..."

@@ -6,7 +6,7 @@
 . src/misc/vars.sh
 
 # Local variables
-webTempDir="~/.ibm"
+webTempDir="/root/.ibm"
 webUninstallLog="${logDir}/web_uninstall.log"
 listInstalledPackages="${iimInstallDir}/eclipse/tools/imcl listInstalledPackages"
 uninstallPackages="${iimInstallDir}/eclipse/tools/imcl -log ${webUninstallLog} uninstall"

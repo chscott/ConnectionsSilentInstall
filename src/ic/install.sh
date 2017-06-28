@@ -90,9 +90,10 @@ do
     ${sed} -i "s|IC_INSTALL_DIR|${icInstallDir}|" ${i}.xml
     ${sed} -i "s|IC_LOCAL_DATA_DIR|${icLocalDataDir}|" ${i}.xml
     ${sed} -i "s|IC_SHARED_DATA_DIR|${icSharedDataDir}|" ${i}.xml
-    ${sed} -i "s|CCM_CE_INSTALL_DIR|${ccmCEInstallDir}|" ${i}.xml
-    ${sed} -i "s|CCM_CECLIENT_INSTALL_DIR|${ccmCEClientInstallDir}|" ${i}.xml
-    ${sed} -i "s|CCM_FNCS_INSTALL_DIR|${ccmFNCSInstallDir}|" ${i}.xml
+    # The CCM components need hard-coded directories. Scripts like createGCD.sh require these exact paths.
+    ${sed} -i "s|CCM_CE_INSTALL_DIR|${icInstallDir}/FileNet/ContentEngine|" ${i}.xml
+    ${sed} -i "s|CCM_CECLIENT_INSTALL_DIR|${icInstallDir}/FileNet/CEClient|" ${i}.xml
+    ${sed} -i "s|CCM_FNCS_INSTALL_DIR|${icInstallDir}/FNCS|" ${i}.xml
     ${sed} -i "s|CCM_INSTALLER_DIR|${stagingDir}/${icStagingDir}|" ${i}.xml
     ${sed} -i "s|CCM_CE_BASE_PACKAGE|${ccmCEBasePackage}|" ${i}.xml
     ${sed} -i "s|CCM_CE_FP_PACKAGE|${ccmCEFixPackPackage}|" ${i}.xml
@@ -113,6 +114,10 @@ do
     ${sed} -i "s|IC_ADMIN_USER|${icAdminUser}|" ${i}.xml
     ${sed} -i "s|IC_ADMIN_PWD|${encryptedPwd}|" ${i}.xml
 done
+
+# Do a full restart with resync
+restartAllWASServersWithNodeSync
+checkStatus ${?} "E Unable to restart all WAS servers. Exiting."
 
 # Install the core Connections features first
 ${installFeature} core

@@ -32,9 +32,8 @@ deployment is available for use.
    not required) to need modification to match the environment. Variables in the Acceptable Defaults section may also 
 	be reviewed but are unlikely to require modification.
 	
-3. Once src/misc/vars.sh has been reviewed and modified to match the environment, run the src/main/install.sh script to begin the
-   install process. Note that you must run the script with root as the effective user ID. This means either switching to
-	the root account or, more likely, running the script via sudo. For example: 
+3. Once src/misc/vars.sh has been reviewed and modified to match the environment, run the src/main/install.sh script to   
+   begin the install process. Note that you must run the script with root as the effective user ID. This means either switching to the root account or, more likely, running the script via sudo. For example: 
 	
 	```Bash
 	sudo src/install.sh
@@ -70,6 +69,10 @@ The following functionality is currently working:
 - Connections application server profile creation
 
 - Connections installation (core apps plus CCM)
+
+- CCM configuration
+
+- Update to Java 8 SDK
 
 - Uninstall of all components (individually or collectively)
 

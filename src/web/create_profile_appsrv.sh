@@ -14,8 +14,8 @@ log "I Creating WAS application server profile..."
 init ${webStagingDir} configure
 
 # Check to make sure deployment manager is running
-result=$(isWASServerRunning ${dmgrServerName} ${dmgrProfileDir})
-checkStatus ${result} "E Deployment manager is not started. Exiting."
+startWASServer ${dmgrServerName} ${dmgrProfileDir}
+checkStatus ${?} "E Deployment manager is not started. Exiting."
 
 # Create the application server profile
 log "I Creating Connections profile..."

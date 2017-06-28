@@ -7,7 +7,8 @@
 
 # Local variables 
 propagatePluginKeystore="${stagingDir}/src/web/propagate_keys.sh"
-syncNode="${ic1ProfileDir}/bin/syncNode.sh ${fqdn} -username ${dmgrAdminUser} -password ${defaultPwd}"
+configureCCM="${stagingDir}/src/ic/config_ccm.sh"
+updateJavaSDK="${stagingDir}/src/web/upgrade_java.sh"
 
 log "I Beginning Connections post-install tasks..."
 
@@ -24,33 +25,18 @@ if [ ${result} -ne 0 ]; then
     log "W Manual IHS restart required. Continuing..."
 fi
 
-# Make sure the Connections application server is stopped
-result=$(stopWASServer ${ic1ServerName} ${ic1ProfileDir})
-checkStatus ${result} "E Unable to stop the Connections application server. Exiting."
+# Do a full restart/resync of WAS servers
+restartAllWASServersWithNodeSync
+checkStatus ${?} "E Unable to restart all WAS servers. Exiting."
 
-# Make sure the node agent is stopped 
-result=$(stopWASServer nodeagent ${ic1ProfileDir})
-checkStatus ${result} "E Unable to stop node agent. Exiting."
+# Configure CCM (don't swallow output since user will be prompted for info)
+log "I Configuring CCM..."
+${configureCCM}
+checkStatus ${?} "E Unable to configure CCM. Exiting."
 
-# Make sure the deployment manager is running
-result=$(startWASServer ${dmgrServerName} ${dmgrProfileDir})
-checkStatus ${result} "E Unable to start the deployment manager. Exiting"
-
-# Run a node agent sync
-log "I Synchronizing node..."
-${syncNode} >>${scriptLog} 2>&1
-checkStatus ${?} "E Unable to synchronize the node. Exiting."
-
-# Restart the deployment manager
-result=$(restartWASServer ${dmgrServerName} ${dmgrProfileDir})
-checkStatus ${result} "E Unable to restart the deployment manager. Exiting."
-
-# Start the node agent
-result=$(startWASServer nodeagent ${ic1ProfileDir})
-checkStatus ${result} "E Unable to start node agent. Exiting."
-
-# Restart the Connections application server
-result=$(restartWASServer ${ic1ServerName} ${ic1ProfileDir})
-checkStatus ${result} "E Unable to restart the Connections application server. Exiting."
+# Update the WAS Java SDK
+log "I Updating Java SDK for WebSphere Application Server..."
+${updateJavaSDK}
+checkStatus ${?} "E Unable to update Java SDK for WebSphere Application Server. Exiting."
 
 log "I Success! Connections post-install tasks completed."

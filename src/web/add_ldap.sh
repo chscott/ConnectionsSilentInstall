@@ -16,8 +16,8 @@ log "I Configuring LDAP for WAS..."
 init ${webStagingDir} configure
 
 # Check to make sure deployment manager is running
-result=$(isWASServerRunning ${dmgrServerName} ${dmgrProfileDir})
-checkStatus ${result} "E Run ${dmgrProfileDir}/bin/startManager.sh to start the deployment manager. Exiting."
+startWASServer ${dmgrServerName} ${dmgrProfileDir}
+checkStatus ${?} "E Deployment manager is not running. Exiting."
 
 # Invoke wsadmin to add the LDAP repository
 log "I Adding LDAP repository to Deployment Manager..."

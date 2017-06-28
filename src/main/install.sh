@@ -28,133 +28,40 @@ init main main_install
 # Rotate logs
 logRotate
 
-####################################################################################################
-# Dependency level 0
-
-log "I Running dependency level 0 tasks..."
-
-resetChildProcessTempDir ${childProcessTempDir}
-
-# Run background tasks
+# Install selected components 
 if [ ${installDb2} == "true" ]; then
-    { ${installDb2Script}; ${echo} ${?} >${childProcessTempDir}/${BASHPID}; } &
+    ${installDb2Script}
+    checkStatus ${?} "E DB2 installation failed. Exiting."
 fi
 if [ ${installTdi} == "true" ]; then
-    { ${installTdiScript}; ${echo} ${?} >${childProcessTempDir}/${BASHPID}; } &
+    ${installTdiScript}
+    checkStatus ${?} "E TDI installation failed. Exiting."
 fi
 if [ ${installIim} == "true" ]; then
-    { ${installIimScript}; ${echo} ${?} >${childProcessTempDir}/${BASHPID}; } &
+    ${installIimScript}
+    checkStatus ${?} "E IIM installation failed. Exiting."
 fi
-
-# Wait for background task completion and check results
-wait
-checkChildProcessStatus ${childProcessTempDir}
-####################################################################################################
-
-####################################################################################################
-# Dependency level 1
-
-log "I Running dependency level 1 tasks..."
-
-resetChildProcessTempDir ${childProcessTempDir}
-
-# Run background tasks
 if [ ${installWeb} == "true" ]; then
-    { ${installWebSphereScript}; ${echo} ${?} >${childProcessTempDir}/${BASHPID}; } &
-fi
-
-# Wait for background task completion and check results
-wait
-checkChildProcessStatus ${childProcessTempDir}
-####################################################################################################
-
-####################################################################################################
-# Dependency level 2
-
-log "I Running dependency level 2 tasks..."
-
-resetChildProcessTempDir ${childProcessTempDir}
-
-# Run background tasks
-if [ ${installWeb} == "true" ]; then
-    { ${enableSSLScript}; ${echo} ${?} >${childProcessTempDir}/${BASHPID}; } &
-    { ${createDmgrProfileScript}; ${echo} ${?} >${childProcessTempDir}/${BASHPID}; } &
+    ${installWebSphereScript}
+    checkStatus ${?} "E WebSphere installation failed. Exiting."
+    ${enableSSLScript}
+    checkStatus ${?} "E Unable to configure SSL. Exiting."
+    ${createDmgrProfileScript}
+    checkStatus ${?} "E Unable to create deployment manager profile. Exiting."
+    ${addLdapScript}
+    checkStatus ${?} "E Unable to add LDAP to federated repository. Exiting."
+    ${confWebServerScript}
+    checkStatus ${?} "E Unable to create a new web server definition. Exiting."
+    ${createAppSrvProfileScript}
+    checkStatus ${?} "E Unable to create application server profile. Exiting."
 fi
 if [ ${installIc} == "true" ]; then
-    { ${createDbsScript}; ${echo} ${?} >${childProcessTempDir}/${BASHPID}; } &
+    ${createDbsScript}
+    checkStatus ${?} "E Unable to create Connections databases. Exiting."
+    ${installConnectionsScript}
+    checkStatus ${?} "E Connections installation failed. Exiting."
+    ${postInstallConnectionsScript}
+    checkStatus ${?} "E Connections post-installation tasks failed. Exiting."
 fi
-
-# Wait for background task completion and check results
-wait
-checkChildProcessStatus ${childProcessTempDir}
-####################################################################################################
-
-####################################################################################################
-# Dependency level 3
-# These tasks require that the deployment manager is started.
-
-log "I Running dependency level 3 tasks..."
-
-resetChildProcessTempDir ${childProcessTempDir}
-
-if [ ${installWeb} == "true" ]; then
-
-    # Start deployment manager
-    status=$(startWASServer ${dmgrServerName} ${dmgrProfileDir})
-    checkStatus ${status} "E Unable to start deployment manager. Exiting."
-
-    # Run background tasks
-    { ${addLdapScript}; ${echo} ${?} >${childProcessTempDir}/${BASHPID}; } &
-    { ${confWebServerScript}; ${echo} ${?} >${childProcessTempDir}/${BASHPID}; } &
-    { ${createAppSrvProfileScript}; ${echo} ${?} >${childProcessTempDir}/${BASHPID}; } &
-
-    # Wait for background task completion and check results
-    wait
-    checkChildProcessStatus ${childProcessTempDir}
-
-    # Restart deployment manager
-    status=$(restartWASServer ${dmgrServerName} ${dmgrProfileDir})
-    checkStatus ${status} "E Unable to restart deployment manager. Exiting."
-
-fi
-####################################################################################################
-
-####################################################################################################
-# Dependency level 4
-
-log "I Running dependency level 4 tasks..."
-
-resetChildProcessTempDir ${childProcessTempDir}
-
-if [ ${installIc} == "true" ]; then
-    
-    # Run background tasks
-    { ${installConnectionsScript}; echo ${?} >${childProcessTempDir}/${BASHPID}; } &
-
-    # Wait for background task completion and check results
-    wait
-    checkChildProcessStatus ${childProcessTempDir}
-
-fi
-####################################################################################################
-
-####################################################################################################
-# Dependency level 5
-
-log "I Running dependency level 5 tasks..."
-
-resetChildProcessTempDir ${childProcessTempDir}
-
-if [ ${installIc} == "true" ]; then
-
-    # Run background tasks
-    { ${postInstallConnectionsScript}; echo ${?} >${childProcessTempDir}/${BASHPID}; } &
-
-    # Wait for background task completion and check results
-    wait
-    checkChildProcessStatus ${childProcessTempDir}
-
-fi
-####################################################################################################
 
 log "I Success! Completed installation of components."
