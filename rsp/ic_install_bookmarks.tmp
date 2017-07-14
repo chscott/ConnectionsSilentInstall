@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <agent-input>
   <variables>
-    <variable name='fqdn' value='FQDN'/>
+    <variable name='db2Fqdn' value='DB2_FQDN'/>
     <variable name='iimSharedDataDir' value='IIM_SHARED_DATA_DIR'/>
     <variable name='icRepositoryDir' value='IC_REPOSITORY_DIR'/>
     <variable name='icRepositoryId' value='IC_REPOSITORY_ID'/>
@@ -9,10 +9,9 @@
     <variable name='icInstallDir' value='IC_INSTALL_DIR'/>
     <variable name='jdbcDir' value='JDBC_DIR'/>
     <variable name='dbPwd' value='DB_PWD'/>
-    <variable name='icNodeName' value='IC_NODE_NAME'/>
-    <variable name='webServerName' value='WEB_SERVER_NAME'/>
     <variable name='icClusterName' value='IC_CLUSTER_NAME'/>
-    <variable name='icServerName' value='IC_SERVER_NAME'/>
+    <variable name='ic1NodeName' value='IC1_NODE_NAME'/>
+    <variable name='ic1ServerName' value='IC1_SERVER_NAME'/>
     <variable name='icAdminUser' value='IC_ADMIN_USER'/>
     <variable name='icAdminPwd' value='IC_ADMIN_PWD'/>
   </variables>
@@ -40,12 +39,12 @@
     <!-- Bookmarks (Dogear) -->
     <data key='user.dogear.adminuser.id' value='${icAdminUser}'/>
     <data key='user.dogear.adminuser.password' value='${icAdminPwd}'/>
-    <data key='user.dogear.firstNodeName' value='${icNodeName}'/>
-    <data key='user.dogear.serverInfo' value='dogear.${icNodeName}.ServerName=${icServerName};'/>
+    <data key='user.dogear.firstNodeName' value='${ic1NodeName}'/>
+    <data key='user.dogear.serverInfo' value='dogear.${ic1NodeName}.ServerName=${ic1ServerName};'/>
     <data key='user.dogear.clusterExist' value='false'/>
     <data key='user.dogear.clusterName' value='${icClusterName}'/>
-    <data key='user.dogear.clusterInfo' value='[{&quot;node&quot;: &quot;${icNodeName}&quot;, &quot;name&quot;: &quot;${icServerName}&quot;},]'/>
-    <data key='user.dogear.dbHostName' value='${fqdn}'/>
+    <data key='user.dogear.clusterInfo' value='[{&quot;node&quot;: &quot;${ic1NodeName}&quot;, &quot;name&quot;: &quot;${ic1ServerName}&quot;},]'/>
+    <data key='user.dogear.dbHostName' value='${db2Fqdn}'/>
     <data key='user.dogear.dbPort' value='50000'/>
     <data key='user.dogear.jdbcLibraryPath' value='${jdbcDir}'/>
     <data key='user.dogear.dbName' value='DOGEAR'/>

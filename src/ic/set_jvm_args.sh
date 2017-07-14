@@ -3,17 +3,13 @@
 # Source prereq scripts
 . src/misc/commands.sh
 . src/misc/utils.sh
-. src/misc/vars.sh
-
-# Local variables
-wsadmin="${dmgrProfileDir}/bin/wsadmin.sh"
-stopManager="${dmgrProfileDir}/bin/stopManager.sh"
-startManager="${dmgrProfileDir}/bin/startManager.sh"
-userPrincipal=$(${echo} ${loginProperties} | ${cut} -d ';' -f 1)
-jvmArgument="-Dcom.ibm.connections.directory.services.j2ee.security.principal=${userPrincipal}"
+. src/misc/vars.conf
+. src/ic/ic.conf
 
 # Do initialization stuff
 init ${icStagingDir} configure
+
+logConfigure 'Connections JVM Arguments' begin
 
 # Check to make sure deployment manager is running
 startWASServer ${dmgrServerName} ${dmgrProfileDir}
@@ -27,12 +23,14 @@ ${wsadmin} \
     "-user" "${dmgrAdminUser}" \
     "-password" "${defaultPwd}" \
     "${ic1ServerName}" \
-    "${jvmArgument}" >>${scriptLog} 2>&1
+    "${jvmArgument}"
 
 # Print the results
 result=${?}
 if [ ${result} -ne 0 ]; then
     log "W Unable to update JVM arguments for Connections server. Manual update required."
 else
-    log "I Success! Connections JVM arguments updated."
+    log "I Connections JVM arguments updated."
 fi
+
+logConfigure 'Connections JVM Arguments' end

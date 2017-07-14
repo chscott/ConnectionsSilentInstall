@@ -3,20 +3,13 @@
 # Source prereq scripts
 . src/misc/commands.sh
 . src/misc/utils.sh
-. src/misc/vars.sh
-
-# Local variables
-webTempDir="/root/.ibm"
-webUninstallLog="${logDir}/web_uninstall.log"
-listInstalledPackages="${iimInstallDir}/eclipse/tools/imcl listInstalledPackages"
-uninstallPackages="${iimInstallDir}/eclipse/tools/imcl -log ${webUninstallLog} uninstall"
-stopManager="${dmgrProfileDir}/bin/stopManager.sh"
-doUninstall="true"
-
-log "I Beginning uninstall of WebSphere components..."
+. src/misc/vars.conf
+. src/web/web.conf
 
 # Do initialization stuff
 init ${webStagingDir} uninstall
+
+logUninstall 'WebSphere Components' begin
 
 # See if WebSphere appears to be installed
 log "I Checking to see if WebSphere is installed..."
@@ -38,16 +31,16 @@ fi
 log "I Terminating IHS processes..."
 ${ps} -ef | ${grep} ${ihsInstallDir} | ${grep} -v 'grep' | ${awk} '{print $2}' | ${xargs} -r ${kill} -9
 log "I Terminating WebSphere processes..."
-${ps} -ef | ${grep} ${dmgrProfileDir} | ${grep} -v 'grep' | ${awk} '{print $2}' | ${xargs} -r ${kill} -9 >>${scriptLog} 2>&1
+${ps} -ef | ${grep} ${dmgrProfileDir} | ${grep} -v 'grep' | ${awk} '{print $2}' | ${xargs} -r ${kill} -9
 ${ps} -ef | ${grep} ${ic1ProfileDir} | ${grep} -v 'grep' | ${awk} '{print $2}' | ${xargs} -r ${kill} -9
 
 # Uninstall WebSphere packages
 # TODO: do direct ID of WebSphere packages in case additional components are installed on the system 
 if [ ${doUninstall} == "true" ]; then
     log "I Uninstalling WebSphere packages..."
-    ${listInstalledPackages} | \
+    ${imcl} listInstalledPackages | \
         ${grep} -v -E 'com.ibm.connections|com.ibm.cic.agent' | \
-        ${xargs} -r -I package ${uninstallPackages} package >>${scriptLog} 2>&1
+        ${xargs} -r -I package ${imcl} -log ${webUninstallLog} uninstall package
     checkStatus ${?} "E Failed to uninstall all WebSphere packages. Exiting." 
 fi
 
@@ -63,5 +56,4 @@ ${rm} -f -r ${webDataDir}
 log "I Removing WebSphere temp directory..."
 ${rm} -f -r ${webTempDir}
 
-# Print the results
-log "I Success! WebSphere components have been uninstalled."
+logUninstall 'WebSphere Components' end

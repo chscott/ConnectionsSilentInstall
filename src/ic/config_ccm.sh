@@ -3,39 +3,39 @@
 # Source prereq scripts
 . src/misc/commands.sh
 . src/misc/utils.sh
-. src/misc/vars.sh
-
-# Local variables 
-setJvmArgs="${stagingDir}/src/ic/set_jvm_args.sh"
-createGCD="./createGCD.sh"
-createObjectStore="./createObjectStore.sh"
-
-log "I Beginning CCM configuration..."
+. src/misc/vars.conf
+. src/ic/ic.conf
 
 # Do initialization stuff
 init ${icStagingDir} configure 
 
+logConfigure CCM begin
+
 # Update the Connections server's JVM process definition
 log "I Updating Connections application server JVM..."
-${setJvmArgs} >${scriptLog} 2>&1
+${setJvmArgs}
 checkStatus ${?} "E Unable to set JVM arguments for Connections application server. Exiting."
 
 # Configure CCM
 cd "${icInstallDir}/ccmDomainTool"
-${clear}
-log "The next step will create the FileNet P8 domain and Global Configuration Data."
-${read} -p "You will be prompted to enter information for your environment. Press Enter to begin."
+${echo}
+log "****************************************************************************************************************"
+log "I Beginning CCM configuration. The following steps will require user input. Press Enter to begin."
+${read} -p ""
+resetOutput
 ${createGCD}
+redirectOutput
 checkStatus ${?} "E Unable to configure GCD. Exiting."
-${clear}
-log "The next step will create the FileNet object store and install add-ons."
-${read} -p "You will be prompted to enter information for your environment. Press Enter to begin."
+resetOutput
 ${createObjectStore}
+redirectOutput
 checkStatus ${?} "E Unable to create object store. Exiting."
-${clear}
+log "I CCM configuration complete."
+log "****************************************************************************************************************"
+${echo}
 
 # Restart the Connections application server
 restartWASServer ${ic1ServerName} ${ic1ProfileDir}
 checkStatus ${?} "E Unable to restart the Connections application server. Exiting."
 
-log "I Success! CCM configuration tasks completed."
+logConfigure CCM end

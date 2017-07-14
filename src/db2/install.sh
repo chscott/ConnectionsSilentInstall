@@ -3,91 +3,63 @@
 # Source prereq scripts
 . src/misc/commands.sh
 . src/misc/utils.sh
-. src/misc/vars.sh
-
-# Local variables
-downloadFile="../src/misc/downloadFile.sh"
-db2PrereqReport="${logDir}/db2prereqs.rpt"
-db2SAMPrereqReport="${logDir}/db2SAMprereqs.rpt"
-db2InstallLog="${logDir}/db2_install.log"
-db2InstallTrace="${logDir}/db2_install.trc"
-db2ValidationLog="${logDir}/db2val.log"
-db2Prereq="${db2StagingSubDir}/db2prereqcheck -i -v 11.1.1.1 -o ${db2PrereqReport}"
-db2SAMPrereq="${db2StagingSubDir}/db2/linuxamd64/tsamp/prereqSAM -l ${db2SAMPrereqReport}"
-db2Install="${db2StagingSubDir}/db2setup -l ${db2InstallLog} -t ${db2InstallTrace} -r"
-db2Licm="${db2InstallDir}/adm/db2licm"
-db2Val="${db2InstallDir}/bin/db2val"
-db2InstallResponseFile="db2_install.rsp"
-db2LicenseFile="aese_u/db2/license/db2aese_u.lic"
-db2Level="${db2InstallDir}/bin/db2level"
-db2SetCodepage="/home/${db2InstanceUser}/sqllib/adm/db2set DB2CODEPAGE=1208"
-db2Start="/home/${db2InstanceUser}/sqllib/adm/db2start"
-db2Stop="/home/${db2InstanceUser}/sqllib/adm/db2stop"
-db2PrereqSuccess="DBT3533I"
-db2FilesValidated="DBI1335I"
-db2InstanceValidated="DBI1339I"
-
-log "I Beginning installation of DB2..."
+. src/misc/vars.conf
+. src/db2/db2.conf
 
 # Do initialization stuff
 init ${db2StagingDir} install
 
-# Download the install files 
-log "I Downloading DB2 installation files..."
+logInstall DB2 begin 
+
+# Download and unpack the install files 
+log "I Downloading DB2 install files..."
 { ${downloadFile} ${ftpServer} ${ftpDB2Dir} ${db2InstallPackage}; ${echo} ${?} >${childProcessTempDir}/${db2StagingDir}/${BASHPID}; } &
 { ${downloadFile} ${ftpServer} ${ftpDB2Dir} ${db2LicensePackage}; ${echo} ${?} >${childProcessTempDir}/${db2StagingDir}/${BASHPID}; } &
-
-# Wait for file downloads to complete and then check status
 wait
 checkChildProcessStatus ${childProcessTempDir}/${db2StagingDir}
 resetChildProcessTempDir ${childProcessTempDir}/${db2StagingDir}
-
-# Unpack the downloaded files
 unpackFile tar "${db2InstallPackage}"
 unpackFile zip "${db2LicensePackage}"
 
 # Check DB2 prereqs
 log "I Checking DB2 prerequisites..."
-${db2Prereq} >>${scriptLog} 2>&1
-${grep} ${db2PrereqSuccess} ${db2PrereqReport} >>${scriptLog} 2>&1
+${db2Prereq}
+${grep} ${db2PrereqSuccess} ${db2PrereqReport}
 checkStatus ${?} "E DB2 prereq check failed. Review ${db2PrereqReport} and address any reported issues before proceeding."
-${db2SAMPrereq} >>${scriptLog} 2>&1
+${db2SAMPrereq}
 checkStatus ${?} "E DB2 SAM prereq check failed. Review ${db2SAMPrereqReport} and address any reported issues before proceeding."
-log "I All prerequisites are in place. Continuing..."
 
-# Add required groups
+# Add required groups/users
 log "I Creating DB2 groups..."
-${sysgroupadd} ${db2InstanceGroup} >>${scriptLog} 2>&1
+${sysgroupadd} ${db2InstanceGroup}
 checkUserGroupStatus ${?} "Unable to create" ${db2InstanceGroup} "ADD"
-${sysgroupadd} ${db2FencedGroup} >>${scriptLog} 2>&1
+${sysgroupadd} ${db2FencedGroup}
 checkUserGroupStatus ${?} "Unable to create" ${db2FencedGroup} "ADD"
-${sysgroupadd} ${db2DASGroup} >>${scriptLog} 2>&1
+${sysgroupadd} ${db2DASGroup}
 checkUserGroupStatus ${?} "Unable to create" ${db2DASGroup} "ADD"
-
-# Add required users
 log "I Creating DB2 users..."
-${sysuseradd} -g ${db2InstanceGroup} ${db2InstanceUser} >>${scriptLog} 2>&1
+${sysuseradd} -g ${db2InstanceGroup} ${db2InstanceUser}
 checkUserGroupStatus ${?} "Unable to create" ${db2InstanceUser} "ADD"
 ${echo} "${db2InstanceUser}:${defaultPwd}" | ${chpasswd}
-${sysuseradd} -g ${db2FencedGroup} ${db2FencedUser} >>${scriptLog} 2>&1
+${sysuseradd} -g ${db2FencedGroup} ${db2FencedUser}
 checkUserGroupStatus ${?} "Unable to create" ${db2FencedUser} "ADD"
 ${echo} "${db2FencedUser}:${defaultPwd}" | ${chpasswd}
-${sysuseradd} -g ${db2DASGroup} ${db2DASUser} >>${scriptLog} 2>&1
+${sysuseradd} -g ${db2DASGroup} ${db2DASUser}
 checkUserGroupStatus ${?} "Unable to create" ${db2DASUser} "ADD"
 ${echo} "${db2DASUser}:${defaultPwd}" | ${chpasswd}
-${sysuseradd} -g ${db2InstanceGroup} lcuser >>${scriptLog} 2>&1
+${sysuseradd} -g ${db2InstanceGroup} lcuser
 checkUserGroupStatus ${?} "Unable to create" "lcuser" "ADD"
 ${echo} "lcuser:${defaultPwd}" | ${chpasswd}
 
 # Increase open file limit for instance owner group
 log "I Setting open file limits for ${db2InstanceGroup} in ${limitsFile}..."
-${grep} ${db2InstanceGroup} ${limitsFile} >>${scriptLog} 2>&1
+${grep} ${db2InstanceGroup} ${limitsFile}
 status=${?}
 if [ ${status} -ne 0 ]; then
 	${printf} "@${db2InstanceGroup}${limitFilesSoft}" >> ${limitsFile}
 	${printf} "@${db2InstanceGroup}${limitFilesHard}" >> ${limitsFile}
 else
-	log "W Limits already set for ${db2InstanceGroup} in ${limitsFile}. Manual review recommended."
+	log "W Limits already set for ${db2InstanceGroup} in ${limitsFile}. Manual review required."
 fi 
 
 # Update the pam.d files
@@ -111,21 +83,21 @@ ${printf} "DB2_INST.FENCED_USERNAME = ${db2FencedUser}\n" >> ${db2InstallRespons
 ${printf} "DB2_INST.FENCED_GROUP_NAME = ${db2FencedGroup}\n" >> ${db2InstallResponseFile}
 
 # Install DB2
-log "I Installing DB2..."
-${db2Install} ${db2InstallResponseFile} >>${scriptLog} 2>&1
+log "I Performing DB2 install..."
+${db2Install} ${db2InstallResponseFile}
 checkStatus ${?} "E DB2 installation failed. Exiting."
 
 # Validate the install
-log "I Validating the DB2 install..."
-${db2Val} -a -l ${db2ValidationLog} >>${scriptLog} 2>&1
-${grep} ${db2FilesValidated} ${db2ValidationLog} >>${scriptLog} 2>&1
+log "I Validating DB2 install..."
+${db2Val} -a -l ${db2ValidationLog}
+${grep} ${db2FilesValidated} ${db2ValidationLog}
 checkStatus ${?} "E DB2 validation failed. Review ${db2ValidationLog} for details."
-${grep} ${db2InstanceValidated} ${db2ValidationLog} >>${scriptLog} 2>&1
+${grep} ${db2InstanceValidated} ${db2ValidationLog}
 checkStatus ${?} "E DB2 validation failed. Review ${db2ValidationLog} for details."
 
 # Apply the DB2 license
 log "I Applying DB2 license..."
-${db2Licm} -a ${db2LicenseFile} >>${scriptLog} 2>&1
+${db2Licm} -a ${db2LicenseFile}
 checkStatus ${?} "E DB2 license installation failed."
 
 # Enable Unicode
@@ -143,6 +115,4 @@ if [ ${result} -ne 0 ]; then
     log "W Unable to start DB2 after setting codepage. Manual restart required." 
 fi
 
-# Print the results
-version=$(${db2Level} | ${grep} tokens | ${cut} -d ' ' -f 4,5 | ${tr} -d '",\,')
-log "I Success! DB2 ${version} has been installed."
+logInstall DB2 end 

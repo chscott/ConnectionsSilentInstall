@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <agent-input>
   <variables>
-    <variable name='fqdn' value='FQDN'/>
+    <variable name='db2Fqdn' value='DB2_FQDN'/>
     <variable name='iimSharedDataDir' value='IIM_SHARED_DATA_DIR'/>
     <variable name='icRepositoryDir' value='IC_REPOSITORY_DIR'/>
     <variable name='icRepositoryId' value='IC_REPOSITORY_ID'/>
@@ -18,10 +18,9 @@
     <variable name='ccmFNCSFixPackPackage' value='CCM_FNCS_FP_PACKAGE'/>
     <variable name='jdbcDir' value='JDBC_DIR'/>
     <variable name='dbPwd' value='DB_PWD'/>
-    <variable name='icNodeName' value='IC_NODE_NAME'/>
-    <variable name='webServerName' value='WEB_SERVER_NAME'/>
     <variable name='icClusterName' value='IC_CLUSTER_NAME'/>
-    <variable name='icServerName' value='IC_SERVER_NAME'/>
+    <variable name='ic1NodeName' value='IC1_NODE_NAME'/>
+    <variable name='ic1ServerName' value='IC1_SERVER_NAME'/>
     <variable name='icAdminUser' value='IC_ADMIN_USER'/>
     <variable name='icAdminPwd' value='IC_ADMIN_PWD'/>
   </variables>
@@ -53,22 +52,22 @@
 	<data key='user.ccm.existingDeployment' value='false'/>
 	<data key='user.ccm.adminuser.id' value='${icAdminUser}'/>
     <data key='user.ccm.adminuser.password' value='${icAdminPwd}'/>
-    <data key='user.ccm.firstNodeName' value='${icNodeName}'/>
-    <data key='user.ccm.serverInfo' value='ccm.${icNodeName}.ServerName=${icServerName};'/>
+    <data key='user.ccm.firstNodeName' value='${ic1NodeName}'/>
+    <data key='user.ccm.serverInfo' value='ccm.${ic1NodeName}.ServerName=${ic1ServerName};'/>
     <data key='user.ccm.clusterExist' value='false'/>
     <data key='user.ccm.clusterName' value='${icClusterName}'/>
-    <data key='user.ccm.clusterInfo' value='[{&quot;node&quot;: &quot;${icNodeName}&quot;, &quot;name&quot;: &quot;${icServerName}&quot;},]'/>
+    <data key='user.ccm.clusterInfo' value='[{&quot;node&quot;: &quot;${ic1NodeName}&quot;, &quot;name&quot;: &quot;${ic1ServerName}&quot;},]'/>
     <data key='user.ccm.userName' value='${icAdminUser}'/>
     <data key='user.ccm.password' value='${icAdminPwd}'/>
-    <data key='user.ccm.serverName' value='${icServerName}'/>
+    <data key='user.ccm.serverName' value='${ic1ServerName}'/>
     <data key='user.ccm.jdbcLibraryPath' value='${jdbcDir}'/>
     <data key='user.ccm.dbType' value='DB2'/>
-    <data key='user.ccm.gcd.dbHostName' value='${fqdn}'/>
+    <data key='user.ccm.gcd.dbHostName' value='${db2Fqdn}'/>
     <data key='user.ccm.gcd.dbPort' value='50000'/>
     <data key='user.ccm.gcd.dbName' value='FNGCD'/>
     <data key='user.ccm.gcd.dbUser' value='LCUSER'/>
     <data key='user.ccm.gcd.dbUserPassword' value='${dbPwd}'/>
-    <data key='user.ccm.objstore.dbHostName' value='${fqdn}'/>
+    <data key='user.ccm.objstore.dbHostName' value='${db2Fqdn}'/>
     <data key='user.ccm.objstore.dbPort' value='50000'/>
     <data key='user.ccm.objstore.dbName' value='FNOS'/>
     <data key='user.ccm.objstore.dbUser' value='LCUSER'/>

@@ -3,16 +3,13 @@
 # Source prereq scripts
 . src/misc/commands.sh
 . src/misc/utils.sh
-. src/misc/vars.sh
-
-# Local variables
-wsadmin="${dmgrProfileDir}/bin/wsadmin.sh"
-scope="(cell):${dmgrCellName}:(node):${fqdn}-node:(server):${webServerName}"
-
-log "I Beginning update of web server plug-in keystore..."
+. src/misc/vars.conf
+. src/web/web.conf
 
 # Do initialization stuff
 init ${webStagingDir} configure
+
+logConfigure 'Web Server Keystore Update' begin
 
 # Make sure deployment manager is started 
 startWASServer ${dmgrServerName} ${dmgrProfileDir}
@@ -25,12 +22,11 @@ ${wsadmin} \
     "-lang" "jython" \
     "-user" "${dmgrAdminUser}" \
     "-password" "${defaultPwd}" \
-    "${fqdn}" \
+    "${ihsFqdn}" \
     "9443" \
     "DELETE_ME" \
     "${scope}" \
-    "CMSKeyStore" >>${scriptLog} 2>&1
+    "CMSKeyStore"
 checkStatus ${?} "E Unable to update web server plug-in keystore. Exiting."
 
-# Print the results
-log "I Success! Web server plug-in keystore has been updated."
+logConfigure 'Web Server Keystore Update' end

@@ -3,17 +3,13 @@
 # Source prereq scripts
 . src/misc/commands.sh
 . src/misc/utils.sh
-. src/misc/vars.sh
-
-# Local variables 
-tdiUninstall="${tdiInstallDir}/_uninst/uninstaller"
-tdiUninstallResponseFile="${stagingDir}/rsp/tdi_uninstall.rsp"
-doUninstall="true"
-
-log "I Beginning uninstall of TDI..."
+. src/misc/vars.conf
+. src/tdi/tdi.conf
 
 # Do initialization stuff
 init ${tdiStagingDir} uninstall
+
+logUninstall TDI begin
 
 # Verify TDI is installed
 result=$(isInstalled ${tdiInstallDir})
@@ -21,6 +17,10 @@ if [ ${result} -eq 1 ]; then
     log "I TDI does not appear to be installed. Skipping uninstall."
     doUninstall="false"
 fi
+
+# Kill TDI processes
+log "I Terminating TDI processes..."
+${ps} -ef | ${grep} ${tdiInstallDir} | ${grep} -v 'grep' | ${awk} '{print $2}' | ${xargs} -r ${kill} -9
 
 # Uninstall TDI
 if [ ${doUninstall} == "true" ]; then
@@ -33,5 +33,4 @@ fi
 log "I Removing TDI installation directory ..."
 ${rm} -f -r ${tdiInstallDir}
 
-# Print the results
-log "I Success! TDI has been uninstalled."
+logUninstall TDI end

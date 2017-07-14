@@ -3,16 +3,13 @@
 # Source prereq scripts
 . src/misc/commands.sh
 . src/misc/utils.sh
-. src/misc/vars.sh
-
-# Local variables
-wsadmin="${dmgrProfileDir}/bin/wsadmin.sh"
-options="${dmgrProfileDir}/config ${dmgrCellName} ${fqdn}-node ${webServerName}"
-
-log "I Beginning propagation of web server plug-in keystore..."
+. src/misc/vars.conf
+. src/web/web.conf
 
 # Do initialization stuff
 init ${webStagingDir} configure
+
+logConfigure 'Web Server Keystore Propagation' begin
 
 # Make sure deployment manager is started 
 startWASServer ${dmgrServerName} ${dmgrProfileDir}
@@ -25,8 +22,14 @@ ${wsadmin} \
     "-lang" "jython" \
     "-user" "${dmgrAdminUser}" \
     "-password" "${defaultPwd}" \
-    "${options}" >>${scriptLog} 2>&1
+    "${propagateKeysOptions}"
 checkStatus ${?} "E Unable to propagate web server plug-in keystore. Exiting."
 
-# Print the results
-log "I Success! Web server plug-in keystore propagated."
+# Restart the web server to load the updated plug-in
+restartIHSServer
+result=${?}
+if [ ${result} -ne 0 ]; then
+    log "W Manual IHS restart required. Continuing..."
+fi
+
+logConfigure 'Web Server Keystore Propagation' end

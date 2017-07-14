@@ -1,13 +1,27 @@
+# Get the script name
 me=$(${echo} ${0} | ${awk} -F '/' '{print $(NF-1)"/"$NF}')
 
-# Saved original stdout and stderr
-exec 3>&1
-exec 4>&2
+# This is used to give us a file descriptor to print to normal stdout since we'll be redirecting fd 1 to the script log
+fd101=$(${ls} /proc/${BASHPID}/fd | ${grep} 101)
+if [ -z ${fd101} ]; then
+    exec 101>&1
+fi
+
+# Reset the file descriptors for normal output
+function resetOutput() {
+    exec 1>&101 2>&1
+}
+
+# Redirect the file descriptors for script output
+function redirectOutput() {
+    exec 1>>${scriptLog} 2>&1
+}
 
 # Create the logs dir if it doesn't already exist
 function checkForLogDir() {
+    local files
     if [ ! -d ${logDir} ]; then
-        ${mkdir} ${logDir}
+        ${mkdir} -p ${logDir}
         ${chmod} a+rwx ${logDir}
         ${touch} ${scriptLog}
         ${chmod} a+w ${scriptLog}
@@ -15,30 +29,12 @@ function checkForLogDir() {
     fi
 }
 
-# Reset stdout and stderr
-function resetOutput() {
-    exec 1>&3
-    exec 2>&4
-}
-
-# Tee output to script log
-function redirectOutput() {
-    resetOutput
-    checkForLogDir
-    exec 1> >(tee -a ${scriptLog}) 2>&1
-    # This is needed to give process substition a chance to complete before main shell continues
-    sleep 1
-}
-
 # Tests to make sure the effective user ID is root
 function checkForRoot() {
     local script=${0}
-
 	if [ "${EUID}" -ne 0 ]; then
 		log "E Script ${script} needs to run as root. Exiting."
 		exit 1
-	else
-		log "I Script ${script} is running as root. Continuing..."
 	fi
 }
 
@@ -47,8 +43,53 @@ function checkForRoot() {
 function log() {
     local message=${1}
     local now=$(date '+%F %T')
+	printf "%s %-16.16s %s\n" "${now}" "${me}" "${message}" >&101
+	printf "%s %-16.16s %s\n" "${now}" "${me}" "${message}"
+}
 
-	printf "%s %-16.16s %s\n" "${now}" "${me}" "${message}" >&2
+# Print message for the beginning/end of a component install
+# $1: component being installed
+# $2: begin | end
+function logInstall() {
+    local component=${1}
+    local phase=${2}
+    if [ ${phase} == 'begin' ]; then
+        log "I Beginning install of [${component}]..."
+    elif [ ${phase} == 'end' ]; then
+        log "I Completed install of [${component}]."
+    else
+        log "W Unrecognized phase [${phase}] in logInstall."
+    fi
+}
+
+# Print message for the beginning/end of a component uninstall
+# $1: component being uninstalled
+# $2: begin | end
+function logUninstall() {
+    local component=${1}
+    local phase=${2}
+    if [ ${phase} == 'begin' ]; then
+        log "I Beginning uninstall of [${component}]..."
+    elif [ ${phase} == 'end' ]; then
+        log "I Completed uninstall of [${component}]."
+    else
+        log "W Unrecognized phase [${phase}] in logUninstall."
+    fi
+}
+
+# Print message for the beginning/end of a component configuration
+# $1: component being configured
+# $2: begin | end
+function logConfigure() {
+    local component=${1}
+    local phase=${2}
+    if [ ${phase} == 'begin' ]; then
+        log "I Beginning configuration of [${component}]..."
+    elif [ ${phase} == 'end' ]; then
+        log "I Completed configuration of [${component}]."
+    else
+        log "W Unrecognized phase [${phase}] in logConfigure."
+    fi
 }
 
 # General-purpose routine to check exit code of previous operation.
@@ -58,11 +99,14 @@ function log() {
 function checkStatus() {
     local code=${1}
     local message=${2}
-
+    local severity=""
 	if [ ${code} -ne 0 ]; then
+        severity=$(${echo} ${message} | ${awk} '{print $1}')
 		log "${message}"
-		log "E Exit status: ${code}"
-		exit 1
+        if [ ${severity} == 'E' ]; then
+		    log "E Exit status: ${code}"
+		    exit 1
+        fi
 	fi
 }
 
@@ -71,7 +115,6 @@ function checkStatus() {
 function checkChildProcessStatus() {
     local tempDir=${1}
     local childStatus
-
     if [ ! -d ${tempDir} ]; then
         log "E Child process temp directory ${tempDir} does not exist. Exiting."
         exit 1
@@ -93,7 +136,6 @@ function checkStatusDb() {
     local operation=${1}
     local code=${2}
     local message=${3}
-
     # Exit on errors when creating
     if [ ${operation} == "create" ]; then
 	    if [ ${code} -ne 0 -a ${code} -ne 1 -a ${code} -ne 2 -a ${code} -ne 3 ]; then
@@ -115,7 +157,6 @@ function checkStatusDb() {
 function checkChildProcessStatusDb() {
     local operation=${1}
     local childStatus
-
     if [ ! -d ${childProcessTempDir}/db ]; then
         log "E Child process temp directory ${childProcessTempDir}/db does not exist. Exiting."
         exit 1
@@ -136,7 +177,6 @@ function checkUserGroupStatus() {
     local message=${2}
     local userOrGroup=${3}
     local operation=${4}
-
     if [ ${operation} == "ADD" ]; then
         if [ ${code} -ne 0 ]; then
             # Non-fatal error
@@ -160,9 +200,8 @@ function checkUserGroupStatus() {
 # Test if the supplied directory exists
 # $1: directory to check as proxy to see if component is installed
 function isInstalled() {
-    local directory=${1}
-
-    if [ ! -d ${directory} ]; then
+    local directory="${1}"
+    if [ ! -d "${directory}" ]; then
         ${echo} 1
     else
         ${echo} 0
@@ -175,30 +214,29 @@ function isInstalled() {
 # sudo
 function updatePamFiles() {
     local status
-
 	# /etc/pam.d/sshd
 	${grep} "pam_limits.so" ${pamSshdFile} >/dev/null 2>&1
 	status=${?}
 	if [ ${status} -ne 0 ]; then
-		${printf} "${pamLimits}" >> ${pamSshdFile}
+		${printf} "${pamLimits}" >>${pamSshdFile}
 	else
-		log "W ${pamSshdFile} already contains an entry for pam_limits.so. Manual review recommended."
+		log "W ${pamSshdFile} already contains an entry for pam_limits.so. Manual review required."
 	fi
 	# /etc/pam.d/su
 	${grep} "pam_limits.so" ${pamSuFile} >/dev/null 2>&1
 	status=${?}
 	if [ ${status} -ne 0 ]; then
-		${printf} "${pamLimits}" >> ${pamSuFile}
+		${printf} "${pamLimits}" >>${pamSuFile}
 	else
-		log "W ${pamSuFile} already contains an entry for pam_limits.so. Manual review recommended."
+		log "W ${pamSuFile} already contains an entry for pam_limits.so. Manual review required."
 	fi
 	# /etc/pam.d/sudo
 	${grep} "pam_limits.so" ${pamSudoFile} >/dev/null 2>&1
 	status=${?}
 	if [ ${status} -ne 0 ]; then
-		${printf} "${pamLimits}" >> ${pamSudoFile}
+		${printf} "${pamLimits}" >>${pamSudoFile}
 	else
-		log "W ${pamSudoFile} already contains an entry for pam_limits.so. Manual review recommended."
+		log "W ${pamSudoFile} already contains an entry for pam_limits.so. Manual review required."
 	fi
 }
 
@@ -208,9 +246,8 @@ function updatePamFiles() {
 function downloadFile() {
     local dir=${1}
     local file=${2}
-
     log "I Downloading ${file} from ${ftpServer}..."
-    ${curl} ftp://${ftpServer}/${dir}/${file} >>${scriptLog}
+    ${curl} ftp://${ftpServer}/${dir}/${file}
     checkStatus ${?} "E Download failed. Exiting."
 }
 
@@ -218,11 +255,10 @@ function downloadFile() {
 # $1: List of files 
 function downloadFiles() {
     local files="${1}"
-
     for i in ${files}; do
         log "I Downloading ${i}..."
     done
-    ${echo} ${files} | ${xargs} -n 1 -P 8 ${curl} >>${scriptLog} 2>&1 
+    ${echo} ${files} | ${xargs} -n 1 -P 8 ${curl} 
     checkStatus ${?} "E Download failed. Exiting."
 }
 
@@ -233,7 +269,6 @@ function unpackFile() {
     local archiveType=${1}
     local file=${2}
     local result
-
     log "I Unpacking ${file}..."
     if [ ${archiveType} == "zip" ]; then
         ${unzip} -qq ${file}
@@ -250,11 +285,10 @@ function unpackFile() {
 function unpackZipFiles() {
     local files=${1}
     local result
-
     for i in ${files}; do
         log "I Unpacking ${i}..."
     done
-    ${echo} ${files} | ${xargs} -n 1 -P 8 ${unzip} -qq >>${scriptLog} 2>&1 
+    ${echo} ${files} | ${xargs} -n 1 -P 8 ${unzip} -qq 
     checkStatus ${?} "E Unpack operation failed. Exiting."
 }
 
@@ -263,11 +297,10 @@ function unpackZipFiles() {
 function unpackTarFiles() {
     local files=${1}
     local result
-
     for i in ${files}; do
         log "I Unpacking ${i}..."
     done
-    ${echo} ${files} | ${xargs} -n 1 -P 24 ${tar} -xf >>${scriptLog} 2>&1 
+    ${echo} ${files} | ${xargs} -n 1 -P 24 ${tar} -xf 
     checkStatus ${?} "E Unpack operation failed. Exiting."
 }
 
@@ -281,10 +314,12 @@ function unpackFileToDirectory() {
     local file=${2}
     local directory=${3}
     local result
-
     log "I Unpacking ${file} to ${directory}..."
     if [ ${archiveType} == "zip" ]; then
         ${unzip} -qq ${file} -d ${directory}
+        result=${?}
+    elif [ ${archiveType} == "tar" ]; then
+        ${tar} -xf ${file} --directory ${directory} --strip-components=1
         result=${?}
     fi
     checkStatus ${result} "E Unpack operation failed. Exiting."
@@ -295,8 +330,6 @@ function unpackFileToDirectory() {
 # $1: product component
 function clean() {
     local installStagingDir=${1}
-
-    log "I Recreating product install staging directory..."
     ${rm} -f -r ${stagingDir}/${installStagingDir}
     ${mkdir} -p ${stagingDir}/${installStagingDir}
     checkStatus ${?} "E Unable to create ${stagingDir}/${installStagingDir}. Exiting."
@@ -308,9 +341,8 @@ function clean() {
 function copyTemplate() {
     local template=${1}
     local file=${2}
-
     log "I Building silent install response file..."
-    ${cp} ${template} ${file}
+    ${cp} -f ${template} ${file}
     checkStatus ${?} "E Unable to copy ${template} to ${file}. Exiting."
 }
 
@@ -318,9 +350,7 @@ function copyTemplate() {
 # $1: directory to cd to
 function cdToStagingDir() {
     local directory=${1}
-
     cd ${directory}
-    currentDir=$(${pwd})
 }
 
 # Give 755 access to the staging dir
@@ -334,14 +364,17 @@ function grantAccessToStagingDir() {
 function init() {
     local component=${1}
     local operation=${2}
-
-    # Skip redirection for main script to avoid duplicated log lines
-    if [ ${component} != "main" ]; then
-        redirectOutput
+    checkForLogDir
+    # If running the main install script, rotate the logs so we start fresh
+    if [ ${component} == "main" -a ${operation} == "main_install" ]; then
+        logRotate
     fi
+    # Redirect stdout and stderr
+    redirectOutput
+    # This is needed to give process substition a chance to complete before main shell continues
+    sleep 1
     checkForRoot
     grantAccessToStagingDir
-    checkForLogDir    
     # When installing components, additional tasks are required
     if [ ${operation} == "install" ]; then
         # Some components like the Connections dbs have no install directory and shouldn't be checked
@@ -358,11 +391,12 @@ function init() {
             installDir=${icInstallDir}
         fi
         # For installable components, check to see if it appears that the component has already been installed 
-        if [ ${installDir} != "null" ]; then
+        # Skip check for Connections since each feature will be checked individually in src/ic/install.sh.
+        if [ ${installDir} != "null" -a ${component} != ${icStagingDir} ]; then
             local installed=$(isInstalled ${installDir})
             if [ ${installed} -eq 0 ]; then
-                log "E Install directory ${installDir} already exists. Assuming ${component} is already installed. Exiting."    
-                exit 1
+                log "W Install directory ${installDir} already exists. Assuming ${component} is already installed. Skipping."    
+                exit 0 
             fi    
         fi
     fi
@@ -380,14 +414,13 @@ function init() {
 function logRotate() {
     local now=$(${date} '+%Y%m%d_%H%M%S')
     local originalDir=$(${pwd})
-
     # Skip if the log directory doesn't exist
     if [ -d ${logDir} ]; then
         # cd to logs dir to use relative paths for tar
         cd ${logDir}
         # Create the archive subdirectory if it doesn't already exist
         if [ ! -d ${logDir}/archive ]; then
-            ${mkdir} ${logDir}/archive
+            ${mkdir} -p ${logDir}/archive
         fi
         # Create an archive of the existing logs 
         ${find} . -maxdepth 1 -type f | ${tar} -czf ${logDir}/archive/logs_${now}.tar.gz -T -
@@ -406,7 +439,6 @@ function doesWASServerExist() {
     local server=${1}
     local profileRoot=${2}
     local node
-
     if [ ${server} == ${dmgrServerName} ]; then 
         node=${dmgrNodeName}
     else
@@ -429,7 +461,6 @@ function getWASServerStatus() {
     local serverStatus
     local result
     local functionStatus="undefined"
-
     doesWASServerExist ${server} ${profileRoot}
     result=${?}
     if [ ${result} -ne 0 ]; then
@@ -462,7 +493,6 @@ function startWASServer() {
     local server=${1}
     local profileRoot=${2}
     local serverStatus
-
     doesWASServerExist ${server} ${profileRoot}
     result=${?}
     if [ ${result} -ne 0 ]; then
@@ -474,7 +504,7 @@ function startWASServer() {
         # Only need to start the server if it's not already started
         if [ ${serverStatus} != "started" ]; then
             log "I Starting WAS server ${server}..."
-            ${profileRoot}/bin/startServer.sh ${server} >>${scriptLog} 2>&1
+            ${profileRoot}/bin/startServer.sh ${server}
             serverStatus=$(getWASServerStatus ${server} ${profileRoot})
         fi
         # Return success if the server is now started or failure if it is not
@@ -494,7 +524,6 @@ function stopWASServer() {
     local server=${1}
     local profileRoot=${2}
     local serverStatus
-
     doesWASServerExist ${server} ${profileRoot}
     result=${?}
     if [ ${result} -ne 0 ]; then
@@ -506,7 +535,7 @@ function stopWASServer() {
         # Only need to stop the server if it's not already stopped
         if [ ${serverStatus} != "stopped" ]; then
             log "I Stopping WAS server ${server}..."
-            ${profileRoot}/bin/stopServer.sh ${server} -username ${dmgrAdminUser} -password ${defaultPwd} >>${scriptLog} 2>&1
+            ${profileRoot}/bin/stopServer.sh ${server} -username ${dmgrAdminUser} -password ${defaultPwd}
             serverStatus=$(getWASServerStatus ${server} ${profileRoot})
         fi
         # Return success if the server is now stopped or failure if it is not
@@ -526,7 +555,6 @@ function restartWASServer() {
     local server=${1}
     local profileRoot=${2}
     local serverStatus
-
     doesWASServerExist ${server} ${profileRoot}
     result=${?}
     if [ ${result} -ne 0 ]; then
@@ -559,7 +587,6 @@ function restartAllWASServersWithNodeSync() {
     local dmgrExists
     local nodeagentExists
     local serverStatus
-
     doesWASServerExist ${ic1ServerName} ${ic1ProfileDir}
     ic1Exists=${?}
     if [ ${ic1Exists} -eq 0 ]; then
@@ -620,17 +647,15 @@ function syncWASNode() {
     local nodeagentExists
     local ic1Exists
     local serverStatus
-
     doesWASServerExist ${dmgrServerName} ${dmgrProfileDir}
     dmgrExists=${?}
     doesWASServerExist nodeagent ${ic1ProfileDir}
     nodeagentExists=${?}
     doesWASServerExist ${ic1ServerName} ${ic1ProfileDir}
     ic1Exists=${?}
-
     if [ ${dmgrExists} -ne 0 -o ${nodeagentExists} -ne 0 ]; then
         # Don't return an error here since a resync isn't necessary
-        log "E The deployment manager and/or node agent do not exist. No resync required."
+        log "W The deployment manager and/or node agent do not exist. No resync required."
     else
         # Make sure the deployment manager is running
         startWASServer ${dmgrServerName} ${dmgrProfileDir}
@@ -639,7 +664,7 @@ function syncWASNode() {
             return 1 
         fi
         # Do the sync (this also stops the node agent and application server and restarts the node agent upon completion)
-        serverStatus=$(${ic1ProfileDir}/bin/syncNode.sh ${fqdn} -stopservers -restart -username ${dmgrAdminUser} -password ${defaultPwd})
+        serverStatus=$(${ic1ProfileDir}/bin/syncNode.sh ${dmgrFqdn} -stopservers -restart -username ${dmgrAdminUser} -password ${defaultPwd})
         # Check to see if the sync was successful
         ${echo} ${serverStatus} | ${grep} "has been synchronized" >/dev/null 2>&1
         serverStatus=${?}
@@ -665,56 +690,44 @@ function syncWASNode() {
 # Start IHS server
 function startIHSServer() {
     local serverStatus
-    local functionStatus
-
     log "I Starting IHS server..."
-    ${ihsInstallDir}/bin/apachectl start >>${scriptLog} 2>&1
+    ${ihsInstallDir}/bin/apachectl -k start
     serverStatus=${?}
     if [ ${serverStatus} -ne 0 ]; then
-        functionStatus=1
+        return 1 
     else
-        functionStatus=0
+        return 0
     fi
-    ${echo} ${functionStatus}
 }
 
 # Stop IHS server
 function stopIHSServer() {
     local serverStatus
-    local functionStatus
-
     log "I Stopping IHS server..."
-    ${ihsInstallDir}/bin/apachectl stop >>${scriptLog} 2>&1
-    serverStatus=${?}
-    if [ ${serverStatus} -ne 0 ]; then
-        functionStatus=1
-    else
-        functionStatus=0
-    fi
-    ${echo} ${functionStatus}
+    ${ihsInstallDir}/bin/apachectl -k stop
+    sleep 3
+    # Kill remaining processes
+    ${ps} -ef | ${grep} ${ihsInstallDir} | ${grep} -v 'grep' | ${awk} '{print $2}' | ${xargs} -r ${kill} -9
+    return 0
 }
 
 # Restart IHS server
 function restartIHSServer() {
     local serverStatus
-    local functionStatus
-
     log "I Restarting IHS server..."
-    ${ihsInstallDir}/bin/apachectl restart >>${scriptLog} 2>&1
+    ${ihsInstallDir}/bin/apachectl -k restart
     serverStatus=${?}
     if [ ${serverStatus} -ne 0 ]; then
-        functionStatus=1
+        return 1 
     else
-        functionStatus=0
+        return 0 
     fi 
-    ${echo} ${functionStatus}
 }
 
 # Reset the child process temp directory
 # $1: child process temp directory
 function resetChildProcessTempDir() {
     local tempDir=${1}
-
     if [ -d ${tempDir} ]; then
         ${find} ${tempDir} -maxdepth 1 -type f -delete
     fi

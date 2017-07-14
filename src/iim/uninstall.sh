@@ -3,17 +3,13 @@
 # Source prereq scripts
 . src/misc/commands.sh
 . src/misc/utils.sh
-. src/misc/vars.sh
-
-# Local variables
-iimUninstallLog="${logDir}/iim_uninstall.log"
-iimUninstall="${iimDataDir}/uninstall/uninstallc -l ${iimUninstallLog}"
-doUninstall="true"
-
-log "I Beginning uninstall of IIM..."
+. src/misc/vars.conf
+. src/iim/iim.conf
 
 # Do initialization stuff
 init ${iimStagingDir} uninstall
+
+logUninstall 'Installation Manager' begin
 
 # First see if IIM is even installed
 result=$(isInstalled ${iimInstallDir})
@@ -25,7 +21,7 @@ fi
 # Uninstall IIM
 if [ ${doUninstall} == "true" ]; then
     log "I Uninstalling IIM..."
-    ${iimUninstall} >>${scriptLog} 2>&1
+    ${iimUninstall}
     checkStatus ${?} "E Failed to uninstall IIM. Exiting."
 fi
 
@@ -37,5 +33,4 @@ ${rm} -f -r ${iimDataDir}
 log "I Removing IIM shared data directory..."
 ${rm} -f -r ${iimSharedDataDir}
 
-# Print the results
-log "I Success! IIM has been uninstalled."
+logUninstall 'Installation Manager' end

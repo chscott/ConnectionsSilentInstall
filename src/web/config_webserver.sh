@@ -3,19 +3,13 @@
 # Source prereq scripts
 . src/misc/commands.sh
 . src/misc/utils.sh
-. src/misc/vars.sh
-
-# Local variables
-plgResponseFileTemplate="${stagingDir}/rsp/web_plugin.tmp"
-plgResponseFile="${stagingDir}/${webStagingDir}/web_plugin.rsp"
-wctpct="${wctInstallDir}/WCT/wctcmd.sh -tool pct"
-configScript="configurewebserver1.sh"
-webTempDir="/root/.ibm"
-
-log "I Configuring web server for WAS..."
+. src/misc/vars.conf
+. src/web/web.conf
 
 # Do initialization stuff
 init ${webStagingDir} configure
+
+logConfigure 'Web Server Definition' begin
 
 # Make sure the deployment manager is started
 startWASServer ${dmgrServerName} ${dmgrProfileDir}
@@ -32,20 +26,20 @@ ${sed} -i "s|IHS_ADMIN_PWD|${defaultPwd}|" ${plgResponseFile}
 ${sed} -i "s|WAS_PROFILE|${dmgrProfileName}|" ${plgResponseFile}
 ${sed} -i "s|WAS_INSTALL_DIR|${wasInstallDir}|" ${plgResponseFile}
 ${sed} -i "s|IHS_INSTALL_DIR|${ihsInstallDir}|" ${plgResponseFile}
-${sed} -i "s|IHS_HOSTNAME|${fqdn}|" ${plgResponseFile}
+${sed} -i "s|IHS_HOSTNAME|${ihsFqdn}|" ${plgResponseFile}
 
 # Generate the config script
 log "I Generating the web server configuration script..."
-${wctpct} -defLocPathname ${plgInstallDir} -defLocName plugins -importDefinitionLocation -response ${plgResponseFile} >>${scriptLog} 2>&1
+${wctpct} -defLocPathname ${plgInstallDir} -defLocName plugins -importDefinitionLocation -response ${plgResponseFile}
 checkStatus ${?} "E Unable to generate web server configuration script. Exiting."
 
 # Copy the config script to the WAS bin directory
-${cp} ${plgInstallDir}/bin/${configScript} ${wasInstallDir}/bin/${configScript} 
+${cp} -f ${plgInstallDir}/bin/${configScript} ${wasInstallDir}/bin/${configScript} 
+checkStatus ${?} "E Unable to copy ${plgInstallDir}/bin/${configScript} to ${wasInstallDir}/bin/${configScript}. Exiting."
 
 # Run the config script
 log "I Defining the web server configuration to the cell..."
-${wasInstallDir}/bin/${configScript} -profileName ${dmgrProfileName} -user ${dmgrAdminUser} -password ${defaultPwd} >>${scriptLog} 2>&1
+${wasInstallDir}/bin/${configScript} -profileName ${dmgrProfileName} -user ${dmgrAdminUser} -password ${defaultPwd}
 checkStatus ${?} "E unable to define web server to the cell. Exiting."
 
-# Print the results
-log "I Success! Web server has been configured for WAS."
+logConfigure 'Web Server Definition' end

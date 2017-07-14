@@ -3,20 +3,13 @@
 # Source prereq scripts
 . src/misc/commands.sh
 . src/misc/utils.sh
-. src/misc/vars.sh
-
-# Local variables
-downloadFile="../src/misc/downloadFile.sh"
-javaInstallLog="${logDir}/update_java.log"
-javaRepo=${stagingDir}/${webStagingDir}/${webJavaSDKStagingDir}
-listAvailablePackages="${iimInstallDir}/eclipse/tools/imcl listAvailablePackages -repositories"
-imcl="${iimInstallDir}/eclipse/tools/imcl -log ${javaInstallLog} -acceptLicense -repositories ${javaRepo} -installationDirectory ${wasInstallDir} "
-manageSDK="${wasInstallDir}/bin/managesdk.sh"
-
-log "I Beginning update of WebSphere Java SDK..."
+. src/misc/vars.conf
+. src/web/web.conf
 
 # Do initialization stuff
 init ${webStagingDir} update 
+
+logInstall 'WebSphere Java SDK Update' begin
 
 # First see if IIM is installed
 result=$(isInstalled ${iimInstallDir})
@@ -38,11 +31,19 @@ unpackFileToDirectory zip "${webJavaSDKPackage}" "${webJavaSDKStagingDir}"
 
 # Extract the component ID and version info
 log "I Extracting package IDs and version information from repositories..."
-sdkIdVersion=$(${listAvailablePackages} "${webJavaSDKPackage}" | ${grep} -F 'com.ibm.websphere.IBMJAVA' | ${sort} | ${tail} -1)
+sdkIdVersion=$(${imcl} listAvailablePackages -repositories "${webJavaSDKPackage}" | ${grep} -F 'com.ibm.websphere.IBMJAVA' | ${sort} | ${tail} -1)
+
+# Stop the servers 
+stopWASServer ${dmgrServerName} ${dmgrProfileDir}
+checkStatus ${?} "E Unable to stop the deployment manager. Exiting."
+stopWASServer ${ic1ServerName} ${ic1ProfileDir}
+checkStatus ${?} "E Unable to stop the Connections application server. Exiting."
+stopWASServer nodeagent ${ic1ProfileDir}
+checkStatus ${?} "E Unable to stop the Connections node agent. Exiting." 
 
 # Install the package
 log "I Installing WebSphere Java SDK package..."
-${imcl} install ${sdkIdVersion} >>${scriptLog} 2>&1
+${imcl} -acceptLicense -log ${javaInstallLog} -repositories ${javaRepo} -installationDirectory ${wasInstallDir} install ${sdkIdVersion}
 checkStatus ${?} "E Installation of WebSphere Java SDK failed."
 
 # Get the latest SDK installed
@@ -52,17 +53,9 @@ latestSDK=$(${manageSDK} -listAvailable | ${grep} "SDK name:" | ${awk} '{print $
 startWASServer ${dmgrServerName} ${dmgrProfileDir}
 checkStatus ${?} "E Unable to start deployment manager to update SDK. Exiting."
 
-# Ensure the application server is stopped
-stopWASServer ${ic1ServerName} ${ic1ProfileDir}
-checkStatus ${?} "E Unable to stop the Connections application server. Exiting."
-
-# Ensure the node agent is stopped
-stopWASServer nodeagent ${ic1ProfileDir}
-checkStatus ${?} "E Unable to stop the Connections node agent. Exiting." 
-
 # Update the Java SDK for the deployment manager profile
 log "I Enabling Java SDK ${latestSDK} for the deployment manager profile..."
-${manageSDK} -enableProfile -profileName ${dmgrProfileName} -sdkname ${latestSDK} -user ${dmgrAdminUser} -password ${defaultPwd} >>${scriptLog} 2>&1
+${manageSDK} -enableProfile -profileName ${dmgrProfileName} -sdkname ${latestSDK} -user ${dmgrAdminUser} -password ${defaultPwd}
 checkStatus ${?} "E Unable to update the Java SDK on the deployment manager. Exiting."
 
 # Run a node agent sync
@@ -72,7 +65,7 @@ checkStatus ${?} "E Unable to synchronize the node. Exiting."
 
 # Update the JVM for the application server profile 
 log "I Enabling Java SDK ${latestSDK} for the application server profile..."
-${manageSDK} -enableProfile -profileName ${ic1ProfileName} -sdkname ${latestSDK} -user ${dmgrAdminUser} -password ${defaultPwd} >>${scriptLog} 2>&1
+${manageSDK} -enableProfile -profileName ${ic1ProfileName} -sdkname ${latestSDK} -user ${dmgrAdminUser} -password ${defaultPwd}
 checkStatus ${?} "E Unable to update the Java SDK on the Connections application server. Exiting."
 
 # Restart all servers
@@ -80,5 +73,8 @@ log "I Restarting all WAS servers..."
 restartAllWASServersWithNodeSync
 checkStatus ${?} "E Unable to restart all WAS servers. Exiting."
 
-# Print the results
-log "I Success! WebSphere Java SDK has been upgraded to level ${latestSDK}."
+# Update the default JVM for commands
+${manageSDK} -setCommandDefault -sdkname ${latestSDK}
+checkStatus ${?} "E Unable to update the default Java SDK for commands. Exiting."
+
+logInstall 'WebSphere Java SDK Update' end

@@ -13,30 +13,27 @@ installation and configuration steps that cause Connections to take a long time 
   
 Connections deployments come in all shapes and sizes, and the project should accommodate as many common architectures as 
 possible. The initial versions will focus on a turn-key configuration suitable for Test or Deployment environments. This
-configuration will run all components on a minimum number of hosts. The administrator's tasks will be reduced to downloading
-the applicable installation packages and running a single install script, after which a fully functional Connections 
-deployment is available for use.
+configuration will run all components on a minimum number of hosts. The administrator's tasks will be reduced to downloading the applicable installation packages and running a single install script, after which a fully functional Connections deployment is available for use.
 
 ## Prerequisites
 
 1. ConnectionsSilentInstall is currently supported only on Linux. Testing has been against Red Hat Linux 7.3.
 
-2. Installation packages for the required install components. See src/vars.sh for more information.
+2. Installation packages for the required install components. See src/misc/vars.sh for more information.
 
 ## Quick Start Guide
 
 1. Download the project zip file to your system and extract rsp/ and src/ into a staging directory. For example,
    /var/tmp/staging.
 	
-2. Open src/misc/vars.sh and inspect the variables in the Must Review section. The variables in this section are likely (but
-   not required) to need modification to match the environment. Variables in the Acceptable Defaults section may also 
-	be reviewed but are unlikely to require modification.
+2. Open src/misc/vars.sh and inspect the variables. Some variable values will depend on your environment and should be
+   modified accordingly. Many contain default values that should work in most cases.
 	
 3. Once src/misc/vars.sh has been reviewed and modified to match the environment, run the src/main/install.sh script to   
    begin the install process. Note that you must run the script with root as the effective user ID. This means either switching to the root account or, more likely, running the script via sudo. For example: 
 	
 	```Bash
-	sudo src/install.sh
+	sudo src/main/install.sh
 	```
 
 4. Review the output and log files during and after installation. Assuming no errors, you should be able to open a browser
@@ -53,6 +50,8 @@ The following functionality is currently working:
 - Connections database creation
 
 - TDI installation (with fix pack)
+
+- TDI profiles population
 
 - IIM installation
 
@@ -74,6 +73,8 @@ The following functionality is currently working:
 
 - Update to Java 8 SDK
 
+- Connections fixes installation
+
 - Uninstall of all components (individually or collectively)
 
 ## What does not currently work
@@ -81,5 +82,3 @@ The following functionality is currently working:
 The following functionality has not yet been implemented:
 
 - Installation of OrientMe and additional add-ons
-
-- Profile population

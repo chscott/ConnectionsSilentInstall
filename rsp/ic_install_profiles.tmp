@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <agent-input>
   <variables>
-    <variable name='fqdn' value='FQDN'/>
+    <variable name='db2Fqdn' value='DB2_FQDN'/>
     <variable name='iimSharedDataDir' value='IIM_SHARED_DATA_DIR'/>
     <variable name='icRepositoryDir' value='IC_REPOSITORY_DIR'/>
     <variable name='icRepositoryId' value='IC_REPOSITORY_ID'/>
@@ -9,10 +9,9 @@
     <variable name='icInstallDir' value='IC_INSTALL_DIR'/>
     <variable name='jdbcDir' value='JDBC_DIR'/>
     <variable name='dbPwd' value='DB_PWD'/>
-    <variable name='icNodeName' value='IC_NODE_NAME'/>
-    <variable name='webServerName' value='WEB_SERVER_NAME'/>
     <variable name='icClusterName' value='IC_CLUSTER_NAME'/>
-    <variable name='icServerName' value='IC_SERVER_NAME'/>
+    <variable name='ic1NodeName' value='IC1_NODE_NAME'/>
+    <variable name='ic1ServerName' value='IC1_SERVER_NAME'/>
     <variable name='icAdminUser' value='IC_ADMIN_USER'/>
     <variable name='icAdminPwd' value='IC_ADMIN_PWD'/>
   </variables>
@@ -40,13 +39,13 @@
     <!-- Profiles -->
     <data key='user.profiles.adminuser.id' value='${icAdminUser}'/>
     <data key='user.profiles.adminuser.password' value='${icAdminPwd}'/>
-    <data key='user.profiles.firstNodeName' value='${icNodeName}'/>
-    <data key='user.profiles.serverInfo' value='profiles.${icNodeName}.ServerName=${icServerName};'/>
+    <data key='user.profiles.firstNodeName' value='${ic1NodeName}'/>
+    <data key='user.profiles.serverInfo' value='profiles.${ic1NodeName}.ServerName=${ic1ServerName};'/>
     <data key='user.profiles.clusterExist' value='false'/>
     <data key='user.profiles.clusterName' value='${icClusterName}'/>
-    <data key='user.profiles.clusterInfo' value='[{&quot;node&quot;: &quot;${icNodeName}&quot;, &quot;name&quot;: &quot;${icServerName}&quot;},]'/>
-    <data key='user.profiles.serverName' value='${icServerName}'/>
-    <data key='user.profiles.dbHostName' value='${fqdn}'/>
+    <data key='user.profiles.clusterInfo' value='[{&quot;node&quot;: &quot;${ic1NodeName}&quot;, &quot;name&quot;: &quot;${ic1ServerName}&quot;},]'/>
+    <data key='user.profiles.serverName' value='${ic1ServerName}'/>
+    <data key='user.profiles.dbHostName' value='${db2Fqdn}'/>
     <data key='user.profiles.dbPort' value='50000'/>
     <data key='user.profiles.jdbcLibraryPath' value='${jdbcDir}'/>
     <data key='user.profiles.dbName' value='PEOPLEDB'/>
