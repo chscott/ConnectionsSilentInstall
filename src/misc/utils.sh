@@ -35,7 +35,14 @@ function checkForRoot() {
 	if [ "${EUID}" -ne 0 ]; then
 		log "E Script ${script} needs to run as root. Exiting."
 		exit 1
+    else
+        setRootUlimit
 	fi
+}
+
+# Set the ulimit for root
+function setRootUlimit() {
+    ulimit -n 80000
 }
 
 # Print message to stderr with date/time prefix
