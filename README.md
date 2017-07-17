@@ -157,3 +157,7 @@ This guide assumes you are using Red Hat Enterprise Linux 7.3. Results on other 
    ? sudo yum install ksh
    ? sudo yum install perl-Sys-Syslog
    ```
+   
+8. If you choose to install Connections with the CCM component, note that the script will invoke the createGCD and 
+   createObjectStore configuration scripts. These require real-time user input, so the main installation script will pause
+   and wait for interactive at this point in the install process.
