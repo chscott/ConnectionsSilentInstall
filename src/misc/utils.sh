@@ -64,9 +64,9 @@ function log() {
 # Print message if debug is enabled
 # $1: message to print
 function logDebug() {
-    local message=${1}
+    local message="${1}"
     if [ ${debug} == "true" ]; then
-        log ${message}
+        log "${message}"
     fi
 }
 

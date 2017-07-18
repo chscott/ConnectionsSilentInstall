@@ -14,8 +14,16 @@ startWASServer ${dmgrServerName} ${dmgrProfileDir}
 checkStatus ${?} "E Deployment manager is not running. Exiting."
 
 # See if the repository we want to add already exists
-${getLdapScript}
+log "I Checking to see if ${ldapId} already exists in repository..."
+${wsadmin} \
+    "-f" "${stagingDir}/src/web/get_ldap.py" \
+    "-lang" "jython" \
+    "-user" "${dmgrAdminUser}" \
+    "-password" "${defaultPwd}" \
+    "${ldapId}"
 result=${?}
+
+# Add the repository if it doesn't already exist
 if [ ${result} -eq 0 ]; then
     log "W WAS repository already contains ${ldapId} entry. Skipping."
 else
