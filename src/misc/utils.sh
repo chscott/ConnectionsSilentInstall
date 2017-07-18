@@ -15,6 +15,8 @@ function resetOutput() {
 # Redirect the file descriptors for script output
 function redirectOutput() {
     exec 1>>${scriptLog} 2>&1
+    # This is needed to give process substition a chance to complete before main shell continues
+    sleep 1
 }
 
 # Create the logs dir if it doesn't already exist
@@ -42,7 +44,12 @@ function checkForRoot() {
 
 # Set the ulimit for root
 function setRootUlimit() {
-    ulimit -n 80000
+    local currentLimit
+    currentLimit=$(ulimit -n)
+    logDebug "D Open file limit before modification is ${currentLimit}"
+    ulimit -n ${openFileLimit}
+    currentLimit=$(ulimit -n)
+    logDebug "D Open file limit after modification is ${currentLimit}"
 }
 
 # Print message to stderr with date/time prefix
@@ -52,6 +59,15 @@ function log() {
     local now=$(date '+%F %T')
 	printf "%s %-16.16s %s\n" "${now}" "${me}" "${message}" >&101
 	printf "%s %-16.16s %s\n" "${now}" "${me}" "${message}"
+}
+
+# Print message if debug is enabled
+# $1: message to print
+function logDebug() {
+    local message=${1}
+    if [ ${debug} == "true" ]; then
+        log ${message}
+    fi
 }
 
 # Print message for the beginning/end of a component install
@@ -336,10 +352,10 @@ function unpackFileToDirectory() {
 # product install staging directory
 # $1: product component
 function clean() {
-    local installStagingDir=${1}
-    ${rm} -f -r ${stagingDir}/${installStagingDir}
-    ${mkdir} -p ${stagingDir}/${installStagingDir}
-    checkStatus ${?} "E Unable to create ${stagingDir}/${installStagingDir}. Exiting."
+    local productStagingDir=${1}
+    ${rm} -f -r ${stagingDir}/${productStagingDir}
+    ${mkdir} -p ${stagingDir}/${productStagingDir}
+    checkStatus ${?} "E Unable to create ${stagingDir}/${productStagingDir}. Exiting."
 }
 
 # Create a new response file from a template
@@ -355,7 +371,7 @@ function copyTemplate() {
 
 # Change directory to the product staging directory
 # $1: directory to cd to
-function cdToStagingDir() {
+function cdToProductStagingDir() {
     local directory=${1}
     cd ${directory}
 }
@@ -371,6 +387,7 @@ function grantAccessToStagingDir() {
 function init() {
     local component=${1}
     local operation=${2}
+    checkForRoot
     checkForLogDir
     # If running the main install script, rotate the logs so we start fresh
     if [ ${component} == "main" -a ${operation} == "main_install" ]; then
@@ -378,28 +395,25 @@ function init() {
     fi
     # Redirect stdout and stderr
     redirectOutput
-    # This is needed to give process substition a chance to complete before main shell continues
-    sleep 1
-    checkForRoot
     grantAccessToStagingDir
     # When installing components, additional tasks are required
     if [ ${operation} == "install" ]; then
         # Some components like the Connections dbs have no install directory and shouldn't be checked
         local installDir="null"
-        if [ ${component} == ${db2StagingDir} ]; then
+        if [ ${component} == "db2" ]; then
             installDir=${db2InstallDir}
-        elif [ ${component} == ${iimStagingDir} ]; then
+        elif [ ${component} == "iim" ]; then
             installDir=${iimInstallDir}
-        elif [ ${component} == ${webStagingDir} ]; then
+        elif [ ${component} == "web" ]; then
             installDir=${webInstallDir}
-        elif [ ${component} == ${tdiStagingDir} ]; then
+        elif [ ${component} == "tdi" ]; then
             installDir=${tdiInstallDir}
-        elif [ ${component} == ${icStagingDir} ]; then
+        elif [ ${component} == "ic" ]; then
             installDir=${icInstallDir}
         fi
         # For installable components, check to see if it appears that the component has already been installed 
         # Skip check for Connections since each feature will be checked individually in src/ic/install.sh.
-        if [ ${installDir} != "null" -a ${component} != ${icStagingDir} ]; then
+        if [ ${installDir} != "null" -a ${component} != "ic" ]; then
             local installed=$(isInstalled ${installDir})
             if [ ${installed} -eq 0 ]; then
                 log "W Install directory ${installDir} already exists. Assuming ${component} is already installed. Skipping."    
@@ -407,11 +421,10 @@ function init() {
             fi    
         fi
     fi
-    # Do clean up work if installing or updating
     if [ ${operation} == "install" -o ${operation} == "update" ]; then
         # Recreate the staging directory
         clean ${component}
-        cdToStagingDir ${component}
+        cdToProductStagingDir ${stagingDir}/${component}
         # Recreate the child process temp directory
         resetChildProcessTempDir ${childProcessTempDir}/${component}
     fi

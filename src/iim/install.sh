@@ -1,21 +1,19 @@
 #!/bin/bash
 
 # Source prereq scripts
-. src/misc/commands.sh
-. src/misc/utils.sh
-. src/misc/vars.conf
-. src/iim/iim.conf
+. /var/tmp/ic_inst/src/misc/common.sh
+. /var/tmp/ic_inst/src/iim/iim.conf
 
 # Do initialization stuff
-init ${iimStagingDir} install
+init iim install
 
 logInstall 'Installation Manager' begin
 
 # Download and unpack the install files 
 log "I Downloading IIM install files..."
-{ ${downloadFile} ${ftpServer} ${ftpIIMDir} ${iimInstallPackage}; ${echo} ${?} >${childProcessTempDir}/${iimStagingDir}/${BASHPID}; } &
+{ ${downloadFile} ${ftpServer} ${ftpIIMDir} ${iimInstallPackage}; ${echo} ${?} >${childProcessTempDir}/iim/${BASHPID}; } &
 wait
-checkChildProcessStatus ${childProcessTempDir}/${iimStagingDir}
+checkChildProcessStatus ${childProcessTempDir}/iim
 unpackFile zip "${iimInstallPackage}"
 
 # Install IIM

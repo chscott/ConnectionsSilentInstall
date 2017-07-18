@@ -1,13 +1,11 @@
 #!/bin/bash
 
 # Source prereq scripts
-. src/misc/commands.sh
-. src/misc/utils.sh
-. src/misc/vars.conf
-. src/web/web.conf
+. /var/tmp/ic_inst/src/misc/common.sh
+. /var/tmp/ic_inst/src/web/web.conf
 
 # Do initialization stuff
-init ${webStagingDir} update 
+init web update 
 
 logUninstall 'WAS Java SDK Update' begin
 

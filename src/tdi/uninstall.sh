@@ -1,13 +1,11 @@
 #!/bin/bash
 
 # Source prereq scripts
-. src/misc/commands.sh
-. src/misc/utils.sh
-. src/misc/vars.conf
-. src/tdi/tdi.conf
+. /var/tmp/ic_inst/src/misc/common.sh
+. /var/tmp/ic_inst/src/tdi/tdi.conf
 
 # Do initialization stuff
-init ${tdiStagingDir} uninstall
+init tdi uninstall
 
 logUninstall TDI begin
 

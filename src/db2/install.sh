@@ -1,23 +1,21 @@
 #!/bin/bash
 
 # Source prereq scripts
-. src/misc/commands.sh
-. src/misc/utils.sh
-. src/misc/vars.conf
-. src/db2/db2.conf
+. /var/tmp/ic_inst/src/misc/common.sh
+. /var/tmp/ic_inst/src/db2/db2.conf
 
 # Do initialization stuff
-init ${db2StagingDir} install
+init db2 install
 
 logInstall DB2 begin 
 
 # Download and unpack the install files 
 log "I Downloading DB2 install files..."
-{ ${downloadFile} ${ftpServer} ${ftpDB2Dir} ${db2InstallPackage}; ${echo} ${?} >${childProcessTempDir}/${db2StagingDir}/${BASHPID}; } &
-{ ${downloadFile} ${ftpServer} ${ftpDB2Dir} ${db2LicensePackage}; ${echo} ${?} >${childProcessTempDir}/${db2StagingDir}/${BASHPID}; } &
+{ ${downloadFile} ${ftpServer} ${ftpDB2Dir} ${db2InstallPackage}; ${echo} ${?} >${childProcessTempDir}/db2/${BASHPID}; } &
+{ ${downloadFile} ${ftpServer} ${ftpDB2Dir} ${db2LicensePackage}; ${echo} ${?} >${childProcessTempDir}/db2/${BASHPID}; } &
 wait
-checkChildProcessStatus ${childProcessTempDir}/${db2StagingDir}
-resetChildProcessTempDir ${childProcessTempDir}/${db2StagingDir}
+checkChildProcessStatus ${childProcessTempDir}/db2
+resetChildProcessTempDir ${childProcessTempDir}/db2
 unpackFile tar "${db2InstallPackage}"
 unpackFile zip "${db2LicensePackage}"
 

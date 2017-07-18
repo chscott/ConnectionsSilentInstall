@@ -1,13 +1,11 @@
 #!/bin/bash
 
 # Source prereq scripts
-. src/misc/commands.sh
-. src/misc/utils.sh
-. src/misc/vars.conf
-. src/web/web.conf
+. /var/tmp/ic_inst/src/misc/common.sh
+. /var/tmp/ic_inst/src/web/web.conf
 
 # Do initialization stuff
-init ${webStagingDir} install
+init web install
 
 logInstall 'WebSphere Components' begin
 
@@ -20,32 +18,32 @@ fi
 
 # Download and unpack the install files 
 log "I Downloading WebSphere install files..."
-{ ${downloadFile} ${ftpServer} ${ftpWebDir} ${webBasePackage_1}; ${echo} ${?} >${childProcessTempDir}/${webStagingDir}/${BASHPID}; } &
-{ ${downloadFile} ${ftpServer} ${ftpWebDir} ${webBasePackage_2}; ${echo} ${?} >${childProcessTempDir}/${webStagingDir}/${BASHPID}; } &
-{ ${downloadFile} ${ftpServer} ${ftpWebDir} ${webBasePackage_3}; ${echo} ${?} >${childProcessTempDir}/${webStagingDir}/${BASHPID}; } &
-{ ${downloadFile} ${ftpServer} ${ftpWebDir} ${webBaseSupplPackage_1}; ${echo} ${?} >${childProcessTempDir}/${webStagingDir}/${BASHPID}; } &
-{ ${downloadFile} ${ftpServer} ${ftpWebDir} ${webBaseSupplPackage_2}; ${echo} ${?} >${childProcessTempDir}/${webStagingDir}/${BASHPID}; } &
-{ ${downloadFile} ${ftpServer} ${ftpWebDir} ${webBaseSupplPackage_3}; ${echo} ${?} >${childProcessTempDir}/${webStagingDir}/${BASHPID}; } &
-{ ${downloadFile} ${ftpServer} ${ftpWebDir} ${webFixPackPackage_1}; ${echo} ${?} >${childProcessTempDir}/${webStagingDir}/${BASHPID}; } &
-{ ${downloadFile} ${ftpServer} ${ftpWebDir} ${webFixPackPackage_2}; ${echo} ${?} >${childProcessTempDir}/${webStagingDir}/${BASHPID}; } &
-{ ${downloadFile} ${ftpServer} ${ftpWebDir} ${webFixPackSupplPackage_1}; ${echo} ${?} >${childProcessTempDir}/${webStagingDir}/${BASHPID}; } &
-{ ${downloadFile} ${ftpServer} ${ftpWebDir} ${webFixPackSupplPackage_2}; ${echo} ${?} >${childProcessTempDir}/${webStagingDir}/${BASHPID}; } &
-{ ${downloadFile} ${ftpServer} ${ftpWebDir} ${webFixPackWCTPackage_1}; ${echo} ${?} >${childProcessTempDir}/${webStagingDir}/${BASHPID}; } &
-{ ${downloadFile} ${ftpServer} ${ftpWebDir} ${webFixPackWCTPackage_2}; ${echo} ${?} >${childProcessTempDir}/${webStagingDir}/${BASHPID}; } &
+{ ${downloadFile} ${ftpServer} ${ftpWebDir} ${webBasePackage_1}; ${echo} ${?} >${childProcessTempDir}/web/${BASHPID}; } &
+{ ${downloadFile} ${ftpServer} ${ftpWebDir} ${webBasePackage_2}; ${echo} ${?} >${childProcessTempDir}/web/${BASHPID}; } &
+{ ${downloadFile} ${ftpServer} ${ftpWebDir} ${webBasePackage_3}; ${echo} ${?} >${childProcessTempDir}/web/${BASHPID}; } &
+{ ${downloadFile} ${ftpServer} ${ftpWebDir} ${webBaseSupplPackage_1}; ${echo} ${?} >${childProcessTempDir}/web/${BASHPID}; } &
+{ ${downloadFile} ${ftpServer} ${ftpWebDir} ${webBaseSupplPackage_2}; ${echo} ${?} >${childProcessTempDir}/web/${BASHPID}; } &
+{ ${downloadFile} ${ftpServer} ${ftpWebDir} ${webBaseSupplPackage_3}; ${echo} ${?} >${childProcessTempDir}/web/${BASHPID}; } &
+{ ${downloadFile} ${ftpServer} ${ftpWebDir} ${webFixPackPackage_1}; ${echo} ${?} >${childProcessTempDir}/web/${BASHPID}; } &
+{ ${downloadFile} ${ftpServer} ${ftpWebDir} ${webFixPackPackage_2}; ${echo} ${?} >${childProcessTempDir}/web/${BASHPID}; } &
+{ ${downloadFile} ${ftpServer} ${ftpWebDir} ${webFixPackSupplPackage_1}; ${echo} ${?} >${childProcessTempDir}/web/${BASHPID}; } &
+{ ${downloadFile} ${ftpServer} ${ftpWebDir} ${webFixPackSupplPackage_2}; ${echo} ${?} >${childProcessTempDir}/web/${BASHPID}; } &
+{ ${downloadFile} ${ftpServer} ${ftpWebDir} ${webFixPackWCTPackage_1}; ${echo} ${?} >${childProcessTempDir}/web/${BASHPID}; } &
+{ ${downloadFile} ${ftpServer} ${ftpWebDir} ${webFixPackWCTPackage_2}; ${echo} ${?} >${childProcessTempDir}/web/${BASHPID}; } &
 wait
-checkChildProcessStatus ${childProcessTempDir}/${webStagingDir}
-unpackFileToDirectory zip "${webBasePackage_1}" "${webBaseStagingDir}"
-unpackFileToDirectory zip "${webBasePackage_2}" "${webBaseStagingDir}"
-unpackFileToDirectory zip "${webBasePackage_3}" "${webBaseStagingDir}"
-unpackFileToDirectory zip "${webBaseSupplPackage_1}" "${webBaseSupplStagingDir}"
-unpackFileToDirectory zip "${webBaseSupplPackage_2}" "${webBaseSupplStagingDir}"
-unpackFileToDirectory zip "${webBaseSupplPackage_3}" "${webBaseSupplStagingDir}"
-unpackFileToDirectory zip "${webFixPackPackage_1}" "${webFixPackStagingDir}"
-unpackFileToDirectory zip "${webFixPackPackage_2}" "${webFixPackStagingDir}"
-unpackFileToDirectory zip "${webFixPackSupplPackage_1}" "${webFixPackSupplStagingDir}"
-unpackFileToDirectory zip "${webFixPackSupplPackage_2}" "${webFixPackSupplStagingDir}"
-unpackFileToDirectory zip "${webFixPackWCTPackage_1}" "${webFixPackWCTStagingDir}"
-unpackFileToDirectory zip "${webFixPackWCTPackage_2}" "${webFixPackWCTStagingDir}"
+checkChildProcessStatus ${childProcessTempDir}/web
+unpackFileToDirectory zip "${webBasePackage_1}" "web_base"
+unpackFileToDirectory zip "${webBasePackage_2}" "web_base"
+unpackFileToDirectory zip "${webBasePackage_3}" "web_base"
+unpackFileToDirectory zip "${webBaseSupplPackage_1}" "web_base_suppl"
+unpackFileToDirectory zip "${webBaseSupplPackage_2}" "web_base_suppl"
+unpackFileToDirectory zip "${webBaseSupplPackage_3}" "web_base_suppl"
+unpackFileToDirectory zip "${webFixPackPackage_1}" "web_fp"
+unpackFileToDirectory zip "${webFixPackPackage_2}" "web_fp"
+unpackFileToDirectory zip "${webFixPackSupplPackage_1}" "web_fp_suppl"
+unpackFileToDirectory zip "${webFixPackSupplPackage_2}" "web_fp_suppl"
+unpackFileToDirectory zip "${webFixPackWCTPackage_1}" "web_fp_wct"
+unpackFileToDirectory zip "${webFixPackWCTPackage_2}" "web_fp_wct"
 
 # Extract the component ID and version info
 log "I Extracting package IDs and version information from repositories..."

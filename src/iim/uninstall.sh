@@ -1,13 +1,11 @@
 #!/bin/bash
 
 # Source prereq scripts
-. src/misc/commands.sh
-. src/misc/utils.sh
-. src/misc/vars.conf
-. src/iim/iim.conf
+. /var/tmp/ic_inst/src/misc/common.sh
+. /var/tmp/ic_inst/src/iim/iim.conf
 
 # Do initialization stuff
-init ${iimStagingDir} uninstall
+init iim uninstall
 
 logUninstall 'Installation Manager' begin
 

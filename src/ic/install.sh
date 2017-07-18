@@ -1,27 +1,25 @@
 #!/bin/bash
 
 # Source prereq scripts
-. src/misc/commands.sh
-. src/misc/utils.sh
-. src/misc/vars.conf
-. src/ic/ic.conf
+. /var/tmp/ic_inst/src/misc/common.sh
+. /var/tmp/ic_inst/src/ic/ic.conf
 
 # Do initialization stuff
-init ${icStagingDir} install 
+init ic install 
 
 logInstall Connections begin
 
 # Download and unpack the install files 
 log "I Downloading Connections installation files..."
-{ ${downloadFile} ${ftpServer} ${ftpConnectionsDir} ${icInstallPackage}; ${echo} ${?} >${childProcessTempDir}/${icStagingDir}/${BASHPID}; } &
-{ ${downloadFile} ${ftpServer} ${ftpCCMDir} ${ccmCEBasePackage}; ${echo} ${?} >${childProcessTempDir}/${icStagingDir}/${BASHPID}; } &
-{ ${downloadFile} ${ftpServer} ${ftpCCMDir} ${ccmCEFixPackPackage}; ${echo} ${?} >${childProcessTempDir}/${icStagingDir}/${BASHPID}; } &
-{ ${downloadFile} ${ftpServer} ${ftpCCMDir} ${ccmCEClientFixPackPackage}; ${echo} ${?} >${childProcessTempDir}/${icStagingDir}/${BASHPID}; } &
-{ ${downloadFile} ${ftpServer} ${ftpCCMDir} ${ccmFNCSBasePackage}; ${echo} ${?} >${childProcessTempDir}/${icStagingDir}/${BASHPID}; } &
-{ ${downloadFile} ${ftpServer} ${ftpCCMDir} ${ccmFNCSFixPackPackage}; ${echo} ${?} >${childProcessTempDir}/${icStagingDir}/${BASHPID}; } &
+{ ${downloadFile} ${ftpServer} ${ftpConnectionsDir} ${icInstallPackage}; ${echo} ${?} >${childProcessTempDir}/ic/${BASHPID}; } &
+{ ${downloadFile} ${ftpServer} ${ftpCCMDir} ${ccmCEBasePackage}; ${echo} ${?} >${childProcessTempDir}/ic/${BASHPID}; } &
+{ ${downloadFile} ${ftpServer} ${ftpCCMDir} ${ccmCEFixPackPackage}; ${echo} ${?} >${childProcessTempDir}/ic/${BASHPID}; } &
+{ ${downloadFile} ${ftpServer} ${ftpCCMDir} ${ccmCEClientFixPackPackage}; ${echo} ${?} >${childProcessTempDir}/ic/${BASHPID}; } &
+{ ${downloadFile} ${ftpServer} ${ftpCCMDir} ${ccmFNCSBasePackage}; ${echo} ${?} >${childProcessTempDir}/ic/${BASHPID}; } &
+{ ${downloadFile} ${ftpServer} ${ftpCCMDir} ${ccmFNCSFixPackPackage}; ${echo} ${?} >${childProcessTempDir}/ic/${BASHPID}; } &
 wait
-checkChildProcessStatus ${childProcessTempDir}/${icStagingDir}
-resetChildProcessTempDir ${childProcessTempDir}/${icStagingDir}
+checkChildProcessStatus ${childProcessTempDir}/ic
+resetChildProcessTempDir ${childProcessTempDir}/ic
 unpackFile tar ${icInstallPackage}
 
 # Extract the component ID and version info
@@ -37,8 +35,8 @@ encryptedPwd=$(${imcl} encryptString ${defaultPwd})
 log "I Building Connections silent install response files..."
 for i in "${icResponseFiles[@]}"
 do
-    ${cp} -f ${stagingDir}/rsp/${i}.tmp ${stagingDir}/${icStagingDir}/${i}.xml
-    checkStatus ${?} "E Unable to copy ${stagingDir}/rsp/${i}.tmp to ${stagingDir}/${icStagingDir}/${i}.xml. Exiting."
+    ${cp} -f ${stagingDir}/rsp/${i}.tmp ${stagingDir}/ic/${i}.xml
+    checkStatus ${?} "E Unable to copy ${stagingDir}/rsp/${i}.tmp to ${stagingDir}/ic/${i}.xml. Exiting."
     ${sed} -i "s|DB2_FQDN|${db2Fqdn}|" ${i}.xml
     ${sed} -i "s|DMGR_FQDN|${dmgrFqdn}|" ${i}.xml
     ${sed} -i "s|IHS_FQDN|${ihsFqdn}|" ${i}.xml
@@ -56,7 +54,7 @@ do
     ${sed} -i "s|CCM_CE_INSTALL_DIR|${icInstallDir}/FileNet/ContentEngine|" ${i}.xml
     ${sed} -i "s|CCM_CECLIENT_INSTALL_DIR|${icInstallDir}/FileNet/CEClient|" ${i}.xml
     ${sed} -i "s|CCM_FNCS_INSTALL_DIR|${icInstallDir}/FNCS|" ${i}.xml
-    ${sed} -i "s|CCM_INSTALLER_DIR|${stagingDir}/${icStagingDir}|" ${i}.xml
+    ${sed} -i "s|CCM_INSTALLER_DIR|${stagingDir}/ic|" ${i}.xml
     ${sed} -i "s|CCM_CE_BASE_PACKAGE|${ccmCEBasePackage}|" ${i}.xml
     ${sed} -i "s|CCM_CE_FP_PACKAGE|${ccmCEFixPackPackage}|" ${i}.xml
     ${sed} -i "s|CCM_CECLIENT_FP_PACKAGE|${ccmCEClientFixPackPackage}|" ${i}.xml

@@ -1,21 +1,19 @@
 #!/bin/bash
 
 # Source prereq scripts
-. src/misc/commands.sh
-. src/misc/utils.sh
-. src/misc/vars.conf
-. src/db2/db2.conf
+. /var/tmp/ic_inst/src/misc/common.sh
+. /var/tmp/ic_inst/src/db2/db2.conf
 
 # Do initialization stuff
-init ${db2StagingDir} update 
+init db2 update 
 
 logInstall 'Connections Databases' begin
 
 # Download and unpack the install files 
 log "I Downloading database creation scripts..."
-{ ${downloadFile} ${ftpServer} ${ftpConnectionsDir} ${icDbPackage}; ${echo} ${?} >${childProcessTempDir}/${db2StagingDir}/${BASHPID}; } &
+{ ${downloadFile} ${ftpServer} ${ftpConnectionsDir} ${icDbPackage}; ${echo} ${?} >${childProcessTempDir}/db2/${BASHPID}; } &
 wait
-checkChildProcessStatus ${childProcessTempDir}/${db2StagingDir}
+checkChildProcessStatus ${childProcessTempDir}/db2
 unpackFile tar ${icDbPackage}
 ${chown} -R ${db2InstanceUser}.${db2InstanceGroup} Wizards
 
@@ -26,7 +24,7 @@ log 'I Creating databases for Core...'
 # Homepage
 ${su} - ${db2InstanceUser} -c "db2 list database directory | ${grep} 'Database name' | ${grep} 'HOMEPAGE'"; result=${?}
 if [ ${result} -eq 0 ]; then
-    log "W Homepage database is already created. Skipping."
+    log "W HOMEPAGE database is already created. Skipping."
 else
     ${su} - ${db2InstanceUser} -c "db2 -td@ -sf ${icDbScriptDir}/homepage/db2/createDb.sql"; result=${?}
     checkStatusDb create ${result} 'E Unable to create database: Homepage. Exiting.' 
@@ -42,7 +40,7 @@ fi
 # Files
 ${su} - ${db2InstanceUser} -c "db2 list database directory | ${grep} 'Database name' | ${grep} 'FILES'"; result=${?}
 if [ ${result} -eq 0 ]; then
-    log "W Files database is already created. Skipping."
+    log "W FILES database is already created. Skipping."
 else
     ${su} - ${db2InstanceUser} -c "db2 -td@ -sf ${icDbScriptDir}/files/db2/createDb.sql"; result=${?}
     checkStatusDb create ${result} 'E Unable to create database: Files. Exiting.' 

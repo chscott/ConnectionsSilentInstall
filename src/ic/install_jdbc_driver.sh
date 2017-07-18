@@ -1,23 +1,21 @@
 #!/bin/bash
 
 # Source prereq scripts
-. src/misc/commands.sh
-. src/misc/utils.sh
-. src/misc/vars.conf
-. src/ic/ic.conf
+. /var/tmp/ic_inst/src/misc/common.sh
+. /var/tmp/ic_inst/src/ic/ic.conf
 
 # Do initialization stuff
-init ${icStagingDir} install 
+init ic update 
 
 logConfigure 'Connections JDBC Driver' begin
 
 # Download the JDBC drivers
 log "I Downloading JDBC drivers..."
-{ ${downloadFile} ${ftpServer} ${ftpDB2Dir} ${jdbcDriver}; ${echo} ${?} >${childProcessTempDir}/${icStagingDir}/${BASHPID}; } &
-{ ${downloadFile} ${ftpServer} ${ftpDB2Dir} ${jdbcLicense}; ${echo} ${?} >${childProcessTempDir}/${icStagingDir}/${BASHPID}; } &
+{ ${downloadFile} ${ftpServer} ${ftpDB2Dir} ${jdbcDriver}; ${echo} ${?} >${childProcessTempDir}/ic/${BASHPID}; } &
+{ ${downloadFile} ${ftpServer} ${ftpDB2Dir} ${jdbcLicense}; ${echo} ${?} >${childProcessTempDir}/ic/${BASHPID}; } &
 wait
-checkChildProcessStatus ${childProcessTempDir}/${icStagingDir}
-resetChildProcessTempDir ${childProcessTempDir}/${icStagingDir}
+checkChildProcessStatus ${childProcessTempDir}/ic
+resetChildProcessTempDir ${childProcessTempDir}/ic
 
 # Copy the JDBC drivers to ${jdbcDir}
 log "I Copying JDBC driver to ${jdbcDir}..."

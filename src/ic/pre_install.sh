@@ -1,13 +1,11 @@
 #!/bin/bash
 
 # Source prereq scripts
-. src/misc/commands.sh
-. src/misc/utils.sh
-. src/misc/vars.conf
-. src/ic/ic.conf
+. /var/tmp/ic_inst/src/misc/common.sh
+. /var/tmp/ic_inst/src/ic/ic.conf
 
 # Do initialization stuff
-init ${icStagingDir} configure 
+init ic configure 
 
 logConfigure 'Connections Pre-install Tasks' begin
 

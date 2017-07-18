@@ -1,13 +1,11 @@
 #!/bin/bash
 
 # Source prereq scripts
-. src/misc/commands.sh
-. src/misc/utils.sh
-. src/misc/vars.conf
-. src/db2/db2.conf
+. /var/tmp/ic_inst/src/misc/common.sh
+. /var/tmp/ic_inst/src/db2/db2.conf
 
 # Do initialization stuff
-init ${db2StagingDir} uninstall
+init db2 uninstall
 
 logUninstall DB2 begin
 

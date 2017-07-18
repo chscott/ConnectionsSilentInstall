@@ -21,80 +21,17 @@ configuration will run all components on a minimum number of hosts. The administ
 
 2. Installation packages for the required install components. See src/misc/vars.conf for more information.
 
-## Quick Start Guide
-
-1. Download the project zip file to your system and extract rsp/ and src/ into a staging directory. For example,
-   /var/tmp/staging.
-	
-2. Open src/misc/vars.conf and inspect the variables. Some variable values will depend on your environment and should be
-   modified accordingly. Many contain default values that should work in most cases.
-	
-3. Once src/misc/vars.conf has been reviewed and modified to match the environment, run the src/main/install.sh script to   
-   begin the install process. Note that you must run the script with root as the effective user ID. This means either switching to the root account or, more likely, running the script via sudo. For example: 
-	
-	```Bash
-	sudo src/main/install.sh
-	```
-
-4. Review the output and log files during and after installation. Assuming no errors, you should be able to open a browser
-   and connect to https://<your_system>/files.
-
-## What currently works
-
-The following functionality is currently working:
-
-- Install package retrieval from FTP
-
-- DB2 installation with associated configuration
-
-- Connections database creation
-
-- TDI installation (with fix pack)
-
-- TDI profiles population
-
-- IIM installation
-
-- WAS, IHS, Plug-ins and WCT installation (with fix pack)
-
-- IHS SSL configuration
-
-- Dmgr profile creation
-
-- LDAP repository configuration and link to realm
-
-- Web server plug-in definition
-
-- Connections application server profile creation
-
-- Connections installation (core apps plus CCM)
-
-- CCM configuration
-
-- Update to Java 8 SDK
-
-- Connections fixes installation
-
-- Uninstall of all components (individually or collectively)
-
-## What does not currently work
-
-The following functionality has not yet been implemented:
-
-- Installation of OrientMe and additional add-ons
-
 ## Installation Guide
 
 This guide assumes you are using Red Hat Enterprise Linux 7.3. Results on other distros/versions may vary.
 
-1. Log into your system as a user with sudo privilege and create a staging directory from which you will perform the            installation. The staging directory must be relatively short to prevent errors when installing DB2 caused by a long
-   path name. As a recommendation, use /var/tmp/staging, which is known to work.
+1. Log into your system as a user with sudo privilege and create the staging directory from which you will perform the          installation. The staging directory must be named /var/tmp/ic_inst.
 
     ```Bash
-    ? mkdir -p /var/tmp/staging
-    ? cd /var/tmp/staging
+    ? mkdir -p /var/tmp/ic_inst
+    ? cd /var/tmp/ic_inst
     ? pwd
-    /var/tmp/staging
+    /var/tmp/ic_inst
     ```
 
 2. Download the installation package from GitHub.
@@ -112,17 +49,17 @@ This guide assumes you are using Red Hat Enterprise Linux 7.3. Results on other 
     ConnectionsSilentInstall-master  master.zip
     ```
     
-4. Move the rsp/ and src/ directories to /var/tmp/staging.
+4. Move the rsp/ and src/ directories to /var/tmp/ic_inst.
 
     ```Bash
-    ? mv ConnectionsSilentInstall-master/rsp /var/tmp/staging
-    ? mv ConnectionsSilentInstall-master/src /var/tmp/staging
+    ? mv ConnectionsSilentInstall-master/rsp /var/tmp/ic_inst
+    ? mv ConnectionsSilentInstall-master/src /var/tmp/ic_inst
     ```
     
 5. Make the script files executable.
 
     ```Bash
-    ? chmod -R u+x src/*
+    ? chmod -R u+x /var/tmp/ic_inst/src/*
     ```
     
 6. Edit src/misc/vars.conf for your environment. This file contains the configuration variables that define how Connections
@@ -161,3 +98,15 @@ This guide assumes you are using Red Hat Enterprise Linux 7.3. Results on other 
 8. If you choose to install Connections with the CCM component, note that the script will invoke the createGCD and 
    createObjectStore configuration scripts. These require real-time user input, so the main installation script will pause
    and wait for interactive at this point in the install process.
+   
+9. The general flow of the installation and approximate timing of each step is as follows:
+
+    1. Install DB2 (>5 minutes)
+    2. Create Connections databases (20 minutes if installing all Connections apps)
+    3. Install TDI (<5 minutes)
+    4. Populate Profiles (depends on user count)
+    5. Install IIM (<1 minute)
+    6. Install WebSphere components (10 minutes)
+    7. WebSphere post-install tasks (10 minutes)
+    8. Install Connections (90 minutes if installing all Connections apps)
+    9. Connections post-install tasks (90 minutes)

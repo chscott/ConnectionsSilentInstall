@@ -1,13 +1,11 @@
 #!/bin/bash
 
 # Source prereq scripts
-. src/misc/commands.sh
-. src/misc/utils.sh
-. src/misc/vars.conf
-. src/web/web.conf
+. /var/tmp/ic_inst/src/misc/common.sh
+. /var/tmp/ic_inst/src/web/web.conf
 
 # Do initialization stuff
-init ${webStagingDir} update 
+init web update 
 
 logInstall 'WebSphere Java SDK Update' begin
 
@@ -20,14 +18,14 @@ fi
 
 # Download the install files 
 log "I Downloading WebSphere Java SDK install file..."
-{ ${downloadFile} ${ftpServer} ${ftpWebDir} ${webJavaSDKPackage}; ${echo} ${?} >${childProcessTempDir}/${webStagingDir}/${BASHPID}; } &
+{ ${downloadFile} ${ftpServer} ${ftpWebDir} ${webJavaSDKPackage}; ${echo} ${?} >${childProcessTempDir}/web/${BASHPID}; } &
 
 # Wait for file downloads to complete and then check status
 wait
-checkChildProcessStatus ${childProcessTempDir}/${webStagingDir}
+checkChildProcessStatus ${childProcessTempDir}/web
 
 # Unpack the downloaded files
-unpackFileToDirectory zip "${webJavaSDKPackage}" "${webJavaSDKStagingDir}"
+unpackFileToDirectory zip "${webJavaSDKPackage}" "sdk"
 
 # Extract the component ID and version info
 log "I Extracting package IDs and version information from repositories..."

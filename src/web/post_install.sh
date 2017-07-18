@@ -1,13 +1,11 @@
 #!/bin/bash
 
 # Source prereq scripts
-. src/misc/commands.sh
-. src/misc/utils.sh
-. src/misc/vars.conf
-. src/web/web.conf
+. /var/tmp/ic_inst/src/misc/common.sh
+. /var/tmp/ic_inst/src/web/web.conf
 
 # Do initialization stuff
-init ${webStagingDir} configure 
+init web update 
 
 logConfigure 'WebSphere Post-install Tasks' begin
 
@@ -24,9 +22,11 @@ ${addLdapScript}
 checkStatus ${?} "E Failed to add LDAP repository. Exiting."
 
 # Define web server
-${configWebServerScript} "E Failed to define web server. Exiting."
+${configWebServerScript} 
+checkStatus ${?} "E Failed to define web server. Exiting."
 
 # Create application server profile
-${createAppSrvProfileScript} "E Failed to create application server profile. Exiting."
+${createAppSrvProfileScript} 
+checkStatus ${?} "E Failed to create application server profile. Exiting."
 
 logConfigure 'WebSphere Post-install Tasks' end 

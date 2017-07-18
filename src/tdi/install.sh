@@ -1,29 +1,27 @@
 #!/bin/bash
 
 # Source prereq scripts
-. src/misc/commands.sh
-. src/misc/utils.sh
-. src/misc/vars.conf
-. src/tdi/tdi.conf
+. /var/tmp/ic_inst/src/misc/common.sh
+. /var/tmp/ic_inst/src/tdi/tdi.conf
 
 # Do initialization stuff
-init ${tdiStagingDir} install
+init tdi install
 
 logInstall TDI begin
 
 # Download and unpack the install files 
 log "I Downloading TDI install files..."
-{ ${downloadFile} ${ftpServer} ${ftpTDIDir} ${tdiBasePackage}; ${echo} ${?} >${childProcessTempDir}/${tdiStagingDir}/${BASHPID}; } &
-{ ${downloadFile} ${ftpServer} ${ftpTDIDir} ${tdiFixPackPackage}; ${echo} ${?} >${childProcessTempDir}/${tdiStagingDir}/${BASHPID}; } &
+{ ${downloadFile} ${ftpServer} ${ftpTDIDir} ${tdiBasePackage}; ${echo} ${?} >${childProcessTempDir}/tdi/${BASHPID}; } &
+{ ${downloadFile} ${ftpServer} ${ftpTDIDir} ${tdiFixPackPackage}; ${echo} ${?} >${childProcessTempDir}/tdi/${BASHPID}; } &
 # See if we have a tdisol fix available. If so, grab that instead of the GA one.
 if [ ! -z ${tdisolFixPackage} ]; then
-    { ${downloadFile} ${ftpServer} ${ftpConnectionsDir} ${tdisolFixPackage}; ${echo} ${?} >${childProcessTempDir}/${tdiStagingDir}/${BASHPID}; } &
+    { ${downloadFile} ${ftpServer} ${ftpConnectionsDir} ${tdisolFixPackage}; ${echo} ${?} >${childProcessTempDir}/tdi/${BASHPID}; } &
 else
-    { ${downloadFile} ${ftpServer} ${ftpConnectionsDir} ${icInstallPackage}; ${echo} ${?} >${childProcessTempDir}/${tdiStagingDir}/${BASHPID}; } &
+    { ${downloadFile} ${ftpServer} ${ftpConnectionsDir} ${icInstallPackage}; ${echo} ${?} >${childProcessTempDir}/tdi/${BASHPID}; } &
 fi
 wait
-checkChildProcessStatus ${childProcessTempDir}/${tdiStagingDir}
-resetChildProcessTempDir ${childProcessTempDir}/${tdiStagingDir}
+checkChildProcessStatus ${childProcessTempDir}/tdi
+resetChildProcessTempDir ${childProcessTempDir}/tdi
 unpackFile tar ${tdiBasePackage}
 unpackFile zip ${tdiFixPackPackage}
 
@@ -33,8 +31,8 @@ ${sed} -i "s|TDI_INSTALL_DIR|${tdiInstallDir}|" ${tdiInstallResponseFile}
 
 # Install TDI Base
 log "I Performing TDI install..."
-tdiInstallBin=$(ls "${stagingDir}/${tdiStagingDir}/linux_x86_64")
-tdiInstall="${stagingDir}/${tdiStagingDir}/linux_x86_64/${tdiInstallBin}"
+tdiInstallBin=$(ls "${stagingDir}/tdi/linux_x86_64")
+tdiInstall="${stagingDir}/tdi/linux_x86_64/${tdiInstallBin}"
 ${tdiInstall} -f ${tdiInstallResponseFile} -i silent -D\$TDI_NOSHORTCUTS\$="true"
 checkStatus ${?} "E TDI installation failed. Exiting."
 

@@ -1,13 +1,11 @@
 #!/bin/bash
 
 # Source prereq scripts
-. src/misc/commands.sh
-. src/misc/utils.sh
-. src/misc/vars.conf
-. src/ic/ic.conf
+. /var/tmp/ic_inst/src/misc/common.sh
+. /var/tmp/ic_inst/src/ic/ic.conf
 
 # Do initialization stuff
-init ${icStagingDir} update 
+init ic update 
 
 logInstall 'Connections Fixes' begin
 
@@ -25,10 +23,10 @@ checkStatus ${?} "E Failure encountered when running ${exportVarsScript}. Exitin
 
 # Download the fixes 
 log "I Downloading Connections fixes..."
-{ ${downloadFiles} ${ftpServer} ${ftpConnectionsDir} ${fixFiles}; ${echo} ${?} >${childProcessTempDir}/${icStagingDir}/${BASHPID}; } &
+{ ${downloadFiles} ${ftpServer} ${ftpConnectionsDir} ${fixFiles}; ${echo} ${?} >${childProcessTempDir}/ic/${BASHPID}; } &
 wait
-checkChildProcessStatus ${childProcessTempDir}/${icStagingDir}
-resetChildProcessTempDir ${childProcessTempDir}/${icStagingDir}
+checkChildProcessStatus ${childProcessTempDir}/ic
+resetChildProcessTempDir ${childProcessTempDir}/ic
 
 # Create the fix directory if it doesn't already exist
 ${mkdir} -p ${fixDir}

@@ -1,16 +1,14 @@
 #!/bin/bash
 
 # Source prereq scripts
-. src/misc/commands.sh
-. src/misc/utils.sh
-. src/misc/vars.conf
-. src/ic/ic.conf
+. /var/tmp/ic_inst/src/misc/common.sh
+. /var/tmp/ic_inst/src/ic/ic.conf
 
 # Local variables
 doUninstall='true'
 
 # Do initialization stuff
-init ${icStagingDir} uninstall
+init ic uninstall
 
 logUninstall Connections begin
 
